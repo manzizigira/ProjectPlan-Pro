@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Activity Page</title>
+  <link rel="stylesheet" th:href="@{/objectiveStyle.css}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<style>
+.table-striped thead th {
+    background-color: #002147 !important;
+    color: white !important;
+}
+</style>
+<body>
+<!-- Top Navigation Bar -->
+<div class="navbar" style="background: #002147;">
+  <div class="drawer-logo">
+    <img th:src="@{/images/menus.png}" alt="Drawer Icon">
+  </div>
+  <div class="title-container">
+    <a th:href="@{/supervisor-home}" class="title-link">
+      <div class="title" style="color: white; font-size: 20px;">PROJECTPLAN PRO</div>
+    </a>
+  </div>
+  <div class="notification-icon"></div>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar" style="background: #002147;">
+  <div class="img-logo">
+    <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
+  </div>
+  <br>
+  <a th:href="@{/project/projectPage}">Projects</a>
+  <a th:href="@{/employee/employeePage}">Employees</a>
+  <a th:href="@{/directoratePage}">Directorate</a>
+  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+  <a th:href="@{/reports-page}">Reports</a>
+  <a th:href="@{/priority-levels}">Priority</a>
+  <a th:href="@{/task/taskPage}">Task</a>
+  <a th:href="@{/history}">History</a>
+  <a th:href="@{/manageMessages}">Messages</a>
+
+  <div class="spacer"></div>
+
+  <!-- Logout button -->
+  <a class="logout-btn" th:href="@{/logout}">Logout</a>
+</div>
+
+<!-- Content Area -->
+<div class="content">
+
+
+  <!-- Activity Selection -->
+  <div class="activity-selection">
+    <label for="activity-select" style="display: inline-block; margin-right: 10px;">Select Activity:</label>
+    <select class="form-select" id="activity-select" onchange="storeActivityId()" style="width: 900px; display: inline-block;">
+      <option value="">-- Select an Activity --</option>
+      <option th:each="activity : ${activities}" th:value="${activity.id}" th:text="${activity.activityName}"></option>
+    </select>
+  </div>
+
+  <!-- Table Actions -->
+  <div class="table-actions">
+    <div class="button white" onclick="showUpdatePopup()">Update</div>
+    <div class="button white" onclick="showDeletePopup()">Delete</div>
+    <div class="button cross" onclick="showAssignPopup()" style="width: 200px;">Assign to Employee</div>
+  </div>
+
+  <!-- Activity Table -->
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+    <tr>
+      <th>Name</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="activity : ${activities}">
+      <td th:text="${activity.activityName}"></td>
+      <td th:text="${#dates.format(activity.createdAt, 'yyyy-MM-dd')}"></td>
+      <td th:text="${#dates.format(activity.updatedAt, 'yyyy-MM-dd')}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Popups -->
+
+
+<!-- Update Activity Popup -->
+<div id="update-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <button class="close-btn" onclick="closePopup('update-popup')">&times;</button>
+  <h2>Update Activity</h2>
+  <form th:action="@{/activity/update-activity}" method="post">
+    <input type="hidden" name="activityId" id="popup-activity-id">
+
+    <label for="popup-name">Name:</label>
+    <input type="text" name="activityName" id="popup-name" required>
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" id="close-popup-btn1" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+<!-- Delete Activity Popup -->
+<div id="delete-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <h2>Delete Activity</h2>
+  <form th:action="@{/activity/delete-activity}" method="post">
+    <input type="hidden" name="activityId" id="popup-activity-id2">
+    <p>Are you sure you want to delete this activity?</p>
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Delete</button>
+      <button type="button" id="close-popup-btn2" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+<!-- Assign to Employees Popup -->
+<div id="assign-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <h2>Assign Activity to Employees</h2>
+  <form th:action="@{/activity/assign-activity}" method="post">
+    <input type="hidden" name="activityId" id="popup-activity-id3">
+    <label for="employee-select">Select Employee:</label>
+    <select class="form-select" id="employee-select" name="employeeId">
+      <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+    </select>
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" id="close-popup-btn" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    // Global variable to store the selected activity ID
+  let selectedActivityId = null;
+
+  // Function to store the selected activity ID
+  function storeActivityId() {
+    const activitySelect = document.getElementById("activity-select");
+    selectedActivityId = activitySelect.value; // Store the selected activity ID
+    console.log("Selected Activity ID:", selectedActivityId); // For debugging
+  }
+
+  // Function to show the Assign to Employees popup
+  function showAssignPopup() {
+    if (selectedActivityId) {
+      // Set the hidden input in the assign popup with the stored activity ID
+      document.getElementById("popup-activity-id3").value = selectedActivityId;
+      // Show the assign popup (assuming you have CSS for display)
+      document.getElementById("assign-popup").style.display = 'block';
+    } else {
+      alert("Please select an activity first!");
+    }
+  }
+
+
+  function showUpdatePopup() {
+      if (selectedActivityId) {
+          openUpdatePopup(selectedActivityId);
+      } else {
+          alert("Please select an activity first!");
+      }
+  }
+
+  function showDeletePopup() {
+        const id = document.getElementById('popup-activity-id').value;
+        console.log('Selected Task ID for Delete:', id); // Log ID to debug
+        if (!id) {
+            alert('Please select a task first.');
+            return;
+        }
+        document.getElementById('popup-activity-id2').value = id;
+        document.getElementById('delete-popup').classList.add('active');
+  }
+
+  // Function to open the update popup and populate the form
+  function openUpdatePopup(activityId) {
+      // Make an AJAX request to fetch activity details
+      fetch('/activity/get-activity/' + activityId)
+          .then(response => response.json())
+          .then(activity => {
+              // Populate the form fields with the fetched data
+              document.getElementById('popup-activity-id').value = activity.id;
+              document.getElementById('popup-name').value = activity.activityName;
+              document.getElementById('popup-start').value = new Date(activity.createdAt).toISOString().slice(0, 10);
+              document.getElementById('popup-end').value = new Date(activity.updatedAt).toISOString().slice(0, 10);
+              document.getElementById('popup-description').value = activity.notes;
+              document.getElementById('popup-status').value = activity.status;
+
+              // Open the popup (you might have a CSS class to control visibility)
+              document.getElementById('update-popup').style.display = 'block';
+          })
+          .catch(error => {
+              console.error('Error fetching activity data:', error);
+          });
+  }
+
+    function closePopup(popupId) {
+        document.getElementById(popupId).style.display = 'none';
+    }
+
+    // Function to close the popup by ID
+  function closePopup(popupId) {
+      const popup = document.getElementById(popupId);
+      if (popup) {
+          popup.style.display = 'none';
+      }
+  }
+
+  // Event listener for close buttons
+  document.addEventListener('DOMContentLoaded', function () {
+      // Add event listener to all close buttons
+      document.querySelectorAll('.btn-secondary').forEach(function (btn) {
+          btn.addEventListener('click', function (event) {
+              const popupId = btn.closest('.popup').id;  // Get the closest parent popup's ID
+              closePopup(popupId);
+          });
+      });
+  });
+
+
+
+
+</script>
+</body>
+</html>

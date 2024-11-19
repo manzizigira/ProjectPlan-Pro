@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Page</title>
+    <link rel="stylesheet" th:href="@{/objectiveStyle.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<style>
+.table-striped thead th {
+    background-color: #002147 !important;
+    color: white !important;
+}
+</style>
+<body>
+<!-- Top Navigation Bar -->
+<div class="navbar" style="background: #002147;">
+    <div class="drawer-logo">
+        <img th:src="@{/images/menus.png}" alt="Drawer Icon">
+    </div>
+    <div class="title-container">
+        <a th:href="@{/supervisor-home}" class="title-link">
+            <div class="title" style="color: white; font-size: 20px;">PROJECTPLAN PRO</div>
+        </a>
+    </div>
+    <div class="notification-icon"></div>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar" style="background: #002147;">
+    <div class="img-logo">
+        <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
+    </div>
+    <br>
+    <a th:href="@{/employee/employeePage}">Employees</a>
+    <a th:href="@{/directoratePage}">Directorate</a>
+    <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+    <a th:href="@{/reports-page}">Reports</a>
+    <a th:href="@{/priority-levels}">Priority</a>
+    <a th:href="@{/task/taskPage}">Task</a>
+    <a th:href="@{/activity}">Activity</a>
+    <a th:href="@{/history}">History</a>
+    <a th:href="@{/manageMessages}">Messages</a>
+
+    <div class="spacer"></div>
+
+    <!-- Logout button -->
+    <a class="logout-btn" th:href="@{/logout}">Logout</a>
+</div>
+
+
+<!-- Content Area -->
+<div class="content">
+    <!-- Project Selection -->
+    <div class="project-selection">
+        <label for="project-select" style="display: inline-block; margin-right: 10px;">Select Project</label>
+        <select class="form-select" id="project-select" onchange="loadProjectData()" style="width: 900px; display: inline-block;">
+            <option value="">-- Select a Project --</option>
+            <option th:each="project : ${projects}" th:value="${project.id}" th:text="${project.name}"></option>
+        </select>
+    </div>
+
+    <!-- Table Actions -->
+    <div class="table-actions">
+        <div class="button white" onclick="showUpdatePopup()">Update</div>
+        <div class="button white" onclick="showDeletePopup()">Delete</div>
+        <div class="button cross" onclick="showNewTaskPopup()">New Task</div>
+        <div class="button cross" onclick="showNewActivityPopup()">New Activity</div>
+    </div>
+
+    <!-- Project Table -->
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="project : ${projects}">
+            <td th:text="${project.name}"></td>
+            <td th:text="${project.category}"></td>
+            <td th:text="${#dates.format(project.createdAt, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#dates.format(project.updatedAt, 'yyyy-MM-dd')}"></td>
+            <td th:text="${project.description}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Popups -->
+
+<!-- Update Project Popup -->
+<div id="update-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <h2 class="text-center mb-4">Update Project</h2>
+    <form th:action="@{/project/update-project}" method="post">
+        <!-- Hidden field to store the project ID -->
+        <input type="hidden" name="projectId" id="popup-project-id" />
+
+        <!-- Name Field -->
+        <div class="mb-3">
+            <label for="popup-name" class="form-label">Project Name:</label>
+            <input type="text" name="name" id="popup-name" class="form-control" required />
+        </div>
+
+        <!-- Category Field -->
+        <div class="mb-3">
+            <label for="popup-category" class="form-label">Category:</label>
+            <input type="text" name="category" id="popup-category" class="form-control" required />
+        </div>
+
+        <!-- Start Date Field -->
+        <div class="mb-3">
+            <label for="popup-start_date" class="form-label">Start Date:</label>
+            <input type="date" name="createdAt" id="popup-start_date" class="form-control" required />
+        </div>
+
+        <!-- End Date Field -->
+        <div class="mb-3">
+            <label for="popup-end_date" class="form-label">End Date:</label>
+            <input type="date" name="updatedAt" id="popup-end_date" class="form-control" required />
+        </div>
+
+        <!-- Description Field -->
+        <div class="mb-3">
+            <label for="popup-description" class="form-label">Description:</label>
+            <textarea name="description" id="popup-description" class="form-control" rows="4" required></textarea>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" id="close-popup-btn" class="btn btn-secondary">Close</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- Delete Project Popup -->
+<div id="delete-popup" class="popup p-4" style="max-width: 400px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <h2 class="text-center mb-4">Delete Project</h2>
+    <form th:action="@{/project/delete-project}" method="post">
+        <!-- Hidden field for projectId -->
+        <input type="hidden" name="projectId" id="popup-project-id2" />
+
+        <!-- Confirmation Message -->
+        <p class="text-center">Are you sure you want to delete this project?</p>
+
+        <!-- Buttons Section -->
+        <div class="d-flex justify-content-around mt-4">
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="closePopup()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- New Task Popup -->
+<div id="new-task-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <h2 class="text-center mb-4">New Task</h2>
+    <form th:action="@{/project/add-task}" method="post">
+        <!-- Hidden field for projectId -->
+        <input type="hidden" name="projectId" id="popup-project-id3" />
+
+        <!-- Task Name Field -->
+        <div class="mb-3">
+            <label for="task-name" class="form-label">Task Name:</label>
+            <input type="text" id="task-name" name="name" class="form-control" required />
+        </div>
+
+        <!-- Task Category Field -->
+        <div class="mb-3">
+            <label for="task-category" class="form-label">Category:</label>
+            <input type="text" id="task-category" name="category" class="form-control" required />
+        </div>
+
+        <!-- Start Date Field -->
+        <div class="mb-3">
+            <label for="task-createdAt" class="form-label">Start Date:</label>
+            <input type="date" id="task-createdAt" name="createdAt" class="form-control" required />
+        </div>
+
+        <!-- End Date Field -->
+        <div class="mb-3">
+            <label for="task-updatedAt" class="form-label">End Date:</label>
+            <input type="date" id="task-updatedAt" name="updatedAt" class="form-control" required />
+        </div>
+
+        <!-- Notes Field -->
+        <div class="mb-3">
+            <label for="task-notes" class="form-label">Notes:</label>
+            <textarea id="task-notes" name="notes" class="form-control" rows="4" required></textarea>
+        </div>
+
+        <!-- Status Field -->
+        <div class="mb-3">
+            <label for="task-status" class="form-label">Status:</label>
+            <input type="text" id="task-status" name="status" class="form-control" required />
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" id="close-popup-btn1" class="btn btn-secondary">Close</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- New Activity Popup -->
+<div id="new-activity-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <h2 class="text-center mb-4">New Activity</h2>
+    <form th:action="@{/project/add-activity}" method="post">
+        <!-- Hidden field for projectId -->
+        <input type="hidden" name="projectId" id="popup-activity-project-id" />
+
+        <!-- Activity Name Field -->
+        <div class="mb-3">
+            <label for="activity-name" class="form-label">Activity Name:</label>
+            <input type="text" id="activity-name" name="activityName" class="form-control" required />
+        </div>
+
+        <!-- Start Date Field -->
+        <div class="mb-3">
+            <label for="activity-createdAt" class="form-label">Start Date:</label>
+            <input type="date" id="activity-createdAt" name="createdAt" class="form-control" required />
+        </div>
+
+        <!-- End Date Field -->
+        <div class="mb-3">
+            <label for="activity-updatedAt" class="form-label">End Date:</label>
+            <input type="date" id="activity-updatedAt" name="updatedAt" class="form-control" required />
+        </div>
+
+        <!-- Notes Field -->
+        <div class="mb-3">
+            <label for="activity-notes" class="form-label">Notes:</label>
+            <textarea id="activity-notes" name="notes" class="form-control" rows="4" required></textarea>
+        </div>
+
+        <!-- Status Field -->
+        <div class="mb-3">
+            <label for="activity-status" class="form-label">Status:</label>
+            <input type="text" id="activity-status" name="status" class="form-control" required />
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" id="close-popup-btn2" class="btn btn-secondary">Close</button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    let selectedProjectId = null;
+
+    // Function to toggle sidebar visibility
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    // Function to handle project selection and load data
+    function loadProjectData() {
+        selectedProjectId = document.getElementById('project-select').value;
+        console.log('Selected Project ID:', selectedProjectId); // Debug log
+        if (selectedProjectId) {
+            fetchProjectData(selectedProjectId);
+        } else {
+            clearPopups();
+        }
+    }
+
+    // Function to fetch and display project data
+    function fetchProjectData(id) {
+        console.log('Fetching project data for ID:', id);
+        return fetch(`/project/projects/${id}`)
+            .then(response => response.json())
+            .then(project => {
+                console.log('Project data fetched:', project);
+                selectedProjectId = project.id;
+                document.getElementById('popup-project-id').value = project.id;
+                document.getElementById('popup-name').value = project.name;
+                document.getElementById('popup-category').value = project.category;
+                document.getElementById('popup-start_date').value = formatDate(project.createdAt);
+                document.getElementById('popup-end_date').value = formatDate(project.updatedAt);
+                document.getElementById('popup-description').value = project.description;
+            })
+            .catch(error => console.error('Error fetching project data:', error));
+    }
+
+    // Function to format date as yyyy-MM-dd
+    function formatDate(date) {
+        const d = new Date(date);
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        const year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    // Function to hide popups
+    function hidePopups() {
+        const popups = document.querySelectorAll('.popup');
+        popups.forEach(popup => popup.classList.remove('active'));
+    }
+
+    // Function to show the update popup
+    function showUpdatePopup() {
+        if (selectedProjectId) {
+            fetchProjectData(selectedProjectId).then(() => {
+                document.getElementById('update-popup').classList.add('active');
+            });
+        } else {
+            alert('Please select a project first.');
+        }
+    }
+
+    // Function to show the delete popup
+    function showDeletePopup() {
+        if (selectedProjectId) {
+            document.getElementById('popup-project-id2').value = selectedProjectId;
+            document.getElementById('delete-popup').classList.add('active');
+        } else {
+            alert('Please select a project first.');
+        }
+    }
+
+    // Function to show the new task popup
+    function showNewTaskPopup() {
+        if (selectedProjectId) {
+            document.getElementById('popup-project-id3').value = selectedProjectId;
+            document.getElementById('new-task-popup').classList.add('active');
+        } else {
+            alert('Please select a project first.');
+        }
+    }
+
+    // Clear popup inputs and selections
+    function clearPopups() {
+        hidePopups();
+        const inputs = document.querySelectorAll('.popup input, .popup textarea');
+        inputs.forEach(input => input.value = '');
+    }
+
+    function loadProjectData() {
+        selectedProjectId = document.getElementById('project-select').value;
+        console.log('Selected Project ID:', selectedProjectId); // Debug log
+        if (selectedProjectId) {
+            fetchProjectData(selectedProjectId);
+        } else {
+            clearPopups();
+        }
+    }
+
+    function showNewActivityPopup() {
+        if (selectedProjectId) {
+            document.getElementById('popup-activity-project-id').value = selectedProjectId;
+            document.getElementById('new-activity-popup').classList.add('active');
+        } else {
+            alert('Please select a project first.');
+        }
+    }
+
+    // Clear popup inputs and selections
+    function clearPopups() {
+        hidePopups();
+        const inputs = document.querySelectorAll('.popup input, .popup textarea');
+        inputs.forEach(input => input.value = '');
+    }
+
+    // Function to close the popup by ID
+    function closePopup(popupId) {
+        const popup = document.getElementById(popupId);
+        if (popup) {
+            popup.style.display = 'none';
+        }
+    }
+
+    // Event listener for close buttons
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add event listener to all close buttons
+        document.querySelectorAll('.btn-secondary').forEach(function (btn) {
+            btn.addEventListener('click', function (event) {
+                const popupId = btn.closest('.popup').id;  // Get the closest parent popup's ID
+                closePopup(popupId);
+            });
+        });
+    });
+
+
+</script>
+</body>
+</html>

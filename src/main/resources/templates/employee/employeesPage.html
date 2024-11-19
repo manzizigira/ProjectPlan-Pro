@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Page</title>
+  <link rel="stylesheet" th:href="@{/directorateStyle.css}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<style>
+.table-striped thead th {
+    background-color: #002147 !important;
+    color: white !important;
+}
+</style>
+<body>
+<!-- Top Navigation Bar -->
+<div class="navbar" style="background: #002147;">
+  <div class="drawer-logo">
+    <img th:src="@{/images/menus.png}" alt="Drawer Icon">
+  </div>
+  <div class="title-container">
+    <a th:href="@{/supervisor-home}" class="title-link">
+      <div class="title" style="color: white; font-size: 20px;">PROJECTPLAN PRO</div>
+    </a>
+  </div>
+  <div class="notification-icon"></div>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar" style="background: #002147;">
+  <div class="img-logo">
+    <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
+  </div>
+  <br>
+  <a th:href="@{/project/projectPage}">Projects</a>
+  <a th:href="@{/directoratePage}">Directorate</a>
+  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+  <a th:href="@{/reports-page}">Reports</a>
+  <a th:href="@{/priority-levels}">Priority</a>
+  <a th:href="@{/task/taskPage}">Task</a>
+  <a th:href="@{/activity}">Activity</a>
+  <a th:href="@{/history}">History</a>
+  <a th:href="@{/manageMessages}">Messages</a>
+
+  <div class="spacer"></div>
+
+  <!-- Logout button -->
+  <a class="logout-btn" th:href="@{/logout}">Logout</a>
+</div>
+
+
+<!-- Content Area -->
+<div class="content">
+  <!-- Add Button -->
+  <div class="add-button" onclick="showAddPopup()" style="border-radius: 5px;">
+    <img th:src="@{/images/add.png}" alt="Add Icon">
+    <span>Add New Employee</span>
+  </div>
+
+  <!-- Employee Selection -->
+  <div class="employee-selection">
+    <label for="employee-select" style="display: inline-block; margin-right: 10px;">Select Employee</label>
+    <select class="form-select" id="employee-select" onchange="loadEmployeeData()" style="width: 900px; display: inline-block;">
+      <option value="">-- Select an Employee --</option>
+      <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+    </select>
+  </div>
+
+  <!-- Table Actions -->
+  <div class="table-actions">
+    <div class="button white" onclick="showUpdatePopup()">Update</div>
+    <div class="button white" onclick="showDeletePopup()">Delete</div>
+  </div>
+
+  <!-- Employee Table -->
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+    <tr>
+      <th>Name</th>
+      <th>Job Title</th>
+      <th>Department</th>
+      <th>Employee Type</th>
+      <th>User Email</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="employee : ${employees}">
+      <td th:text="${employee.name}"></td>
+      <td th:text="${employee.jobTitle}"></td>
+      <td th:text="${employee.department}"></td>
+      <td th:text="${employee.employeeType}"></td>
+      <td th:text="${employee.users.email}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Popups -->
+
+<!-- Add New Employee Popup -->
+<div id="add-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <h2>Add New Employee</h2>
+  <form th:action="@{/employee/save}" method="post">
+    <!-- User Selection Field -->
+    <label for="user-select">Select User Email:</label>
+    <select name="userId" class="form-select" id="user-select" required>
+      <option value="">-- Select a User --</option>
+      <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.email}"></option>
+    </select>
+
+    <!-- Name Field -->
+    <label for="add-name">Name:</label>
+    <input type="text" name="name" id="add-name" required />
+
+    <!-- Job Title Field -->
+    <label for="add-jobTitle">Job Title:</label>
+    <input type="text" name="jobTitle" id="add-jobTitle" required />
+
+    <!-- Department Field -->
+    <label for="add-department">Department:</label>
+    <input type="text" name="department" id="add-department" required />
+
+    <!-- Employee Type Field -->
+    <label for="add-employeeType">Employee Type:</label>
+    <input type="text" name="employeeType" id="add-employeeType" required />
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" id="close-popup-btn" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+<!-- Update Employee Popup -->
+<div id="update-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <h2 class="text-center mb-4">Update Employee</h2>
+  <form th:action="@{/employee/update}" method="post">
+    <!-- Hidden field to store the employee ID -->
+    <input type="hidden" name="id" id="popup-employee-id" />
+
+    <!-- Name Field -->
+    <div class="mb-3">
+      <label for="popup-name" class="form-label">Employee Name:</label>
+      <input type="text" name="name" id="popup-name" class="form-control" required />
+    </div>
+
+    <!-- Job Title Field -->
+    <div class="mb-3">
+      <label for="popup-jobTitle" class="form-label">Job Title:</label>
+      <input type="text" name="jobTitle" id="popup-jobTitle" class="form-control" required />
+    </div>
+
+    <!-- Department Field -->
+    <div class="mb-3">
+      <label for="popup-department" class="form-label">Department:</label>
+      <input type="text" name="department" id="popup-department" class="form-control" required />
+    </div>
+
+    <!-- Employee Type Field -->
+    <div class="mb-3">
+      <label for="popup-employeeType" class="form-label">Employee Type:</label>
+      <input type="text" name="employeeType" id="popup-employeeType" class="form-control" required />
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" id="close-popup-btn1" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+
+<!-- Delete Employee Popup -->
+<div id="delete-popup" class="popup">
+  <h2>Delete Employee</h2>
+  <form th:action="@{/employee/delete}" method="post">
+    <input type="hidden" name="employeeId" id="popup-employee-id2" />
+    <p>Are you sure you want to delete this employee?</p>
+    <button type="submit">Delete</button>
+  </form>
+</div>
+
+<script>
+
+    let selectedEmployeeId = null;
+
+    // Function to toggle sidebar visibility
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    // Function to handle employee selection and load data
+    function loadEmployeeData() {
+        selectedEmployeeId = document.getElementById('employee-select').value;
+        console.log('Selected Employee ID:', selectedEmployeeId); // Debug log
+        if (selectedEmployeeId) {
+            fetchEmployeeData(selectedEmployeeId);
+        } else {
+            clearPopups();
+        }
+    }
+
+    // Function to clear popups or reset fields
+    function clearPopups() {
+        // Hide or reset popups as needed
+        document.getElementById('popup-employee').style.display = 'none';
+        // Add more code if needed to reset fields
+    }
+
+
+    // Function to fetch and display employee data
+    function fetchEmployeeData(id) {
+        return fetch(`/employee/${id}`) // Endpoint to fetch the employee data
+            .then(response => response.json()) // Parse the JSON response
+            .then(employee => {
+                console.log('Parsed Employee Data:', employee); // Debug log parsed data
+                selectedEmployeeId = employee.id;
+                document.getElementById('popup-employee-id').value = employee.id || '';
+                document.getElementById('popup-name').value = employee.name || '';
+                document.getElementById('popup-jobTitle').value = employee.jobTitle || '';
+                document.getElementById('popup-department').value = employee.department || '';
+                document.getElementById('popup-employeeType').value = employee.employeeType || '';
+                document.getElementById('popup-email').value = employee.email || '';
+            })
+            .catch(error => console.error('Error fetching employee data:', error));
+    }
+
+
+
+
+
+    // Function to format date as yyyy-MM-dd
+    function formatDate(date) {
+        const d = new Date(date);
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        const year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    // Function to show the add popup
+    function showAddPopup() {
+        hidePopups();
+        document.getElementById('add-popup').classList.add('active');
+    }
+
+    // Function to hide popups
+    function hidePopups() {
+        const popups = document.querySelectorAll('.popup');
+        popups.forEach(popup => popup.classList.remove('active'));
+    }
+
+    // Updated JavaScript functions to close popups when clicking outside or on close buttons
+    document.querySelectorAll('.popup').forEach(popup => {
+        popup.addEventListener('click', function(event) {
+            if (event.target === popup) {
+                hidePopups();
+            }
+        });
+    });
+
+    // Function to show the update popup
+    function showUpdatePopup() {
+        if (selectedEmployeeId) {
+            fetchEmployeeData(selectedEmployeeId).then(() => {
+                document.getElementById('update-popup').classList.add('active');
+            });
+        } else {
+            alert('Please select an employee first.');
+        }
+    }
+
+    // Function to show the delete popup
+    function showDeletePopup() {
+        if (selectedEmployeeId) {
+            document.getElementById('popup-employee-id2').value = selectedEmployeeId;
+            document.getElementById('delete-popup').classList.add('active');
+        } else {
+            alert('Please select an employee first.');
+        }
+    }
+
+    // Initial call to load data if an employee is already selected
+    document.addEventListener('DOMContentLoaded', loadEmployeeData);
+
+    // Close popups when clicking outside or on close buttons
+    document.querySelectorAll('.popup').forEach(popup => {
+        popup.addEventListener('click', function(event) {
+            if (event.target === popup) {
+                hidePopups();
+            }
+        });
+    });
+
+  // Function to close the popup by ID
+  function closePopup(popupId) {
+      const popup = document.getElementById(popupId);
+      if (popup) {
+          popup.style.display = 'none';
+      }
+  }
+
+  // Event listener for close buttons
+  document.addEventListener('DOMContentLoaded', function () {
+      // Add event listener to all close buttons
+      document.querySelectorAll('.btn-secondary').forEach(function (btn) {
+          btn.addEventListener('click', function (event) {
+              const popupId = btn.closest('.popup').id;  // Get the closest parent popup's ID
+              closePopup(popupId);
+          });
+      });
+  });
+
+</script>
+</body>
+</html>

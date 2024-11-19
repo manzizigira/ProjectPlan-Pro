@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Assign Role</title>
+  <link rel="stylesheet" th:href="@{/loginStyle.css}">
+</head>
+<body>
+<div class="container">
+  <div class="form-container">
+    <h1>Assign Role to User</h1>
+    <form th:action="@{/assignRole}" method="post">
+      <div class="form-group">
+        <label for="user">User:</label>
+        <select id="user" name="userId" class="form-control">
+          <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.email}"></option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="role">Role:</label>
+        <select id="role" name="roleId" class="form-control">
+          <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.roleName}"></option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-success">Assign Role</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

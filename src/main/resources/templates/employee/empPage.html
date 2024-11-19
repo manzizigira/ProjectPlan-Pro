@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" th:href="@{/objectiveStyle.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <style>
+    /* Popup container to cover the whole screen */
+
+    /* Popup content styling */
+    .popup-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 600px;
+        position: relative;
+    }
+
+    /* Close button styling */
+    .popup-content .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ddd;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .popup-content .close-btn:hover {
+        background: #bbb;
+    }
+
+    /* Form input styling */
+    .popup-content input[type="file"],
+    .popup-content textarea,
+    .popup-content button {
+        display: block;
+        width: calc(100% - 20px);
+        margin: 10px 0;
+    }
+
+    .popup-content textarea {
+        height: 100px;
+        resize: vertical;
+    }
+
+    .popup-content button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .popup-content button:hover {
+        background-color: #0056b3;
+    }
+
+    .popup-content .cancel-btn {
+        background-color: #6c757d;
+    }
+
+    .popup-content .cancel-btn:hover {
+        background-color: #5a6268;
+    }
+
+        .warning-message {
+            display: none;
+            background-color: #ffcc00;
+            color: #000;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000;
+        }
+        /* CSS for the clickable image */
+
+        .table img {
+            width: 24px; /* Adjust width as needed */
+            height: 24px; /* Adjust height to match width or as needed */
+            object-fit: contain; /* Ensure the image scales correctly */
+            cursor: pointer; /* Indicate that the image is clickable */
+            border: none; /* Remove any default border */
+        }
+
+    #taskLeaderNotification {
+    padding: 15px;
+    background-color: #ccffcc; /* Green background */
+    color: #006600; /* Dark green text */
+    border: 2px solid #006600; /* Dark green border */
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+
+</style>
+</head>
+<body>
+<!-- Top Navigation Bar -->
+<div class="navbar" style="background: #002147; height: 65px;">
+    <div class="drawer-logo" onclick="toggleSidebar()">
+        <img src="/images/menus.png" alt="Drawer Icon">
+    </div>
+    <div class="title-container">
+        <a th:href="@{/employee-home}" class="title-link">
+            <div class="title" style="color: white; font-size: 20px; margin-right: 50px;">PROJECTPLAN PRO</div>
+        </a>
+    </div>
+</div>
+
+<div id="taskReminder" style="display: none; padding: 10px; background-color: #ffcccc; color: #d8000c; border: 1px solid #d8000c; border-radius: 5px; ">
+    <span id="reminderMessage"></span>
+</div>
+
+<!-- Task Leader Notification -->
+<div id="taskLeaderNotification" style="display: none; padding: 10px; background-color: #ccffcc; color: #006600; border: 1px solid #006600; border-radius: 5px; margin-left:300px; margin-right:100px;">
+    <span id="taskLeaderMessage"></span>
+</div>
+
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar" style="background: #002147;">
+    <div class="img-logo">
+        <img src="/images/mininfra_logo.jpg" alt="Drawer Icon">
+    </div>
+    <br>
+
+    <a th:href="@{/reports-page/my-reports}">Reports</a>
+    <a th:href="@{/messages}">Messages</a>
+    <a th:href="@{/grades(userId=${userId})}">Grades</a>
+
+    <!-- Add a spacer div to push the logout button to the bottom -->
+    <div class="spacer"></div>
+
+    <!-- Logout button -->
+    <a class="logout-btn" th:href="@{/logout}">Logout</a>
+</div>
+<div class="alex">
+    <div class="content-box">
+        <!-- Tasks Section -->
+        <div class="tasks-section">
+            <h2>Tasks</h2>
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs" id="taskTabs" role="tablist" style="margin-left: 300px;">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="new-tasks-tab" data-bs-toggle="tab" href="#new-tasks" role="tab" aria-controls="new-tasks" aria-selected="true">New Tasks</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="in-progress-tasks-tab" data-bs-toggle="tab" href="#in-progress-tasks" role="tab" aria-controls="in-progress-tasks" aria-selected="false">In Progress Tasks</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="completed-tasks-tab" data-bs-toggle="tab" href="#completed-tasks" role="tab" aria-controls="completed-tasks" aria-selected="false">Completed Tasks</a>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="taskTabsContent">
+                <div class="tab-pane fade show active" id="new-tasks" role="tabpanel" aria-labelledby="new-tasks-tab">
+                    <!-- Table for New Tasks -->
+                    <table class="table table-bordered table-striped" style="width: 80%; margin: 0 auto; margin-left: 300px;">
+                        <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Category</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>View</th>
+                            <th>Escalate</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="task : ${newTasks}">
+                            <td th:text="${task.name}">Task Name</td>
+                            <td th:text="${task.category}">Category</td>
+                            <td th:text="${#dates.format(task.createdAt, 'dd-MM-yyyy')}">Start Date</td>
+                            <td th:text="${#dates.format(task.updatedAt, 'dd-MM-yyyy')}">End Date</td>
+                            <td th:text="${task.status}">Status</td>
+                            <td>
+                                <img src="/images/file.png" alt="View Details" style="cursor: pointer;" th:onclick="'showTaskDetails(' + ${task.id} + ')'" />
+                            </td>
+                            <td>
+                                <img src="/images/escalate.png" alt="Escalate Task" style="cursor: pointer;" th:onclick="'openTaskEscalatePopup(' + ${task.id} + ')'" />
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(newTasks)}">
+                            <td colspan="7" style="text-align: center;">No new tasks available.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="tab-pane fade" id="in-progress-tasks" role="tabpanel" aria-labelledby="in-progress-tasks-tab">
+                    <!-- Table for In Progress Tasks -->
+                    <table class="table table-bordered table-striped" style="width: 80%; margin: 0 auto; margin-left: 300px;">
+                        <thead >
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Category</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>View</th>
+                            <th>Escalate</th>
+                        </tr>
+                        </thead>
+                        <tbody id="in-progress-tasks-content">
+                        <tr th:each="task : ${inTasks}" th:onclick="'handleTaskClick(' + ${task.id} + ')'" >
+                        <td th:text="${task.name}">Task Name</td>
+                            <td th:text="${task.category}">Category</td>
+                            <td th:text="${#dates.format(task.createdAt, 'dd-MM-yyyy')}">Start Date</td>
+                            <td th:text="${#dates.format(task.updatedAt, 'dd-MM-yyyy')}">End Date</td>
+                            <td th:text="${task.status}">Status</td>
+                            <td>
+                                <img src="/images/file.png" alt="View Details" style="cursor: pointer;"
+                                     th:onclick="'handleTaskClick(' + ${task.id} + ')'" />
+                            </td>
+                            <td>
+                                <img src="/images/escalate.png" alt="Escalate Task" style="cursor: pointer;"
+                                     th:onclick=" 'openTaskEscalatePopup(' + ${task.id} + ')'"/>
+
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(inTasks)}">
+                            <td colspan="4" style="text-align: center;">No tasks in progress.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+                <div class="tab-pane fade" id="completed-tasks" role="tabpanel" aria-labelledby="completed-tasks-tab">
+                    <!-- Table for Completed Tasks -->
+                    <table class="table table-bordered table-striped" style="width: 80%; margin: 0 auto; margin-left: 300px;">
+                        <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Category</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>View</th>
+                        </tr>
+                        </thead>
+                        <tbody id="completed-tasks-content">
+                        <!-- Content will be loaded via JavaScript -->
+                        <tr th:each="task : ${completedTasks}" th:onclick="'showTaskDetails(' + ${task.id} + ')'">
+                            <td th:text="${task.name}">Task Name</td>
+                            <td th:text="${task.category}">Category</td>
+                            <td th:text="${#dates.format(task.createdAt, 'dd-MM-yyyy')}">Start Date</td>
+                            <td th:text="${#dates.format(task.updatedAt, 'dd-MM-yyyy')}">End Date</td>
+                            <td th:text="${task.status}">Status</td>
+                            <td>
+                                <img src="/images/file.png" alt="View Details" style="cursor: pointer;"
+                                     th:onclick="'showTaskDetails(' + ${task.id} + ')'" />
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(completedTasks)}">
+                            <td colspan="4" style="text-align: center;">No completed tasks available.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activities Section -->
+        <div class="tasks-section">
+            <h2>Activities</h2>
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs" id="activityTabs" role="tablist" style="margin-left: 300px;">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="new-activities-tab" data-bs-toggle="tab" href="#new-activities" role="tab" aria-controls="new-activities" aria-selected="true">New Activities</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="in-progress-activities-tab" data-bs-toggle="tab" href="#in-progress-activities" role="tab" aria-controls="in-progress-activities" aria-selected="false">In Progress Activities</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="completed-activities-tab" data-bs-toggle="tab" href="#completed-activities" role="tab" aria-controls="completed-activities" aria-selected="false">Completed Activities</a>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="activityTabsContent">
+                <div class="tab-pane fade show active" id="new-activities" role="tabpanel" aria-labelledby="new-activities-tab">
+                    <!-- Table for New Activities -->
+                    <table class="table table-bordered table-striped" style="width: 80%; margin: 0 auto; margin-left: 300px;">
+                        <thead>
+                        <tr>
+                            <th>Activity Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>View</th>
+                            <th>Escalate</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="activity : ${newActivities}">
+                            <td th:text="${activity.activityName}">Activity Name</td>
+                            <td th:text="${#dates.format(activity.createdAt, 'dd-MM-yyyy')}">Start Date</td>
+                            <td th:text="${#dates.format(activity.updatedAt, 'dd-MM-yyyy')}">End Date</td>
+                            <td th:text="${activity.status}">Status</td>
+                            <td>
+                                <img src="/images/file.png" alt="View Details" style="cursor: pointer;"
+                                     th:onclick="'showActivityDetails(' + ${activity.id} + ')'"/>
+                            </td>
+                            <td>
+                                <img src="/images/escalate.png" alt="Escalate Activity" style="cursor: pointer;"
+                                     th:onclick="'openActivityEscalatePopup(' + ${activity.id} + ')'" />
+
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(newActivities)}">
+                            <td colspan="4" style="text-align: center;">No new activities available.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="in-progress-activities" role="tabpanel" aria-labelledby="in-progress-activities-tab">
+                    <!-- Table for In Progress Activities -->
+                    <table class="table table-bordered table-striped" style="width: 80%; margin: 0 auto; margin-left: 300px;">
+                        <thead>
+                        <tr>
+                            <th>Activity Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>View</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="activity : ${inActivities}">
+                            <td th:text="${activity.activityName}">Activity Name</td>
+                            <td th:text="${#dates.format(activity.createdAt, 'dd-MM-yyyy')}">Start Date</td>
+                            <td th:text="${#dates.format(activity.updatedAt, 'dd-MM-yyyy')}">End Date</td>
+                            <td th:text="${activity.status}">Status</td>
+                            <td>
+                                <img src="/images/file.png" alt="View Details" style="cursor: pointer;"
+                                     th:onclick="'handleActivityClick(' + ${activity.id} + ')'" />
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(inActivities)}">
+                            <td colspan="4" style="text-align: center;">No activities in progress.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="completed-activities" role="tabpanel" aria-labelledby="completed-activities-tab">
+                    <!-- Table for Completed Activities -->
+                    <table class="table table-bordered table-striped" style="width: 80%; margin: 0 auto; margin-left: 300px;">
+                        <thead>
+                        <tr>
+                            <th>Activity Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>View</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="activity : ${completedActivities}">
+                            <td th:text="${activity.activityName}">Activity Name</td>
+                            <td th:text="${#dates.format(activity.createdAt, 'dd-MM-yyyy')}">Start Date</td>
+                            <td th:text="${#dates.format(activity.updatedAt, 'dd-MM-yyyy')}">End Date</td>
+                            <td th:text="${activity.status}">Status</td>
+                            <td>
+                                <img src="/images/file.png" alt="View Details" style="cursor: pointer;"
+                                     th:onclick="'showActivityDetails(' + activity.id + ')'"/>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(completedActivities)}">
+                            <td colspan="4" style="text-align: center;">No completed activities available.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Content Area -->
+
+<!-- Report Submission Popup -->
+<div id="report-submission-popup" class="popup">
+    <div class="popup-content">
+        <form id="report-submission-form" action="/submitReport" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="user-id" name="userId" th:value="${userId}" />
+            <input type="hidden" id="task-id" name="taskId" value="" />
+            <input type="hidden" id="submission-date" name="submissionDate" value="">
+
+            <label for="report-file">Attach File:</label>
+            <input type="file" id="report-file" name="reportFile" required>
+
+            <label for="progress-percentage">Progress Percentage:</label>
+            <input type="number" id="progress-percentage" name="progressPercentage" min="0" max="100" step="1" required>
+
+            <label for="report-description">Description:</label>
+            <textarea id="report-description" name="reportDescription" rows="4" required></textarea>
+
+            <button type="button" onclick="submitReportForm(event)">Submit</button>
+            <button type="button" class="cancel-btn" onclick="closePopup('report-submission-popup')">Cancel</button>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Activity Report Submission Popup -->
+<div id="report-submission-popup1" class="popup">
+    <div class="popup-content">
+        <form id="report-submission-form1" action="/submitActivityReport" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="user-id1" name="userId" th:value="${userId}" />
+            <input type="hidden" id="activity-id" name="activityId" value="" />
+            <input type="hidden" id="submission-date1" name="submissionDate" value="">
+
+            <label for="report-file1">Attach File:</label>
+            <input type="file" id="report-file1" name="reportFile" required>
+
+            <label for="progress-percentage1">Progress Percentage:</label>
+            <input type="number" id="progress-percentage1" name="progressPercentage" min="0" max="100" step="1" required>
+
+            <label for="report-description1">Description:</label>
+            <textarea id="report-description1" name="reportDescription" rows="4" required></textarea>
+
+            <button type="button" onclick="submitReportForms(event)">Submit</button>
+            <button type="button" class="cancel-btn" onclick="closePopup('report-submission-popup1')">Cancel</button>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- Task Details Popup -->
+<div id="task-details-popup" class="popup">
+    <div class="popup-content">
+        <button class="close-btn" onclick="closePopup('task-details-popup')">&times;</button>
+        <h2>Task Details</h2>
+        <p id="task-directorate"></p>
+        <p id="task-subobjective"></p>
+        <p id="task-project"></p>
+        <p id="task-name"></p>
+        <p id="task-description"></p>
+        <button type="button" onclick="closePopup('task-details-popup')">Close</button>
+        <button onclick="startTask(currentTaskId)">Start Task</button>
+    </div>
+</div>
+
+<!-- Activity Details Popup -->
+<div id="activity-details-popup" class="popup">
+    <div class="popup-content">
+        <button class="close-btn" onclick="closePopup('activity-details-popup')">&times;</button>
+        <h2>Activity Details</h2>
+        <p id="activity-directorate"></p>
+        <p id="activity-subobjective"></p>
+        <p id="activity-project"></p>
+        <p id="activity-name"></p>
+        <p id="activity-notes"></p>
+        <button type="button" onclick="closePopup('activity-details-popup')">Close</button>
+        <button onclick="startActivity(currentActivityId)">Start Activity</button>
+        <button onclick="showEscalatePopup()">Escalate Activity</button>
+    </div>
+</div>
+
+<!--Div for Escalating a Task-->
+<div id="escalate-task-popup" class="popup" style="display: none;">
+    <div class="popup-content">
+        <button class="close-btn" onclick="closePopup('escalate-task-popup')">&times;</button>
+        <h2>Escalate Task</h2>
+        <form id="escalate-task-form" onsubmit="escalateTask(event)">
+            <select id="employee-select" name="employeeId" onchange="loadEmployeeData()">
+                <option value="">-- Select an Employee --</option>
+                <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+            </select>
+            <button type="submit">Escalate Task</button>
+        </form>
+    </div>
+</div>
+
+<!--Div for Escalating an Activity-->
+<div id="escalate-activity-popup" class="popup" style="display: none;">
+    <div class="popup-content">
+        <button class="close-btn" onclick="closePopup('escalate-activity-popup')">&times;</button>
+        <h2>Escalate Activity</h2>
+        <form id="escalate-activity-form" onsubmit="escalateActivity(event)">
+            <select id="employee-selector" name="employeeId" onchange="loadEmployeesData()">
+                <option value="">-- Select an Employee --</option>
+                <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+            </select>
+            <button type="submit">Escalate Activity</button>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let currentTaskId = null;
+    let currentActivityId = null;
+    let selectedEmployeeId = null;
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function loadEmployeeData() {
+        selectedEmployeeId = document.getElementById('employee-select').value;
+        console.log('Selected Employee ID:', selectedEmployeeId); // Debug log
+        if (selectedEmployeeId) {
+            fetchEmployeeData(selectedEmployeeId);
+        } else {
+            clearPopups();
+        }
+    }
+    function loadEmployeesData() {
+        selectedEmployeeId = document.getElementById('employee-selector').value;
+        console.log('Selected Employee ID:', selectedEmployeeId); // Debug log
+        if (selectedEmployeeId) {
+            fetchEmployeeData(selectedEmployeeId);
+        } else {
+            clearPopups();
+        }
+    }
+
+    async function fetchEmployeeData(employeeId) {
+    try {
+        const response = await fetch(`/api/employees/${employeeId}`);  // Modify endpoint if necessary
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const employeeData = await response.json();  // Assuming the response is JSON
+        console.log('Fetched Employee Data:', employeeData);
+        displayEmployeeData(employeeData);
+    } catch (error) {
+        console.error('Failed to fetch employee data:', error);
+        alert('Error fetching employee data: ' + error.message);
+    }
+}
+
+// Function to display the employee data in the popup (modify as needed)
+function displayEmployeeData(employeeData) {
+    // Assuming employeeData has relevant information to display, you can modify the implementation
+    console.log('Employee Data:', employeeData);
+    // You can populate other fields in the popup if necessary
+}
+
+    function loadTasks(tabId) {
+        const statusMap = {
+            'new-tasks': 'New',
+            'in-progress-tasks': 'In Progress',
+            'completed-tasks': 'Completed'
+        };
+        const status = statusMap[tabId];
+
+        fetch(`/api/${status.toLowerCase().replace(' ', '-')}-tasks`)
+            .then(response => response.json())
+            .then(data => {
+                const contentElement = document.getElementById(`${tabId}-content`);
+                contentElement.innerHTML = data.map(task => `
+                    <tr onclick="showTaskDetails(${task.id})">
+                        <td>${task.taskName}</td>
+                        <td>${task.category}</td>
+                        <td>${new Date(task.createdAt).toLocaleDateString()}</td>
+                        <td>${new Date(task.updatedAt).toLocaleDateString()}</td>
+                        <td>${task.status}</td>
+                    </tr>
+                `).join('');
+            })
+            .catch(error => console.error('There was a problem with the fetch operation:', error));
+    }
+
+
+    function showTaskDetails(taskId) {
+        currentTaskId = taskId;
+        fetch(`/api/task-details/${taskId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Parsed task details:', data);
+                document.getElementById('task-name').textContent = data.taskName || 'N/A';
+                document.getElementById('task-description').textContent = data.taskDescription || 'N/A';
+                document.getElementById('task-directorate').textContent = data.objectiveTitle || 'N/A';
+                document.getElementById('task-subobjective').textContent = data.subObjectiveTitle || 'No Sub Objective';
+                document.getElementById('task-project').textContent = data.projectName || 'N/A';
+                document.getElementById('task-details-popup').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching task details:', error);
+            });
+    }
+
+    function showActivityDetails(activityId) {
+        currentActivityId = activityId;
+        fetch(`/api/activity-details/${activityId}`)  // Fixed the URL
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Parsed activity details:', data);
+                // Ensure these properties match the data returned from your API
+                document.getElementById('activity-name').textContent = data.activityName || 'N/A';
+                document.getElementById('activity-notes').textContent = data.activityNotes || 'N/A';
+                document.getElementById('activity-directorate').textContent = data.objectiveTitle || 'N/A';
+                document.getElementById('activity-subobjective').textContent = data.subObjectiveTitle || 'No Sub Objective';
+                document.getElementById('activity-project').textContent = data.projectName || 'N/A'; //
+                document.getElementById('activity-details-popup').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching activity details:', error);
+            });
+    }
+
+
+    function startTask() {
+        if (currentTaskId === null) {
+            alert("Task ID is missing.");
+            return;
+        }
+
+        fetch('/updateTaskStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: currentTaskId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const taskDetailsPopup = document.getElementById('task-details-popup');
+                if (taskDetailsPopup) {
+                    const bootstrapModal = bootstrap.Modal.getInstance(taskDetailsPopup);
+                    if (bootstrapModal) {
+                        bootstrapModal.hide();
+                    }
+                }
+                window.location.search = '?activateTab=in-progress-tasks';
+            } else {
+                alert('Failed to update task status: ' + (data.error || 'Unknown error.'));
+            }
+        })
+        .catch(error => {
+            console.error('Error updating task status:', error);
+            alert('An error occurred while updating the task status: ' + error.message);
+        });
+    }
+
+    function startActivity() {
+        if (currentActivityId === null) {
+            alert("Activity ID is missing.");
+            return;
+        }
+
+        fetch('/updateActivityStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: currentActivityId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const taskDetailsPopup = document.getElementById('task-details-popup');
+                if (taskDetailsPopup) {
+                    const bootstrapModal = bootstrap.Modal.getInstance(taskDetailsPopup);
+                    if (bootstrapModal) {
+                        bootstrapModal.hide();
+                    }
+                }
+                window.location.search = '?activateTabs=in-progress-activities';
+            } else {
+                alert('Failed to update activity status: ' + (data.error || 'Unknown error.'));
+            }
+        })
+        .catch(error => {
+            console.error('Error updating activity status:', error);
+            alert('An error occurred while updating the activity status: ' + error.message);
+        });
+    }
+
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activateTab = urlParams.get('activateTab');
+
+        if (activateTab === 'in-progress-tasks') {
+            const inProgressTabLink = document.querySelector('#in-progress-tasks-tab');
+            if (inProgressTabLink) {
+                const tab = new bootstrap.Tab(inProgressTabLink);
+                tab.show();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+    });
+
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activateTab = urlParams.get('activateTabs');
+
+        if (activateTab === 'in-progress-activities') {
+            const inProgressTabLink = document.querySelector('#in-progress-activities-tab');
+            if (inProgressTabLink) {
+                const tab = new bootstrap.Tab(inProgressTabLink);
+                tab.show();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+    });
+
+    function closePopup(popupId) {
+        document.getElementById(popupId).style.display = 'none';
+    }
+
+    function handleTaskClick(taskId) {
+        storeTaskId(taskId);
+        openReportSubmissionPopup(taskId);
+    }
+
+    function storeTaskId(taskId) {
+        document.getElementById('task-id').value = taskId;
+    }
+
+    function handleActivityClick(activityId) {
+        storeActivityId(activityId);
+        openReportActivitySubmissionPopup(activityId);
+    }
+
+    function storeActivityId(activityId) {
+        document.getElementById('activity-id').value = activityId;
+    }
+
+    function openReportSubmissionPopup(taskId) {
+        currentTaskId = taskId;
+        document.getElementById('report-submission-popup').style.display = 'block';
+    }
+    function openReportActivitySubmissionPopup(activityId) {
+            currentActivityId = activityId;
+            document.getElementById('report-submission-popup1').style.display = 'block';
+    }
+
+    function submitReportForm(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('report-submission-form');
+        const submissionDateInput = document.getElementById('submission-date');
+
+        const submissionDate = new Date().toISOString().split('T')[0];
+        submissionDateInput.value = submissionDate;
+
+        form.submit();
+    }
+
+    function submitReportForms(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('report-submission-form1');
+        const submissionDateInput = document.getElementById('submission-date1');
+
+        const submissionDate = new Date().toISOString().split('T')[0];
+        submissionDateInput.value = submissionDate;
+
+        form.submit();
+    }
+
+async function fetchTasks() {
+    try {
+        const response = await fetch('/api/tasks'); // Use the correct endpoint
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const tasks = await response.json();
+        console.log('Fetched tasks:', tasks);
+        displayWarnings(tasks);
+    } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+    }
+}
+
+function displayWarnings(tasks) {
+    // Get the current date
+    const now = new Date();
+
+    // Find tasks that are due soon and display reminders
+    let hasReminder = false;
+    tasks.forEach(task => {
+        const dueDate = new Date(task.updatedAt);
+        const daysLeft = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24)); // Calculate days left
+
+        if (daysLeft >= 0 && daysLeft <= 8) { // Show reminder if task is due in 7 days or less
+            const taskName = task.taskName ? task.taskName : 'No name provided';
+            showReminder(`Task "${taskName}" is due in ${daysLeft} days.`);
+            hasReminder = true;
+        }
+    });
+
+    if (!hasReminder) {
+        hideReminder();
+    }
+}
+
+function showReminder(message) {
+    const reminderDiv = document.getElementById('taskReminder');
+    const reminderMessageSpan = document.getElementById('reminderMessage');
+
+    reminderMessageSpan.textContent = message;
+    reminderDiv.style.display = 'block';
+}
+
+function hideReminder() {
+    const reminderDiv = document.getElementById('taskReminder');
+    reminderDiv.style.display = 'none';
+}
+
+
+// Call fetchTasks when the page loads
+window.addEventListener('load', () => {
+    fetchTasks(); // Ensure this call is made on page load
+});
+
+
+function closePopup(popupId) {
+    document.getElementById(popupId).style.display = 'none';
+}
+
+
+// Close any popup
+function closePopup(popupId) {
+    document.getElementById(popupId).style.display = 'none';
+}
+
+
+// Call this function when the form is submitted for escalation
+async function escalateTask(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const form = document.getElementById('escalate-task-form');
+    if (!form) {
+        console.error('Task form element not found');
+        return;
+    }
+
+    const formData = new FormData(form);
+    const selectedEmployeeId = formData.get('employeeId');
+
+    try {
+        const response = await fetch(`/api/tasks/${currentTaskId}/escalate`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ employeeId: selectedEmployeeId }), // Add other data as necessary
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        alert('Task escalated successfully!');
+        closePopup('escalate-task-popup'); // Close the popup
+        window.location.href = '/employee-home'; // Redirect if needed
+    } catch (error) {
+        console.error('Failed to escalate task:', error);
+        alert('Failed to escalate task: ' + error.message);
+    }
+}
+
+// Call this function when the form is submitted for activity escalation
+async function escalateActivity(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const form = document.getElementById('escalate-activity-form');
+    if (!form) {
+        console.error('Activity form element not found');
+        return;
+    }
+
+    const formData = new FormData(form);
+    const selectedEmployeeId = formData.get('employeeId');
+
+    try {
+        const response = await fetch(`/api/activities/${currentActivityId}/escalate`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ employeeId: selectedEmployeeId }), // Add other data as necessary
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        alert('Activity escalated successfully!');
+        closePopup('escalate-activity-popup'); // Close the popup
+        window.location.href = '/employee-home'; // Redirect if needed
+    } catch (error) {
+        console.error('Failed to escalate activity:', error);
+        alert('Failed to escalate activity: ' + error.message);
+    }
+}
+
+function openTaskEscalatePopup(taskId) {
+    currentTaskId = taskId;  // Store the current task ID
+    document.getElementById('escalate-task-popup').style.display = 'block';
+}
+
+function openActivityEscalatePopup(activityId) {
+    currentActivityId = activityId;  // Store the current activity ID
+    document.getElementById('escalate-activity-popup').style.display = 'block';
+}
+
+function closePopup(popupId) {
+    document.getElementById(popupId).style.display = 'none';
+}
+
+    const taskLeaderId = [[${taskLeaderId}]];  // Task leader ID from the backend (Employee ID)
+    const employeeId = [[${employeeId}]];  // Logged-in Employee ID (corresponding to User)
+    const taskNameAsLeader = '[[${taskNameAsLeader}]]';
+
+    // Ensure the comparison is made between taskLeaderId and employeeId
+    window.addEventListener('load', () => {
+        console.log('Task Leader ID:', taskLeaderId);
+        console.log('Employee ID:', employeeId);
+
+        // Check if the logged-in employee is the task leader
+        if (Number(taskLeaderId) !== -1 && Number(taskLeaderId) === Number(employeeId)) {
+            showTaskLeaderNotification(taskNameAsLeader);
+        } else {
+            console.log('You are not the task leader for any task.');
+        }
+    });
+
+function showTaskLeaderNotification(taskName) {
+    const taskLeaderMessageSpan = document.getElementById('taskLeaderMessage');
+    taskLeaderMessageSpan.textContent = `You are the task leader for the task: ${taskName}`;  // Include task name
+    const taskLeaderNotificationDiv = document.getElementById('taskLeaderNotification');
+    taskLeaderNotificationDiv.style.display = 'block';  // Display the notification
+}
+</script>
+</body>
+</html>

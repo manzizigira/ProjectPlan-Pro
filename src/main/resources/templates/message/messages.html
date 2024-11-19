@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>PROJECTPLAN PRO</title>
+    <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/objectiveStyle.css}">
+    <style>
+    <link id="pagestyle" href="css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+    <style>
+        :root {
+          --bs-primary: #3E8914;
+          --bs-info: #3E8914;
+          --bs-success: #3E8914;
+          --bs-gradient-primary: linear-gradient(195deg, #3E8914, #295612);
+        }
+
+        .bg-gradient-primary {
+          background: var(--bs-gradient-primary);
+        }
+
+        .text-primary {
+          color: #3E8914 !important;
+        }
+
+        .btn-primary {
+          background-color: #3E8914;
+          border-color: #295612;
+        }
+
+        .btn {
+          margin-bottom: 0rem !important;
+          float: right;
+        }
+
+        /* Adjusted margin-top for Messages header */
+        h1.mt-4 {
+          margin-top: 90px;
+          margin-left: 90px;
+        }
+
+        .message-container {
+          display: flex;
+          flex-direction: column;
+          height: 60vh; /* Corrected to ensure proper scroll direction */
+          overflow-y: auto;
+          margin-bottom: 1rem;
+          width: 70%; /* Reduced width */
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .message-box, .reply-box {
+          display: flex;
+          margin-bottom: 1rem;
+        }
+
+        .message-box.sent, .reply-box.sent {
+          justify-content: flex-end;
+        }
+
+        .message-box.received, .reply-box.received {
+          justify-content: flex-start;
+        }
+
+        .message-content, .reply-content {
+          max-width: 80%; /* Adjusted to fit smaller container */
+          padding: 10px;
+          border-radius: 10px; /* Slightly reduced border radius */
+        }
+
+        .message-content.sent {
+          background-color: #dcf8c6;
+          align-self: flex-end;
+          width: 400px; /* Reduced message width */
+        }
+
+        .message-content.received {
+          background-color: #2198ff70;
+          align-self: flex-start;
+          border: 1px solid #ddd;
+          width: 400px; /* Reduced message width */
+        }
+
+        .user-name {
+          font-size: 0.85rem; /* Slightly smaller font */
+          color: #3E8914;
+          margin-bottom: 5px;
+        }
+
+        .text-muted {
+          font-size: 0.75rem; /* Slightly smaller text for timestamp */
+          margin-top: 5px;
+        }
+
+        .message-form {
+          display: flex;
+          align-items: center;
+          position: relative;
+          margin-left: auto;
+          margin-right: auto;
+          width: 70%; /* Reduced width to match chat container */
+        }
+
+        .message-input {
+          flex: 1;
+          padding: 8px 12px; /* Reduced padding */
+          border-radius: 15px;
+          border: 1px solid #ddd;
+          margin-right: 10px;
+        }
+
+        .send-button {
+          background-color: #3E8914;
+          border: none;
+          color: white;
+          padding: 8px 15px; /* Reduced padding */
+          border-radius: 15px;
+          cursor: pointer;
+        }
+
+        .reply-button {
+          cursor: pointer;
+          margin-left: 10px;
+          color: #2196F3;
+        }
+    </style>
+</head>
+<body class="g-sidenav-show bg-gray-100">
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar" style="background: #002147; height: 45px;">
+        <div class="drawer-logo">
+            <img th:src="@{/images/menus.png}" alt="Drawer Icon">
+        </div>
+        <div class="title-container">
+            <a th:href="@{/employee-home}" class="title-link">
+                <div class="title" style="color: white; font-size: 20px; margin-right: 50px;">PROJECTPLAN PRO</div>
+            </a>
+        </div>
+        <div class="notification-icon"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar" style="background: #002147;">
+        <div class="img-logo">
+            <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
+        </div>
+        <br>
+
+        <a th:href="@{/employee-home}">Dashboard</a>
+        <a th:href="@{/reports-page/my-reports}">Reports</a>
+        <a th:href="@{/grades(userId=${userId})}">Grades</a>
+
+        <div class="spacer"></div>
+        <a class="logout-btn" th:href="@{/logout}">Logout</a>
+    </div>
+
+    <br><br><br>
+
+    <div class="container" style="margin-left: 400px; background-color: #f0f4f8; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); margin-top:50px; margin-right: 200px;">
+        <h1 class="mt-4" style="margin-top:5px;">Messages</h1> <!-- Adjusted margin-top -->
+        <div class="message-container">
+            <!-- Flattened Messages and Replies -->
+            <div th:each="message : ${messages}">
+                <!-- Main Message and Replies Together in Chronological Order -->
+                <div class="message-box" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'">
+                    <div class="message-content" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'" th:data-message-id="${message.id}">
+                        <h5 class="user-name">
+                            <!-- Show 'You' if the message is from the logged-in user -->
+                            <span th:if="${message.sender.id == userId}">You</span>
+                            <!-- If the sender is not the logged-in user, show the employee's name -->
+                            <span th:if="${message.sender.id != userId}" th:text="${message.sender.employee != null ? message.sender.employee.name : 'Supervisor'}"></span>
+                        </h5>
+                        <p th:text="${message.message}"></p>
+                        <p class="text-muted" th:text="${#temporals.format(message.dateTime, 'yyyy/MM/dd HH:mm:ss')}"></p>
+                    </div>
+                </div>
+
+                <!-- Render Replies in Chronological Order (if any) -->
+                <div th:if="${message.replies != null and #lists.size(message.replies) > 0}">
+                    <div th:each="reply : ${message.replies}" th:object="${reply}">
+                        <div class="message-box" th:classappend="${reply.sender.id == userId} ? 'sent' : 'received'">
+                            <div class="message-content" th:classappend="${reply.sender.id == userId} ? 'sent' : 'received'" th:data-message-id="${reply.id}">
+                                <h6 class="user-name">
+                                    <!-- Show 'You' if the reply is from the logged-in user -->
+                                    <span th:if="${reply.sender.id == userId}">You</span>
+                                    <!-- If the reply sender is not the logged-in user, show the employee's name -->
+                                    <span th:if="${reply.sender.id != userId}" th:text="${reply.sender.employee != null ? reply.sender.employee.name : 'Supervisor'}"></span>
+                                </h6>
+                                <p th:text="${reply.message}"></p>
+                                <p class="text-muted" th:text="${#temporals.format(reply.dateTime, 'yyyy/MM/dd HH:mm:ss')}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <form th:action="@{/messages/post}" method="post" class="message-form" style="margin-left:200px;">
+            <input type="hidden" name="userId" th:value="${userId}" />
+            <input type="hidden" name="replyId" id="replyId" />
+            <textarea name="message" class="message-input" placeholder="Enter your message"></textarea>
+            <button type="submit" class="send-button"><i class="fa fa-paper-plane"></i></button>
+        </form>
+        </div>
+
+        <!-- Message form -->
+
+    </div>
+</main>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function replyToMessage(messageId) {
+        var messageElement = document.querySelector('.message-content[data-message-id="' + messageId + '"] p');
+        if (messageElement) {
+            var messageContent = messageElement.innerText;
+            document.getElementById('replyMessageContent').innerText = messageContent;
+            document.getElementById('replyId').value = messageId;
+        } else {
+            console.error("Message content not found for messageId: " + messageId);
+        }
+    }
+</script>
+</body>
+</html>

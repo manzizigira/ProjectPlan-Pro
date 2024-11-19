@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Denied</title>
+  <link rel="stylesheet" th:href="@{/accessD.css}">
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <img th:src="@{/images/mininfra_logo.jpg}" alt="Government Institute Logo">
+  </div>
+  <div class="message">
+    <h1>Access Denied</h1>
+    <p>You do not have the necessary permissions to access this page.</p>
+    <p>If you believe this is an error, please contact the administrator.</p>
+    <a th:href="@{/view}" class="home-button">Return to Login</a>
+  </div>
+  <div class="footer">
+    <p>© 2024 Government Institute. All rights reserved.</p>
+  </div>
+</div>
+</body>
+</html>

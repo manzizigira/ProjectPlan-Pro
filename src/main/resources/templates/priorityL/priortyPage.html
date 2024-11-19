@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Priority Level Management</title>
+  <link rel="stylesheet" th:href="@{/objectiveStyle.css}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<style>
+.table-striped thead th {
+    background-color: #002147 !important;
+    color: white !important;
+}
+</style>
+<body>
+<!-- Top Navigation Bar -->
+<div class="navbar" style="background: #002147;">
+  <div class="drawer-logo">
+    <img th:src="@{/images/menus.png}" alt="Drawer Icon">
+  </div>
+  <div class="title-container">
+    <a th:href="@{/supervisor-home}" class="title-link">
+      <div class="title" style="color: white; font-size: 20px;">PROJECTPLAN PRO</div>
+    </a>
+  </div>
+  <div class="notification-icon"></div>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar" style="background: #002147;">
+  <div class="img-logo">
+    <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
+  </div>
+  <br>
+  <a th:href="@{/project/projectPage}">Projects</a>
+  <a th:href="@{/employee/employeePage}">Employees</a>
+  <a th:href="@{/directoratePage}">Directorate</a>
+  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+  <a th:href="@{/reports-page}">Reports</a>
+  <a th:href="@{/task/taskPage}">Task</a>
+  <a th:href="@{/activity}">Activity</a>
+  <a th:href="@{/history}">History</a>
+  <a th:href="@{/manageMessages}">Messages</a>
+
+  <div class="spacer"></div>
+
+  <!-- Logout button -->
+  <a class="logout-btn" th:href="@{/logout}">Logout</a>
+</div>
+
+
+<!-- Content Area -->
+<div class="content">
+  <!-- Priority Level Selection -->
+
+  <div class="priority-selection">
+    <label for="entity-type" style="display: inline-block; margin-right: 10px;">Select Entity Type</label>
+    <select class="form-select" id="entity-type" onchange="toggleEntitySelection()" style="width: 900px; display: inline-block;">
+      <option value="">-- Select --</option>
+      <option value="project">Project</option>
+      <option value="task">Task</option>
+      <option value="activity">Activity</option>
+    </select>
+  </div>
+
+
+  <div class="priority-selection" style="display: none;">
+    <label for="project-select" style="display: inline-block; margin-right: 10px;">Select Project</label>
+    <select class="form-select" id="project-select" onchange="loadProjectData()" style="width: 900px; display: inline-block;">
+      <option value="">-- Select a Project --</option>
+      <option th:each="project : ${projects}" th:value="${project.id}" th:text="${project.name}"></option>
+    </select>
+  </div>
+
+  <div id="task-selection" style="display: none;">
+    <label for="task-select" style="display: inline-block; margin-right: 10px;">Select Task</label>
+    <select class="form-select" id="task-select" onchange="loadTaskData()" style="width: 900px; display: inline-block;">
+      <option value="">-- Select a Task --</option>
+      <option th:each="task : ${tasks}" th:value="${task.id}" th:text="${task.name}"></option>
+    </select>
+  </div>
+
+  <div id="activity-selection" style="display: none;">
+    <label for="activity-select" style="display: inline-block; margin-right: 10px;">Select Activity</label>
+    <select class="form-select" id="activity-select" onchange="loadActivityData()" style="width: 900px; display: inline-block;">
+      <option value="">-- Select an Activity --</option>
+      <option th:each="activity : ${activities}" th:value="${activity.id}" th:text="${activity.activityName}"></option>
+    </select>
+  </div>
+
+  <!-- Table Actions -->
+  <div class="table-actions">
+    <div class="button white" onclick="showUpdatePopup()">Update Score</div>
+    <div class="button white" onclick="showDeletePopup()">Delete Score</div>
+    <div class="button white" onclick="showCalculatePopup()" style="width: 230px;">Calculate Priority Level</div>
+  </div>
+
+  <!-- Priority Level Table -->
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+    <tr>
+      <th>Estimated Cost Score</th>
+      <th>Community Benefit Score</th>
+      <th>Stakeholder Engagement Score</th>
+      <th>Priority Value</th>
+      <th>Project</th>
+      <th>Task</th>
+      <th>Activity</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="priorityLevel : ${priorityLevels}">
+      <td th:text="${priorityLevel.estimatedCost}"></td>
+      <td th:text="${priorityLevel.communityBenefitScore}"></td>
+      <td th:text="${priorityLevel.stakeholderEngagementScore}"></td>
+      <td th:text="${priorityLevel.priorityValue}"></td>
+      <td th:text="${priorityLevel.project != null ? priorityLevel.project.name : 'N/A'}"></td>
+      <td th:text="${priorityLevel.taskManagement != null ? priorityLevel.taskManagement.name : 'N/A'}"></td>
+      <td th:text="${priorityLevel.activity != null ? priorityLevel.activity.activityName : 'N/A'}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Popups -->
+
+<!-- Calculate Priority Level Popup -->
+<div id="calculate-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <h2 class="text-center mb-4">Calculate Priority Level</h2>
+  <form id="calculate-form">
+    <!-- Hidden inputs for project, task, and activity IDs -->
+    <input type="hidden" name="projectId" id="popup-project-id" />
+    <input type="hidden" name="taskId" id="popup-task-id" />
+    <input type="hidden" name="activityId" id="popup-activity-id" />
+
+    <!-- Estimated Cost Score -->
+    <div class="mb-3">
+      <label for="popup-estimatedCost" class="form-label">Estimated Cost Score:</label>
+      <input type="number" name="estimatedCost" id="popup-estimatedCost" class="form-control" required />
+    </div>
+
+    <!-- Community Benefit Score -->
+    <div class="mb-3">
+      <label for="popup-communityBenefitScore" class="form-label">Community Benefit Score:</label>
+      <input type="number" name="communityBenefitScore" id="popup-communityBenefitScore" class="form-control" required />
+    </div>
+
+    <!-- Stakeholder Engagement Score -->
+    <div class="mb-3">
+      <label for="popup-stakeholderEngagementScore" class="form-label">Stakeholder Engagement Score:</label>
+      <input type="number" name="stakeholderEngagementScore" id="popup-stakeholderEngagementScore" class="form-control" required />
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" id="close-popup-btn" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+
+<!-- Update Priority Level Score Popup -->
+<div id="update-popup" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <h2 class="text-center mb-4">Update Priority Level Score</h2>
+  <form id="calculate-update">
+    <!-- Hidden inputs for project, task, and activity IDs -->
+    <input type="hidden" name="projectId" id="popup-id" />
+    <input type="hidden" name="taskId" id="popup-tasks-id" />
+    <input type="hidden" name="activityId" id="popup-activities-id" />
+
+    <!-- Estimated Cost Score -->
+    <div class="mb-3">
+      <label for="popup-estimatedCostScore1" class="form-label">Estimated Cost Score:</label>
+      <input type="number" name="estimatedCost" id="popup-estimatedCostScore1" class="form-control" required />
+    </div>
+
+    <!-- Community Benefit Score -->
+    <div class="mb-3">
+      <label for="popup-communityBenefitScore2" class="form-label">Community Benefit Score:</label>
+      <input type="number" name="communityBenefitScore" id="popup-communityBenefitScore2" class="form-control" required />
+    </div>
+
+    <!-- Stakeholder Engagement Score -->
+    <div class="mb-3">
+      <label for="popup-stakeholderEngagementScore3" class="form-label">Stakeholder Engagement Score:</label>
+      <input type="number" name="stakeholderEngagementScore" id="popup-stakeholderEngagementScore3" class="form-control" required />
+    </div>
+
+    <!-- Update Button -->
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" id="close-popup-btn1" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+
+<!-- Delete Score Popup -->
+<div id="delete-popup" class="popup">
+  <h2>Delete Priority Level Score</h2>
+  <form th:action="@{/priority-levels/delete}" method="post">
+    <input type="hidden" name="id" id="popup-id2" />
+    <p>Are you sure you want to delete this score?</p>
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" id="close-popup-btn2" class="btn btn-secondary">Close</button>
+    </div>
+  </form>
+</div>
+
+<script>
+    let selectedProjectId = null;
+    let selectedTaskId; // Declare this at the top of your script
+    let selectedActivityId; // Declare this at the top of your script
+
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function loadProjectData() {
+        selectedProjectId = document.getElementById('project-select').value;
+        console.log('Selected Project ID:', selectedProjectId); // Debug log
+        if (selectedProjectId) {
+            fetchProjectData(selectedProjectId);
+        } else {
+            clearPopups();
+        }
+    }
+
+    function fetchProjectData(id) {
+        const url = `/priority-levels/${id}`;
+
+        return fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(priorityLevel => {
+                console.log('Parsed Priority Level Data:', priorityLevel);
+                document.getElementById('popup-id').value = priorityLevel.id || ''; // Set empty if null
+                document.getElementById('popup-estimatedCostScore1').value = priorityLevel.estimatedCostScore || '';
+                document.getElementById('popup-communityBenefitScore2').value = priorityLevel.communityBenefitScore || '';
+                document.getElementById('popup-stakeholderEngagementScore3').value = priorityLevel.stakeholderEngagementScore || '';
+            })
+            .catch(error => console.error('Error fetching priority level data:', error));
+    }
+
+    function hidePopups() {
+        const popups = document.querySelectorAll('.popup');
+        popups.forEach(popup => popup.classList.remove('active'));
+    }
+
+    function showCalculatePopup() {
+        let selectedProjectId = document.getElementById('project-select').value;
+        let selectedTaskId = document.getElementById('task-select').value;
+        let selectedActivityId = document.getElementById('activity-select').value;
+
+        // Clear both fields before setting a new value
+        document.getElementById('popup-project-id').value = '';
+        document.getElementById('popup-task-id').value = '';
+        document.getElementById('popup-activity-id').value = '';
+
+        if (selectedProjectId) {
+            document.getElementById('popup-project-id').value = selectedProjectId;
+            document.getElementById('calculate-popup').classList.add('active');
+        } else if (selectedTaskId) {
+            document.getElementById('popup-task-id').value = selectedTaskId;
+            document.getElementById('calculate-popup').classList.add('active');
+        } else if (selectedActivityId) {
+            document.getElementById('popup-activity-id').value = selectedActivityId;
+            document.getElementById('calculate-popup').classList.add('active');
+        }else {
+            alert('Please select either a project or a task or an activity first.');
+        }
+    }
+
+
+
+    function showUpdatePopup() {
+        if (selectedProjectId) {
+            fetchProjectData(selectedProjectId).then(() => {
+                document.getElementById('popup-id').value = selectedProjectId;
+                document.getElementById('update-popup').classList.add('active');
+            });
+        } else if (selectedTaskId) {
+            fetchTaskData(selectedTaskId).then(() => {
+                document.getElementById('popup-tasks-id').value = selectedTaskId;
+                document.getElementById('update-popup').classList.add('active');
+            });
+
+        } else if (selectedActivityId) {
+            fetchActivityData(selectedActivityId).then(() => {
+                document.getElementById('popup-activities-id').value = selectedActivityId;
+                document.getElementById('update-popup').classList.add('active');
+            });
+
+        } else {
+            alert('Please select a project or a task or an activity first.');
+        }
+    }
+
+    function showDeletePopup() {
+        if (selectedProjectId) {
+            fetchProjectData(selectedProjectId).then(() => {
+                const id = document.getElementById('popup-id').value;
+                if (!id) {
+                    alert('No priority level associated with this project.');
+                    return;
+                }
+                document.getElementById('popup-id2').value = id;
+                document.getElementById('delete-popup').classList.add('active');
+            });
+        } else if (selectedTaskId) {
+
+            fetchTaskData(selectedTaskId).then(() => {
+                const id = document.getElementById('popup-id').value;
+                if (!id) {
+                    alert('No priority level associated with this Task.');
+                    return;
+                }
+                document.getElementById('popup-id2').value = id;
+                document.getElementById('delete-popup').classList.add('active');
+            });
+        } else if (selectedActivityId) {
+            fetchActivityData(selectedActivityId).then(() => {
+                const id = document.getElementById('popup-id').value;
+                if (!id) {
+                    alert('No priority level associated with this Task.');
+                    return;
+                }
+                document.getElementById('popup-id2').value = id;
+                document.getElementById('delete-popup').classList.add('active');
+            });
+
+        } else {
+            alert('Please select a project first.');
+        }
+    }
+
+    function clearPopups() {
+        document.getElementById('popup-id').value = '';
+        document.getElementById('popup-id2').value = '';
+        document.getElementById('popup-project-id').value = '';
+    }
+
+    document.getElementById('calculate-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Get values from the form fields
+        const estimatedCost = document.getElementById('popup-estimatedCost').value;
+        const communityBenefitScore = document.getElementById('popup-communityBenefitScore').value;
+        const stakeholderEngagementScore = document.getElementById('popup-stakeholderEngagementScore').value;
+
+        // Get IDs for task, project, and activity
+        const taskId = document.getElementById('popup-task-id').value;
+        const projectId = document.getElementById('popup-project-id').value;
+        const activityId = document.getElementById('popup-activity-id').value; // New line to get activityId
+
+        let queryString = '';
+
+        if (taskId) {
+            // Construct the query string for task submission
+            queryString = new URLSearchParams({
+                estimatedCost: estimatedCost,
+                communityBenefitScore: communityBenefitScore,
+                stakeholderEngagementScore: stakeholderEngagementScore,
+                taskId: taskId
+            }).toString();
+
+            // Send request to the task prediction endpoint
+            fetch(`/priority-levels/predict-priority-task?${queryString}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle the prediction result for tasks
+                if (data.predicted_priority_value) {
+                    alert('Predicted Priority Value for Task: ' + data.predicted_priority_value);
+                } else if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('Unexpected response format.');
+                }
+                hidePopups(); // Hide the popup after processing
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while calculating the task priority level.');
+            });
+
+        } else if (projectId) {
+            // This part handles the project ID submission
+            queryString = new URLSearchParams({
+                estimatedCost: estimatedCost,
+                communityBenefitScore: communityBenefitScore,
+                stakeholderEngagementScore: stakeholderEngagementScore,
+                projectId: projectId
+            }).toString();
+
+            // Send request to the project prediction endpoint
+            fetch(`/priority-levels/predict-priority?${queryString}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle the prediction result for projects
+                if (data.predicted_priority_value) {
+                    alert('Predicted Priority Value for Project: ' + data.predicted_priority_value);
+                } else if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('Unexpected response format.');
+                }
+                hidePopups(); // Hide the popup after processing
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while calculating the project priority level.');
+            });
+
+        } else if (activityId) {
+            // Construct the query string for activity submission
+            queryString = new URLSearchParams({
+                estimatedCost: estimatedCost,
+                communityBenefitScore: communityBenefitScore,
+                stakeholderEngagementScore: stakeholderEngagementScore,
+                activityId: activityId // Use the activity ID
+            }).toString();
+
+            // Send request to the activity prediction endpoint
+            fetch(`/priority-levels/predict-priority-activity?${queryString}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle the prediction result for activities
+                if (data.predicted_priority_value) {
+                    alert('Predicted Priority Value for Activity: ' + data.predicted_priority_value);
+                } else if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('Unexpected response format.');
+                }
+                hidePopups(); // Hide the popup after processing
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while calculating the activity priority level.');
+            });
+
+        } else {
+            alert('Please select either a task, project, or activity.');
+        }
+    });
+
+document.getElementById("calculate-update").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Collect IDs based on the active selection
+    const projectId = document.getElementById("popup-id").value || null;
+    const taskId = document.getElementById("popup-tasks-id").value || null;
+    const activityId = document.getElementById("popup-activities-id").value || null;
+    const estimatedCost = document.getElementById("popup-estimatedCostScore1").value;
+    const communityBenefitScore = document.getElementById("popup-communityBenefitScore2").value;
+    const stakeholderEngagementScore = document.getElementById("popup-stakeholderEngagementScore3").value;
+
+    // Validate inputs
+    if ((!projectId && !taskId && !activityId) || !estimatedCost || !communityBenefitScore || !stakeholderEngagementScore) {
+        alert("Please select at least one ID and fill in all score fields.");
+        return;
+    }
+
+    // Determine the appropriate URL based on the selected entity
+    let url = '';
+    if (activityId) {
+        url = '/priority-levels/update/activity'; // Ensure to prioritize activity updates
+    } else if (taskId) {
+        url = '/priority-levels/update/task';
+    } else if (projectId) {
+        url = '/priority-levels/update/project';
+    }
+
+    // Build the query string
+    const params = new URLSearchParams();
+    if (activityId) {
+        params.append("activityId", activityId); // Only append the selected ID
+    }
+    if (taskId) {
+        params.append("taskId", taskId); // Only append the selected ID
+    }
+    if (projectId) {
+        params.append("projectId", projectId); // Only append the selected ID
+    }
+    // Append score parameters
+    params.append("estimatedCost", parseFloat(estimatedCost));
+    params.append("communityBenefitScore", parseFloat(communityBenefitScore));
+    params.append("stakeholderEngagementScore", parseFloat(stakeholderEngagementScore));
+
+    // Log data for debugging
+    console.log("Sending data:", params.toString());
+
+    // Send the request using Fetch API
+    fetch(url + '?' + params.toString(), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert("Error: " + data.error);
+        } else {
+            alert("Predicted Priority Value: " + data.predicted_priority_value);
+            // Optionally, close the popup or refresh data
+            document.getElementById("update-popup").style.display = "none"; // Close the popup
+
+            // Clear input fields after successful submission (optional)
+            document.getElementById("popup-id").value = '';
+            document.getElementById("popup-tasks-id").value = '';
+            document.getElementById("popup-activities-id").value = '';
+            document.getElementById("popup-estimatedCostScore1").value = '';
+            document.getElementById("popup-communityBenefitScore2").value = '';
+            document.getElementById("popup-stakeholderEngagementScore3").value = '';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("An unexpected error occurred. Please try again.");
+    });
+});
+
+
+    function toggleEntitySelection() {
+    var entityType = document.getElementById("entity-type").value;
+
+    var projectDiv = document.querySelector(".priority-selection[style]");
+    var taskDiv = document.getElementById("task-selection");
+    var activityDiv = document.getElementById("activity-selection");
+
+    // Hide both divs initially
+    projectDiv.style.display = "none";
+    taskDiv.style.display = "none";
+    activityDiv.style.display = "none";
+
+    // Show the appropriate div based on selection
+    if (entityType === "project") {
+      projectDiv.style.display = "block";
+    } else if (entityType === "task") {
+      taskDiv.style.display = "block";
+    } else if (entityType === "activity") {
+      activityDiv.style.display = "block";
+    }
+  }
+
+  function loadTaskData() {
+      selectedTaskId = document.getElementById('task-select').value;
+      console.log('Selected Task ID:', selectedTaskId); // Debug log
+      if (selectedTaskId) {
+          fetchTaskData(selectedTaskId);
+      } else {
+          clearPopups(); // Assuming you have a function to clear any previously loaded data
+      }
+  }
+
+  function loadActivityData() {
+      selectedActivityId = document.getElementById('activity-select').value;
+      console.log('Selected Activity ID:', selectedActivityId); // Debug log
+      if (selectedActivityId) {
+          fetchActivityData(selectedActivityId);
+      } else {
+          clearPopups(); // Assuming you have a function to clear any previously loaded data
+      }
+  }
+
+
+  function fetchTaskData(id) {
+      const url = `/priority-levels/task/${id}`;
+
+      return fetch(url)
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.json();
+          })
+          .then(priorityLevel => {
+              console.log('Parsed Task Priority Level Data:', priorityLevel);
+              document.getElementById('popup-id').value = priorityLevel.id || ''; // Set empty if null
+              document.getElementById('popup-estimatedCostScore1').value = priorityLevel.estimatedCostScore || '';
+              document.getElementById('popup-communityBenefitScore2').value = priorityLevel.communityBenefitScore || '';
+              document.getElementById('popup-stakeholderEngagementScore3').value = priorityLevel.stakeholderEngagementScore || '';
+          })
+          .catch(error => console.error('Error fetching task priority level data:', error));
+  }
+
+function fetchActivityData(id) {
+    const url = `/priority-levels/activity/${id}`; // Use template literal to insert the id
+
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(priorityLevel => {
+            console.log('Parsed Activity Priority Level Data:', priorityLevel);
+            document.getElementById('popup-id').value = priorityLevel.id || ''; // Set empty if null
+            document.getElementById('popup-estimatedCostScore1').value = priorityLevel.estimatedCostScore || '';
+            document.getElementById('popup-communityBenefitScore2').value = priorityLevel.communityBenefitScore || '';
+            document.getElementById('popup-stakeholderEngagementScore3').value = priorityLevel.stakeholderEngagementScore || '';
+        })
+        .catch(error => console.error('Error fetching activity priority level data:', error));
+}
+
+  // Function to close the popup by ID
+  function closePopup(popupId) {
+      const popup = document.getElementById(popupId);
+      if (popup) {
+          popup.style.display = 'none';
+      }
+  }
+
+  // Event listener for close buttons
+  document.addEventListener('DOMContentLoaded', function () {
+      // Add event listener to all close buttons
+      document.querySelectorAll('.btn-secondary').forEach(function (btn) {
+          btn.addEventListener('click', function (event) {
+              const popupId = btn.closest('.popup').id;  // Get the closest parent popup's ID
+              closePopup(popupId);
+          });
+      });
+  });
+
+
+
+</script>
+
+</body>
+</html>

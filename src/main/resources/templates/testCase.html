@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Table</title>
+  <style>
+        .selected {
+            background-color: #e9ecef;
+        }
+        table tbody tr {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<table border="1">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Category</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr onclick="selectRow(this, 1)">
+    <td>Objective 1</td>
+    <td>Category A</td>
+  </tr>
+  <tr onclick="selectRow(this, 2)">
+    <td>Objective 2</td>
+    <td>Category B</td>
+  </tr>
+  </tbody>
+</table>
+
+<script>
+    let selectedObjectiveId = null;
+
+    function selectRow(row, id) {
+        console.log('Row clicked:', row);
+        console.log('Objective ID:', id);
+
+        // Remove previous selection
+        document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected'));
+
+        // Highlight selected row
+        row.classList.add('selected');
+        selectedObjectiveId = id;
+    }
+</script>
+</body>
+</html>
