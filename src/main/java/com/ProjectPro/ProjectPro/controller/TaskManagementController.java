@@ -55,78 +55,38 @@ public class TaskManagementController {
         return "task/tasksPage";
     }
 
-    @PostMapping("/taskPopulate") // Endpoint for processing the form
+    @PostMapping("/taskPopulate")
     public String processTaskPage(
-            @RequestParam(value = "taskId", required = false) Integer taskId, // Optional taskId
-            @RequestParam ("activityName") String activityName, // Single activity ID
-            @RequestParam("employeeIds[]") List<String> employeeIds, // List of selected employee IDs
-            @RequestParam(value = "taskLeaderId", required = false) Integer taskLeaderId, // Task Leader ID (New parameter)
+            @RequestParam(value = "taskId", required = false) Integer taskId,
+            @RequestParam ("activityName") String activityName,
+            @RequestParam("employeeIds[]") List<Integer> employeeIds,
+            @RequestParam(value = "taskLeaderId", required = false) Integer taskLeaderId,
+            @RequestParam(value = "projectManagerId", required = false) Integer projectManagerId,
             RedirectAttributes redirectAttributes) {
 
-        // Validate inputs
-        if (employeeIds.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Employees must be selected.");
-            return "redirect:/task/taskPage"; // Redirect back to the task page or show an error
+        TaskManagement taskManagementId = taskManagementService.findById(taskId);
+
+        if (taskLeaderId != null){
+            Employee taskLeader = employeeService.findById(taskLeaderId);
+            taskManagementId.setTaskLeader(taskLeader);
         }
 
-        // Check if taskId is null
-        if (taskId == null) {
-            redirectAttributes.addFlashAttribute("error", "Task ID cannot be null.");
-            return "redirect:/task/taskPage"; // Redirect back to the task page or show an error
+        if(projectManagerId != null){
+            Employee projectManager = employeeService.findById(projectManagerId);
+            taskManagementId.setProjectManager(projectManager);
         }
 
-        // Fetch the existing TaskManagement object based on taskId
-        TaskManagement taskManagement = taskManagementService.findById(taskId);
-        if (taskManagement == null) {
-            redirectAttributes.addFlashAttribute("error", "Task not found.");
-            return "redirect:/task/taskPage"; // Redirect back to the task page or show an error
-        }
+        List<Employee> employees = employeeService.findAllById(employeeIds);
+        taskManagementId.setEmployees(employees);
 
         Activity activity = new Activity();
         activity.setActivityName(activityName);
+        activity = activityService.save(activity);
+        taskManagementId.setActivities(activity);
+        activity.setTask(taskManagementId);
 
-        // Step 1: Assign the selected activity to the task (one-to-one relationship)
-        taskManagement.setActivities(activity); // Assuming taskManagement has a setActivity method for the one-to-one relationship
+        taskManagementService.save(taskManagementId);
 
-        // Step 2: Clear the current employees from the task and activity
-        taskManagement.getEmployees().clear(); // Clear employees from TaskManagement (many-to-many)
-        activity.getEmployees().clear(); // Clear employees from Activity (many-to-many)
-
-        // Step 3: Process the selected employee IDs and assign them to both the task and activity
-        Employee taskLeader = null; // Declare a taskLeader variable
-        for (String employeeId : employeeIds) {
-            int id = Integer.parseInt(employeeId); // Convert String to int
-            Employee employee = employeeService.findById(id);
-            if (employee != null) {
-                // Add the employee to both TaskManagement and Activity
-                taskManagement.getEmployees().add(employee); // Add employee to TaskManagement
-                activity.getEmployees().add(employee); // Add employee to Activity
-
-                // Check if the current employee is the selected Task Leader
-                if (id == taskLeaderId) {
-                    taskLeader = employee; // Set this employee as the Task Leader
-                }
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Employee with ID " + id + " not found.");
-                return "redirect:/task/taskPage"; // Redirect back to the task page or show an error
-            }
-        }
-
-        // Step 4: Ensure Task Leader is one of the assigned employees
-        if (taskLeader == null) {
-            redirectAttributes.addFlashAttribute("error", "Task Leader must be one of the assigned employees.");
-            return "redirect:/task/taskPage"; // Redirect back to the task page or show an error
-        }
-
-        // Step 5: Assign the Task Leader to TaskManagement
-        taskManagement.setTaskLeader(taskLeader); // Assuming taskManagement has a setTaskLeader method
-
-        // Step 6: Save the updated task and activity (since both relationships are bidirectional)
-        taskManagementService.save(taskManagement); // Save TaskManagement with its employees and activity
-        activityService.save(activity); // Save Activity with its updated employees
-
-        // Flash success message
-        redirectAttributes.addFlashAttribute("success", "Task and Activity updated and assigned to employees successfully, with Task Leader!");
 
         // Redirect back to the task page
         return "redirect:/task/taskPage";

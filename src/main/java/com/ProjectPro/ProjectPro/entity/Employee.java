@@ -30,8 +30,8 @@ public class Employee {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "job_title")
-    private String jobTitle;
+    @Column(name = "contract_years")
+    private String contractYears;
 
     @Column(name = "department")
     private String department;
@@ -69,15 +69,18 @@ public class Employee {
     @JsonIgnore
     private List<TaskManagement> taskManagement;
 
+    @OneToOne(mappedBy = "projectManager")
+    private TaskManagement management;
+
     public Employee() {
         reports = new ArrayList<>();
         activities = new HashSet<>();
         taskManagements = new ArrayList<>();
     }
 
-    public Employee(String name, String jobTitle, String department, String employeeType) {
+    public Employee(String name, String contractYears, String department, String employeeType) {
         this.name = name;
-        this.jobTitle = jobTitle;
+        this.contractYears = contractYears;
         this.department = department;
         this.employeeType = employeeType;
     }
@@ -98,12 +101,12 @@ public class Employee {
         this.name = name;
     }
 
-    public String getJobTitle() {
-        return jobTitle;
+    public String getContractYears() {
+        return contractYears;
     }
 
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
+    public void setContractYears(String contractYears) {
+        this.contractYears = contractYears;
     }
 
     public String getDepartment() {
@@ -171,6 +174,14 @@ public class Employee {
         this.taskManagement = taskManagement;
     }
 
+    public TaskManagement getManagement() {
+        return management;
+    }
+
+    public void setManagement(TaskManagement management) {
+        this.management = management;
+    }
+
     // add convenience method
     public void addTask(TaskManagement taskManagement){
         if(taskManagements == null){
@@ -197,7 +208,7 @@ public class Employee {
         return "Employee{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", jobTitle='" + jobTitle + '\'' +
+                ", contractYears='" + contractYears + '\'' +
                 ", department='" + department + '\'' +
                 ", employeeType='" + employeeType + '\'' +
                 '}';

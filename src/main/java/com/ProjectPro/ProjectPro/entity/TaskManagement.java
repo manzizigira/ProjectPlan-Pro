@@ -87,6 +87,10 @@ public class TaskManagement {
     @JoinColumn(name = "task_leader_id", nullable = true) // Direct foreign key column for the leader
     private Employee taskLeader;
 
+    @OneToOne
+    @JoinColumn(name = "project_manager_id", nullable = true)
+    private Employee projectManager;
+
     public TaskManagement() {
         this.employees = new ArrayList<>();
         this.reports = new ArrayList<>();
@@ -235,6 +239,14 @@ public class TaskManagement {
 
     public void setTaskLeader(Employee taskLeader) {
         this.taskLeader = taskLeader;
+    }
+
+    public Employee getProjectManager() {
+        return projectManager;
+    }
+
+    public void setProjectManager(Employee projectManager) {
+        this.projectManager = projectManager;
     }
 
     // add convenience method

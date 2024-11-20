@@ -77,7 +77,7 @@
     <thead class="table-dark">
     <tr>
       <th>Name</th>
-      <th>Job Title</th>
+      <th>Contract Years</th>
       <th>Department</th>
       <th>Employee Type</th>
       <th>User Email</th>
@@ -86,7 +86,7 @@
     <tbody>
     <tr th:each="employee : ${employees}">
       <td th:text="${employee.name}"></td>
-      <td th:text="${employee.jobTitle}"></td>
+      <td th:text="${employee.contractYears}"></td>
       <td th:text="${employee.department}"></td>
       <td th:text="${employee.employeeType}"></td>
       <td th:text="${employee.users.email}"></td>
@@ -112,9 +112,9 @@
     <label for="add-name">Name:</label>
     <input type="text" name="name" id="add-name" required />
 
-    <!-- Job Title Field -->
-    <label for="add-jobTitle">Job Title:</label>
-    <input type="text" name="jobTitle" id="add-jobTitle" required />
+    <!-- Contract Years Field -->
+    <label for="add-contractYears">Contract Years:</label>
+    <input type="text" name="contractYears" id="add-contractYears" required />
 
     <!-- Department Field -->
     <label for="add-department">Department:</label>
@@ -144,10 +144,10 @@
       <input type="text" name="name" id="popup-name" class="form-control" required />
     </div>
 
-    <!-- Job Title Field -->
+    <!-- Contract Years Field -->
     <div class="mb-3">
-      <label for="popup-jobTitle" class="form-label">Job Title:</label>
-      <input type="text" name="jobTitle" id="popup-jobTitle" class="form-control" required />
+      <label for="popup-contractYears" class="form-label">Contract Years:</label>
+      <input type="text" name="contractYears" id="popup-contractYears" class="form-control" required />
     </div>
 
     <!-- Department Field -->
@@ -217,7 +217,7 @@
                 selectedEmployeeId = employee.id;
                 document.getElementById('popup-employee-id').value = employee.id || '';
                 document.getElementById('popup-name').value = employee.name || '';
-                document.getElementById('popup-jobTitle').value = employee.jobTitle || '';
+                document.getElementById('popup-contractYears').value = employee.contractYears || '';
                 document.getElementById('popup-department').value = employee.department || '';
                 document.getElementById('popup-employeeType').value = employee.employeeType || '';
                 document.getElementById('popup-email').value = employee.email || '';

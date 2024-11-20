@@ -200,7 +200,7 @@ public class HistoryController {
         htmlBuilder.append("<div class='content'>");
         htmlBuilder.append("<h2>Employee Report Summary</h2>");
         htmlBuilder.append("<p><strong>Name:</strong> ").append(employee.getName()).append("</p>");
-        htmlBuilder.append("<p><strong>Job Title:</strong> ").append(employee.getJobTitle()).append("</p>");
+        htmlBuilder.append("<p><strong>Job Title:</strong> ").append(employee.getContractYears()).append("</p>");
         htmlBuilder.append("<p><strong>Department:</strong> ").append(employee.getDepartment()).append("</p>");
 
         // Table for report data

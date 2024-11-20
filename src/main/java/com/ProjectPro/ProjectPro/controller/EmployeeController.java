@@ -42,7 +42,7 @@ public class EmployeeController {
         Map<String, Object> response = new HashMap<>();
         response.put("id", employee.getId());
         response.put("name", employee.getName());
-        response.put("jobTitle", employee.getJobTitle());
+        response.put("contractYears", employee.getContractYears());
         response.put("department", employee.getDepartment());
         response.put("employeeType", employee.getEmployeeType());
         response.put("email", employee.getUsers().getEmail());
@@ -53,7 +53,7 @@ public class EmployeeController {
     public String savePage(
             @RequestParam("userId") int userId,
             @RequestParam("name") String name,
-            @RequestParam("jobTitle") String jobTitle,
+            @RequestParam("contractYears") String contractYears,
             @RequestParam("department") String department,
             @RequestParam("employeeType") String employeeType
     ){
@@ -62,7 +62,7 @@ public class EmployeeController {
         Employee employee = new Employee();
 
         employee.setName(name);
-        employee.setJobTitle(jobTitle);
+        employee.setContractYears(contractYears);
         employee.setDepartment(department);
         employee.setEmployeeType(employeeType);
         employee.setUsers(user);
@@ -77,7 +77,7 @@ public class EmployeeController {
         Employee existingEmployee = employeeService.findById(employee.getId());
         if (existingEmployee != null) {
             existingEmployee.setName(employee.getName());
-            existingEmployee.setJobTitle(employee.getJobTitle());
+            existingEmployee.setContractYears(employee.getContractYears());
             existingEmployee.setDepartment(employee.getDepartment());
             existingEmployee.setEmployeeType(employee.getEmployeeType());
             employeeService.save(existingEmployee);

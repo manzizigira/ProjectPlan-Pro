@@ -17,4 +17,6 @@ public interface EmployeeService {
 
     Employee findByUser(User user);
 
+    List<Employee> findAllById(List<Integer> id);
+
 }
