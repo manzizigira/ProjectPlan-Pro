@@ -15,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,8 +100,7 @@ public class ProjectController {
                               @RequestParam("category") String category,
                               @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                               @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                              @RequestParam("notes") String notes,
-                              @RequestParam("status") String status) {
+                              @RequestParam("notes") String notes) {
 
         Project project1 = projectService.findById(project);
 
@@ -112,7 +110,7 @@ public class ProjectController {
         taskManagement.setStartDate(java.sql.Date.valueOf(startDate));
         taskManagement.setEndDate(java.sql.Date.valueOf(endDate));
         taskManagement.setNotes(notes);
-        taskManagement.setStatus(status);
+        taskManagement.setStatus("New");
         taskManagement.setProject(project1);
 
 

@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,8 +104,8 @@ public class DirectorateController {
     public String addProject(@RequestParam("directorateId") int objectiveId,
                              @RequestParam("name") String name,
                              @RequestParam("category") String category,
-                             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+                             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
                              @RequestParam("description") String description,
                              Model model) {
 
@@ -115,8 +116,8 @@ public class DirectorateController {
         Project newProject = new Project();
         newProject.setName(name);
         newProject.setCategory(category);
-        newProject.setStartDate((java.sql.Date.valueOf(startDate))); // Convert LocalDate to java.sql.Date
-        newProject.setEndDate((java.sql.Date.valueOf(endDate)));     // Convert LocalDate to java.sql.Date
+        newProject.setStartDate(startDate); // Convert LocalDate to java.sql.Date
+        newProject.setEndDate(endDate);     // Convert LocalDate to java.sql.Date
         newProject.setDescription(description);
         newProject.setDirectorate(directorate); // Set the relationship
 

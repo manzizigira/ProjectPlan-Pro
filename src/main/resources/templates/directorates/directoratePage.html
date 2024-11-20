@@ -67,7 +67,7 @@
             <option th:each="directorate : ${directories}" th:value="${directorate.id}" th:text="${directorate.name}"></option>
         </select>
         <!-- Hidden input to store the selected Directorate ID -->
-        <input type="hidden" id="selected-directorate-id" name="selectedObjectiveId">
+        <input type="hidden" id="selected-directorate-id" name="selectedDirectorateId">
     </div>
 
     <!-- Table Actions -->
@@ -82,22 +82,20 @@
         <thead class="table-dark">
         <tr>
             <th>Name</th>
-            <th>Category</th>
-            <th>Creation Date</th>
-            <th>Updated Date</th>
             <th>Head Of Directorate</th>
             <th>Agency</th>
+            <th>Creation Date</th>
+            <th>Updated Date</th>
             <th>Description</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="directorate : ${directories}">
             <td th:text="${directorate.name}"></td>
-            <td th:text="${directorate.category}"></td>
-            <td th:text="${#dates.format(directorate.createdAt, 'yyyy-MM-dd')}"></td>
-            <td th:text="${#dates.format(directorate.updatedAt, 'yyyy-MM-dd')}"></td>
-            <td th:text="${directorate.headOfDirectorate}"></td>
-            <td th:text="${directorate.agency}"></td>
+            <td th:text="${directorate.headOfDirectorate.name}"></td>
+            <td th:text="${directorate.agency.name}"></td>
+            <td th:text="${#temporals.format(directorate.createdAt, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#temporals.format(directorate.updatedAt, 'yyyy-MM-dd')}"></td>
             <td th:text="${directorate.description}"></td>
         </tr>
         </tbody>
@@ -124,14 +122,12 @@
         <label for="hod-select" style="display: inline-block; margin-right: 10px;">Select HOD</label>
         <select class="form-select" id="hod-select" name="headOfDirectorate" style="width: 550px; display: inline-block;">
             <option value="">-- Select the HOD --</option>
-            <!-- Assuming 'directories' is populated by Thymeleaf -->
             <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
         </select>
         <br>
         <label for="agency-select" style="display: inline-block; margin-right: 10px;">Select Agency</label>
         <select class="form-select" name="agency" id="agency-select" style="width: 550px; display: inline-block;">
             <option value="">-- Select the Agency --</option>
-            <!-- Assuming 'directories' is populated by Thymeleaf -->
             <option th:each="agency : ${agencies}" th:value="${agency.id}" th:text="${agency.name}"></option>
         </select>
 
@@ -160,14 +156,12 @@
         <label for="hod2-select" style="display: inline-block; margin-right: 10px;">Select HOD</label>
         <select class="form-select" name="headOfDirectorate" id="hod2-select" style="width: 900px; display: inline-block;">
             <option value="">-- Select the HOD --</option>
-            <!-- Assuming 'directories' is populated by Thymeleaf -->
             <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
         </select>
 
         <label for="agency2-select" style="display: inline-block; margin-right: 10px;">Select Agency</label>
         <select class="form-select" name="agency" id="agency2-select" style="width: 900px; display: inline-block;">
             <option value="">-- Select the Agency --</option>
-            <!-- Assuming 'directories' is populated by Thymeleaf -->
             <option th:each="directorate : ${directories}" th:value="${directorate.id}" th:text="${directorate.agency}"></option>
         </select>
 
@@ -219,14 +213,14 @@
 
         <!-- Start Date -->
         <div class="mb-3">
-            <label for="createdAt" class="form-label">Start Date:</label>
-            <input type="date" id="createdAt" name="createdAt" class="form-control" required />
+            <label for="startDate" class="form-label">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" class="form-control" required />
         </div>
 
         <!-- End Date -->
         <div class="mb-3">
-            <label for="updatedAt" class="form-label">End Date:</label>
-            <input type="date" id="updatedAt" name="updatedAt" class="form-control" required />
+            <label for="endDate" class="form-label">End Date:</label>
+            <input type="date" id="endDate" name="endDate" class="form-control" required />
         </div>
 
         <!-- Project Description -->
@@ -352,6 +346,11 @@ function showUpdatePopup() {
         document.getElementById('popup-directorate-id2').value = id;
         showPopup('delete-popup');
     }
+
+    document.getElementById('directorate-select').addEventListener('change', function () {
+        const selectedDirectorateId = this.value; // Get the selected directorate ID
+        document.getElementById('selected-directorate-id').value = selectedDirectorateId; // Set the hidden input value
+    });
 
     // Function to show the new project popup (checks for selected directorate ID)
     function showNewProjectPopup() {
