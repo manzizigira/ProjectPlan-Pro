@@ -1,5 +1,6 @@
 package com.ProjectPro.ProjectPro.controller;
 import com.ProjectPro.ProjectPro.entity.Directorate;
+import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.ImplementingAgency;
 import com.ProjectPro.ProjectPro.entity.Project;
 import com.ProjectPro.ProjectPro.service.DirectorateService;
@@ -101,25 +102,31 @@ public class DirectorateController {
 
     // save and associate a project with an objective
     @PostMapping("/add-project")
-    public String addProject(@RequestParam("directorateId") int objectiveId,
+    public String addProject(@RequestParam("directorateId") int directorateId,
                              @RequestParam("name") String name,
                              @RequestParam("category") String category,
                              @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
                              @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
                              @RequestParam("description") String description,
+                             @RequestParam(value = "projectManagerId") Integer projectManagerId,
                              Model model) {
 
         // Retrieve the directorate by id
-        Directorate directorate = directorateService.findById(objectiveId);
+        Directorate directorate = directorateService.findById(directorateId);
 
         // Create and save the new project
         Project newProject = new Project();
         newProject.setName(name);
         newProject.setCategory(category);
-        newProject.setStartDate(startDate); // Convert LocalDate to java.sql.Date
-        newProject.setEndDate(endDate);     // Convert LocalDate to java.sql.Date
+        newProject.setStartDate(startDate);
+        newProject.setEndDate(endDate);
         newProject.setDescription(description);
-        newProject.setDirectorate(directorate); // Set the relationship
+        newProject.setDirectorate(directorate);
+
+        if (projectManagerId != null){
+            Employee projectManager = employeeService.findById(projectManagerId);
+            newProject.setProjectManager(projectManager);
+        }
 
         // Save the new project
         projectService.save(newProject);

@@ -88,8 +88,8 @@ public class TaskManagement {
     private Employee taskLeader;
 
     @OneToOne
-    @JoinColumn(name = "project_manager_id", nullable = true)
-    private Employee projectManager;
+    @JoinColumn(name = "supervisor_id", nullable = true)
+    private Employee supervisor;
 
     public TaskManagement() {
         this.employees = new ArrayList<>();
@@ -241,12 +241,12 @@ public class TaskManagement {
         this.taskLeader = taskLeader;
     }
 
-    public Employee getProjectManager() {
-        return projectManager;
+    public Employee getSupervisor() {
+        return supervisor;
     }
 
-    public void setProjectManager(Employee projectManager) {
-        this.projectManager = projectManager;
+    public void setSupervisor(Employee supervisor) {
+        this.supervisor = supervisor;
     }
 
     // add convenience method

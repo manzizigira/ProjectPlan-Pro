@@ -208,11 +208,11 @@
       </select>
     </div>
 
-    <!-- Project Manager Section -->
+    <!-- Supervisor Section -->
     <div class="mb-3">
-      <label for="project-manager-select" class="form-label">Select Project Manager:</label>
-      <select class="form-select" name="projectManagerId" id="project-manager-select" required>
-        <option value="" disabled selected>Select a Project Manager</option>
+      <label for="supervisor-select" class="form-label">Select Supervisor:</label>
+      <select class="form-select" name="supervisorId" id="supervisor-select" required>
+        <option value="" disabled selected>Select a Supervisor</option>
         <th:block th:each="employee : ${employees}">
           <option th:value="${employee.id}" th:text="${employee.name}"></option>
         </th:block>

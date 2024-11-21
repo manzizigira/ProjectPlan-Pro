@@ -69,8 +69,11 @@ public class Employee {
     @JsonIgnore
     private List<TaskManagement> taskManagement;
 
-    @OneToOne(mappedBy = "projectManager")
+    @OneToOne(mappedBy = "supervisor")
     private TaskManagement management;
+
+    @OneToMany(mappedBy = "projectManager")
+    private List<Project> projects;
 
     public Employee() {
         reports = new ArrayList<>();
@@ -180,6 +183,14 @@ public class Employee {
 
     public void setManagement(TaskManagement management) {
         this.management = management;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
     }
 
     // add convenience method

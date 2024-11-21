@@ -9,13 +9,11 @@ import com.ProjectPro.ProjectPro.service.TaskManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +59,7 @@ public class TaskManagementController {
             @RequestParam ("activityName") String activityName,
             @RequestParam("employeeIds[]") List<Integer> employeeIds,
             @RequestParam(value = "taskLeaderId", required = false) Integer taskLeaderId,
-            @RequestParam(value = "projectManagerId", required = false) Integer projectManagerId,
+            @RequestParam(value = "supervisorId", required = false) Integer supervisorId,
             RedirectAttributes redirectAttributes) {
 
         TaskManagement taskManagementId = taskManagementService.findById(taskId);
@@ -71,9 +69,9 @@ public class TaskManagementController {
             taskManagementId.setTaskLeader(taskLeader);
         }
 
-        if(projectManagerId != null){
-            Employee projectManager = employeeService.findById(projectManagerId);
-            taskManagementId.setProjectManager(projectManager);
+        if(supervisorId != null){
+            Employee supervisor = employeeService.findById(supervisorId);
+            taskManagementId.setSupervisor(supervisor);
         }
 
         List<Employee> employees = employeeService.findAllById(employeeIds);

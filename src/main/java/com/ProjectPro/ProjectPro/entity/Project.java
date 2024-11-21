@@ -54,6 +54,10 @@ public class Project {
     @OneToMany(mappedBy = "project",fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Activity> activities;
 
+    @ManyToOne
+    @JoinColumn(name = "project_manager_id")
+    private Employee projectManager;
+
     public Project() {
     }
 
@@ -143,6 +147,14 @@ public class Project {
 
     public void setDirectorate(Directorate directorate) {
         this.directorate = directorate;
+    }
+
+    public Employee getProjectManager() {
+        return projectManager;
+    }
+
+    public void setProjectManager(Employee projectManager) {
+        this.projectManager = projectManager;
     }
 
     public void addActivities(Activity activity){
