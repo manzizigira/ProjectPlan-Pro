@@ -98,6 +98,18 @@ public class UserController {
         model.addAttribute("projects", projectService.findAll());
         return checkUserRole(session, "SUPERVISOR", "supervisor/supervisorPage");
     }
+    @GetMapping("/hod-home")
+    public String viewHodPage(HttpSession session, Model model) {
+        model.addAttribute("users", usersService.findAll());
+        model.addAttribute("projects", projectService.findAll());
+        return checkUserRole(session, "HOD", "hod/hodPage");
+    }
+    @GetMapping("/project-manager-home")
+    public String viewProjectManagerPage(HttpSession session, Model model) {
+        model.addAttribute("users", usersService.findAll());
+        model.addAttribute("projects", projectService.findAll());
+        return checkUserRole(session, "PROJECTMANAGER", "projectManager/projectManagerPage");
+    }
 
     @GetMapping("/employee-home")
     public String viewEmployeeDashboard(HttpSession session, Model model) {
