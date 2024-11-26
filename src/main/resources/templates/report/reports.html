@@ -76,26 +76,23 @@
       <thead class="table-dark">
       <tr>
         <th>Report Title</th>
-        <th>Project</th>
         <th>Task Name</th>
-        <th>Employee Name</th>
+        <th>Task Leader Name</th>
         <th>Submission Date</th>
         <th>Status</th>
-        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
-      <tr th:each="report : ${reports}"
+      <tr th:each="report : ${pendingReports}"
           th:if="${report.taskManagement != null && report.taskManagement.employees.contains(report.employee) && report.grading == null && report.taskManagement.status != 'Completed'}"
           th:data-status="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'pending' : (report.grading != null ? 'graded' : ''))}"
           th:class="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'bg-warning' : '') +
           (report.grading != null ? ' bg-success' : '')}">
-        <td th:text="${report.reportDescription}"></td>
-        <td th:text="${report.taskManagement?.project?.name ?: 'No Project'}"></td>
-        <td th:text="${report.taskManagement.name}"></td>
-        <td th:text="${report.employee.name}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.taskManagement.status ?: 'No Status Available'}"></td>
+        <td th:text="${report['reportDescription']}"></td>
+        <td th:text="${report['taskName']}"></td>
+        <td th:text="${report['taskLeader']}"></td> <!-- The employee who submitted the report -->
+        <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
+        <td th:text="${report.['status']}"></td>
         <td>
           <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
           <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
