@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Activity List Page</title>
+    <link rel="stylesheet" th:href="@{/directorateStyle.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<style>
+.table-striped thead th {
+    background-color: #002147 !important;
+    color: white !important;
+}
+</style>
+<body>
+<!-- Top Navigation Bar -->
+<div class="navbar" style="background: #002147;">
+    <div class="drawer-logo">
+        <img th:src="@{/images/menus.png}" alt="Drawer Icon">
+    </div>
+    <div class="title-container">
+        <a th:href="@{/hod-home}" class="title-link">
+            <div class="title" style="color: white; font-size: 20px;">PROJECTPLAN PRO</div>
+        </a>
+    </div>
+    <div class="notification-icon"></div>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar" style="background: #002147;">
+    <div class="img-logo">
+        <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
+    </div>
+    <br>
+    <a th:href="@{/project/projectPage}">Projects</a>
+    <a th:href="@{/employee/employeePage}">Employees</a>
+    <a th:href="@{/directoratePage}">Directorate</a>
+    <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+    <a th:href="@{/reports-page}">Reports</a>
+    <a th:href="@{/priority-levels}">Priority</a>
+    <a th:href="@{/task/taskPage}">Task</a>
+    <a th:href="@{/history}">History</a>
+    <a th:href="@{/manageMessages}">Messages</a>
+
+    <div class="spacer"></div>
+
+    <!-- Logout button -->
+    <a class="logout-btn" th:href="@{/logout}">Logout</a>
+</div>
+
+<!-- Content Area -->
+<div class="content">
+
+    <!-- Activity Table -->
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="activity : ${activities}">
+            <td th:text="${activity.activityName}"></td>
+            <td th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#temporals.format(activity.updatedAt, 'yyyy-MM-dd')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+</script>
+</body>
+</html>

@@ -33,13 +33,8 @@ public class UserImpl implements UsersService {
     }
 
     @Override
-    public void save(User user) {
-        Role employeeRole = roleService.findByRoleName("EMPLOYEE");
-        if (employeeRole != null){
-            user.addRole(employeeRole);
-        }
-        System.out.println(user.toString());
-        userRepo.save(user);
+    public User save(User user) {
+        return userRepo.save(user);
     }
 
     @Override

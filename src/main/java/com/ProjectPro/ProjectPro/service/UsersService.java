@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface UsersService {
 
-    void save(User user);
+    User save(User user);
 
     User findById(int theId);
 

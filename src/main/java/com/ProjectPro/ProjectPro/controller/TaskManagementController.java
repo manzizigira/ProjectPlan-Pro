@@ -53,6 +53,23 @@ public class TaskManagementController {
         return "task/tasksPage";
     }
 
+    @GetMapping("/taskListPage")
+    public String taskListPage(@RequestParam(value = "taskId", required = false) Integer taskId,Model model){
+        List<Employee> employees = employeeService.findAll();
+        model.addAttribute("tasks", taskManagementService.findAll());
+        model.addAttribute("employees", employeeService.findAll());
+
+        model.addAttribute("employeeCount", 1);
+
+        if (taskId != null) {
+            model.addAttribute("task", taskManagementService.findById(taskId));
+        }
+
+        model.addAttribute("activities", activityService.findAll());
+
+        return "task/taskList";
+    }
+
     @PostMapping("/taskPopulate")
     public String processTaskPage(
             @RequestParam(value = "taskId", required = false) Integer taskId,

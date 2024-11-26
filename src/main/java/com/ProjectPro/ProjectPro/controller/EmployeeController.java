@@ -36,6 +36,16 @@ public class EmployeeController {
 
     }
 
+    @GetMapping("/employeeListPage")
+    public String employeeListPage(Model model){
+
+        model.addAttribute("employees", employeeService.findAll());
+        model.addAttribute("users", usersService.findAll());
+
+        return "employee/employeeList";
+
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> pathPage(@PathVariable int id){
         Employee employee = employeeService.findById(id);

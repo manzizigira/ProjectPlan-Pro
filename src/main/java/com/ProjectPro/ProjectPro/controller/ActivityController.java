@@ -32,6 +32,13 @@ public class ActivityController {
         return "activity/activityPage";
     }
 
+    @GetMapping("/listPage")
+    public String getListPage(Model model){
+        model.addAttribute("activities", activityService.findAll());
+        model.addAttribute("employees", employeeService.findAll());
+        return "activity/activityList";
+    }
+
     @PostMapping("/assign-activity")
     public String assignActivityToEmployee(@RequestParam("activityId") int activityId,
                                            @RequestParam("employeeId") int employeeId) {

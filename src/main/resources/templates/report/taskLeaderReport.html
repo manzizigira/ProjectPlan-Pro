@@ -76,26 +76,19 @@
       <thead class="table-dark">
       <tr>
         <th>Report Title</th>
-        <th>Project</th>
-        <th>Task Name</th>
+        <th>Task</th>
         <th>Employee Name</th>
         <th>Submission Date</th>
         <th>Status</th>
-        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
-      <tr th:each="report : ${reports}"
-          th:if="${report.taskManagement != null && report.taskManagement.employees.contains(report.employee) && report.grading == null && report.taskManagement.status != 'Completed'}"
-          th:data-status="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'pending' : (report.grading != null ? 'graded' : ''))}"
-          th:class="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'bg-warning' : '') +
-          (report.grading != null ? ' bg-success' : '')}">
-        <td th:text="${report.reportDescription}"></td>
-        <td th:text="${report.taskManagement?.project?.name ?: 'No Project'}"></td>
-        <td th:text="${report.taskManagement.name}"></td>
-        <td th:text="${report.employee.name}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.taskManagement.status ?: 'No Status Available'}"></td>
+      <tr th:each="report : ${pendingReports}">
+        <td th:text="${report['reportDescription']}"></td>
+        <td th:text="${report['taskName']}"></td>
+        <td th:text="${report['employeeName']}"></td> <!-- The employee who submitted the report -->
+        <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
+        <td th:text="${report.['status']}"></td>
         <td>
           <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
           <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
@@ -103,51 +96,6 @@
       </tr>
       <tr th:if="${#lists.isEmpty(reports)}">
         <td colspan="7" style="text-align: center;">No task reports available.</td>
-      </tr>
-      </tbody>
-
-    </table>
-    <BR>
-    <h2>Activity Report</h2>
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-      <tr>
-        <th>Report Title</th>
-        <th>Project</th>
-        <th>Activity Name</th>
-        <th>Employee Name</th>
-        <th>Submission Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="report : ${reports}"
-          th:if="${report.activity != null
-           && report.employee != null
-           && report.activity.employees.contains(report.employee)
-           && report.grading == null
-           && report.activity.status != 'Completed'}"
-          th:data-status="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'pending' : (report.grading != null ? 'graded' : ''))}"
-          th:class="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'bg-warning' : '') +
-              (report.grading != null ? ' bg-success' : '')}">
-
-
-
-
-      <td th:text="${report.reportDescription}"></td>
-        <td th:text="${report.activity?.project?.name ?: 'No Project'}"></td>
-        <td th:text="${report.activity.activityName}"></td>
-        <td th:text="${report.employee.name}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.activity?.status ?: 'No Status Available'}"></td>
-        <td>
-          <button class="btn btn-primary" th:onclick="'showActivityReportDetails(' + ${report.id} + ')'">View Report</button>
-          <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
-        </td>
-      </tr>
-      <tr th:if="${#lists.isEmpty(reports)}">
-        <td colspan="7" style="text-align: center;">No activity reports available.</td>
       </tr>
       </tbody>
 

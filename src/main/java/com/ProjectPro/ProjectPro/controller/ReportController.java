@@ -69,6 +69,94 @@ public class ReportController {
         return "report/reports";
     }
 
+    // HOD views Project Manager Reports
+    @GetMapping("/hod-report")
+    public String viewPendingProjectManagerReport(Model model){
+        List<Map<String,Object>> pendingReports = reportService.findPendingReportsByProjectManagers();
+        List<Report> reports = reportService.findAll().stream()
+                .filter(report ->
+                        (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
+                                (report.getActivity() != null && !"Completed".equals(report.getActivity().getStatus()))
+                )
+                .collect(Collectors.toList());
+        int pendingCount = reportService.countPendingReports();
+        int gradedCount = reportService.countGradedReports();
+        List<Integer> pendingReportIds = reportService.findPendingReportIds();
+
+        model.addAttribute("reports", reports);
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("gradedCount", gradedCount);
+        model.addAttribute("pendingReportIds", pendingReportIds);
+        model.addAttribute("pendingReports", pendingReports);
+        return "report/hodReport";
+    }
+
+    // Project Manager views Supervisor Reports
+    @GetMapping("/pm-report")
+    public String viewPendingSupervisorReport(Model model){
+        List<Map<String,Object>> pendingReports = reportService.findPendingReportsBySupervisors();
+        List<Report> reports = reportService.findAll().stream()
+                .filter(report ->
+                        (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
+                                (report.getActivity() != null && !"Completed".equals(report.getActivity().getStatus()))
+                )
+                .collect(Collectors.toList());
+        int pendingCount = reportService.countPendingReports();
+        int gradedCount = reportService.countGradedReports();
+        List<Integer> pendingReportIds = reportService.findPendingReportIds();
+
+        model.addAttribute("reports", reports);
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("gradedCount", gradedCount);
+        model.addAttribute("pendingReportIds", pendingReportIds);
+        model.addAttribute("pendingReports", pendingReports);
+        return "report/pmReport";
+    }
+
+    // Supervisor views Task Leader Reports
+    @GetMapping("/sp-report")
+    public String viewPendingTaskLeaderReport(Model model){
+        List<Map<String,Object>> pendingReports = reportService.findPendingReportsByTaskLeader();
+        List<Report> reports = reportService.findAll().stream()
+                .filter(report ->
+                        (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
+                                (report.getActivity() != null && !"Completed".equals(report.getActivity().getStatus()))
+                )
+                .collect(Collectors.toList());
+        int pendingCount = reportService.countPendingReports();
+        int gradedCount = reportService.countGradedReports();
+        List<Integer> pendingReportIds = reportService.findPendingReportIds();
+
+        model.addAttribute("reports", reports);
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("gradedCount", gradedCount);
+        model.addAttribute("pendingReportIds", pendingReportIds);
+        model.addAttribute("pendingReports", pendingReports);
+        return "report/reports";
+    }
+
+    // Task Leader views Employees Reports
+    @GetMapping("/em-report")
+    public String viewPendingEmployeeReport(Model model){
+        List<Map<String,Object>> pendingReports = reportService.findPendingReportsByEmployees();
+        List<Report> reports = reportService.findAll().stream()
+                .filter(report ->
+                        (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
+                                (report.getActivity() != null && !"Completed".equals(report.getActivity().getStatus()))
+                )
+                .collect(Collectors.toList());
+        int pendingCount = reportService.countPendingReports();
+        int gradedCount = reportService.countGradedReports();
+        List<Integer> pendingReportIds = reportService.findPendingReportIds();
+
+        model.addAttribute("reports", reports);
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("gradedCount", gradedCount);
+        model.addAttribute("pendingReportIds", pendingReportIds);
+        model.addAttribute("pendingReports", pendingReports);
+        return "report/taskLeaderReport";
+    }
+
 
     @GetMapping("/view-report")
     @ResponseBody

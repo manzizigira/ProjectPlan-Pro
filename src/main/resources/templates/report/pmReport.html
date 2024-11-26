@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Reports Management</title>
-  <link rel="stylesheet" th:href="@{/directorateStyle.css}">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>Reports Management</title>
+    <link rel="stylesheet" th:href="@{/directorateStyle.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <style>
   .table-striped thead th {
@@ -23,185 +23,133 @@
 <body>
 <!-- Top Navigation Bar -->
 <div class="navbar" style="background: #002147; height: 65px;">
-  <div class="drawer-logo">
-    <img src="/images/menus.png" alt="Drawer Icon">
-  </div>
-  <div class="title-container">
-    <a th:href="@{/supervisor-home}" class="title-link">
-      <div class="title" style="color: white; font-size: 20px; margin-right: 50px;">PROJECTPLAN PRO</div>
-    </a>
-  </div>
+    <div class="drawer-logo">
+        <img src="/images/menus.png" alt="Drawer Icon">
+    </div>
+    <div class="title-container">
+        <a th:href="@{/supervisor-home}" class="title-link">
+            <div class="title" style="color: white; font-size: 20px; margin-right: 50px;">PROJECTPLAN PRO</div>
+        </a>
+    </div>
 </div>
 
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar" style="background: #002147;">
-  <div class="img-logo">
-    <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
-  </div>
-  <br>
-  <a th:href="@{/project/projectPage}">Projects</a>
-  <a th:href="@{/employee/employeePage}">Employees</a>
-  <a th:href="@{/directoratePage}">Directorate</a>
-  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
-  <a th:href="@{/priority-levels}">Priority</a>
-  <a th:href="@{/task/taskPage}">Task</a>
-  <a th:href="@{/activity}">Activity</a>
-  <a th:href="@{/history}">History</a>
-  <a th:href="@{/manageMessages}">Messages</a>
+    <div class="img-logo">
+        <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
+    </div>
+    <br>
+    <a th:href="@{/project/projectPage}">Projects</a>
+    <a th:href="@{/employee/employeePage}">Employees</a>
+    <a th:href="@{/directoratePage}">Directorate</a>
+    <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+    <a th:href="@{/priority-levels}">Priority</a>
+    <a th:href="@{/task/taskPage}">Task</a>
+    <a th:href="@{/activity}">Activity</a>
+    <a th:href="@{/history}">History</a>
+    <a th:href="@{/manageMessages}">Messages</a>
 
-  <div class="spacer"></div>
+    <div class="spacer"></div>
 
-  <!-- Logout button -->
-  <a class="logout-btn" th:href="@{/logout}">Logout</a>
+    <!-- Logout button -->
+    <a class="logout-btn" th:href="@{/logout}">Logout</a>
 </div>
 
 <div class="enock">
-  <!-- Content Area -->
-  <div class="content">
-    <h2>Report Overview</h2>
-    <!-- Dashboard Widgets -->
-    <div class="container" style="margin-left: 5px;">
-      <div class="row">
-        <div class="col-md-6 widget bg-container">
-          <h4>Grading Summary</h4>
-          <p>Graded Reports: <span id="graded-reports" th:text="${gradedCount}">0</span></p>
-          <p>Pending Reports: <span id="pending-reports" th:text="${pendingCount}">0</span></p>
+    <!-- Content Area -->
+    <div class="content">
+        <h2>Report Overview</h2>
+        <!-- Dashboard Widgets -->
+        <div class="container" style="margin-left: 5px;">
+            <div class="row">
+                <div class="col-md-6 widget bg-container">
+                    <h4>Grading Summary</h4>
+                    <p>Graded Reports: <span id="graded-reports" th:text="${gradedCount}">0</span></p>
+                    <p>Pending Reports: <span id="pending-reports" th:text="${pendingCount}">0</span></p>
+                </div>
+            </div>
         </div>
-      </div>
+        <br>
+        <BR>
+        <H2>Task Report</H2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Report Title</th>
+                <th>Task</th>
+                <th>Supervisor</th>
+                <th>Submission Date</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="report : ${pendingReports}">
+                <td th:text="${report['reportDescription']}"></td>
+                <td th:text="${report['taskName']}"></td>
+                <td th:text="${report['supervisorName']}"></td> <!-- The employee who submitted the report -->
+                <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
+                <td th:text="${report.['status']}"></td>
+                <td>
+                    <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
+                    <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(reports)}">
+                <td colspan="7" style="text-align: center;">No task reports available.</td>
+            </tr>
+            </tbody>
+
+        </table>
+
     </div>
-    <br>
-    <BR>
-    <H2>Task Report</H2>
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-      <tr>
-        <th>Report Title</th>
-        <th>Project</th>
-        <th>Task Name</th>
-        <th>Employee Name</th>
-        <th>Submission Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="report : ${reports}"
-          th:if="${report.taskManagement != null && report.taskManagement.employees.contains(report.employee) && report.grading == null && report.taskManagement.status != 'Completed'}"
-          th:data-status="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'pending' : (report.grading != null ? 'graded' : ''))}"
-          th:class="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'bg-warning' : '') +
-          (report.grading != null ? ' bg-success' : '')}">
-        <td th:text="${report.reportDescription}"></td>
-        <td th:text="${report.taskManagement?.project?.name ?: 'No Project'}"></td>
-        <td th:text="${report.taskManagement.name}"></td>
-        <td th:text="${report.employee.name}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.taskManagement.status ?: 'No Status Available'}"></td>
-        <td>
-          <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
-          <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
-        </td>
-      </tr>
-      <tr th:if="${#lists.isEmpty(reports)}">
-        <td colspan="7" style="text-align: center;">No task reports available.</td>
-      </tr>
-      </tbody>
-
-    </table>
-    <BR>
-    <h2>Activity Report</h2>
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-      <tr>
-        <th>Report Title</th>
-        <th>Project</th>
-        <th>Activity Name</th>
-        <th>Employee Name</th>
-        <th>Submission Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="report : ${reports}"
-          th:if="${report.activity != null
-           && report.employee != null
-           && report.activity.employees.contains(report.employee)
-           && report.grading == null
-           && report.activity.status != 'Completed'}"
-          th:data-status="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'pending' : (report.grading != null ? 'graded' : ''))}"
-          th:class="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'bg-warning' : '') +
-              (report.grading != null ? ' bg-success' : '')}">
-
-
-
-
-      <td th:text="${report.reportDescription}"></td>
-        <td th:text="${report.activity?.project?.name ?: 'No Project'}"></td>
-        <td th:text="${report.activity.activityName}"></td>
-        <td th:text="${report.employee.name}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.activity?.status ?: 'No Status Available'}"></td>
-        <td>
-          <button class="btn btn-primary" th:onclick="'showActivityReportDetails(' + ${report.id} + ')'">View Report</button>
-          <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
-        </td>
-      </tr>
-      <tr th:if="${#lists.isEmpty(reports)}">
-        <td colspan="7" style="text-align: center;">No activity reports available.</td>
-      </tr>
-      </tbody>
-
-    </table>
-
-  </div>
 </div>
 
 
 <!-- Modals -->
 <!-- View Report Modal -->
 <div id="view-report-modal" class="popup" style="display: none;">
-  <div class="popup-content">
-    <span class="closebtn" onclick="hidePopup('view-report-modal')">&times;</span>
-    <h2>View Report</h2>
-    <div id="view-report-content">
-      Report Description:
-      <p id="report-description"></p>
-      Project name: <p id="project-name"></p>
-      Task name: <p id="task-name"></p>
-      Employee name: <p id="employee-name"></p>
-      Progress Percentage: <p id="progress-percentage"></p>
-      Submission Date: <p id="submission-date"></p>
-      Status: <p id="status"></p>
-      <a id="view-report-file" onclick="viewReport(${reportId})" class="btn btn-info" target="_blank" style="display: none;">View Report</a>
-      <a id="download-report-file" href="#" class="btn btn-success" download style="display: none;">Download Report</a>
-      <button type="button" onclick="hidePopup('view-report-modal')">Close</button>
+    <div class="popup-content">
+        <span class="closebtn" onclick="hidePopup('view-report-modal')">&times;</span>
+        <h2>View Report</h2>
+        <div id="view-report-content">
+            Report Description:
+            <p id="report-description"></p>
+            Project name: <p id="project-name"></p>
+            Task name: <p id="task-name"></p>
+            Employee name: <p id="employee-name"></p>
+            Progress Percentage: <p id="progress-percentage"></p>
+            Submission Date: <p id="submission-date"></p>
+            Status: <p id="status"></p>
+            <a id="view-report-file" onclick="viewReport(${reportId})" class="btn btn-info" target="_blank" style="display: none;">View Report</a>
+            <a id="download-report-file" href="#" class="btn btn-success" download style="display: none;">Download Report</a>
+            <button type="button" onclick="hidePopup('view-report-modal')">Close</button>
+        </div>
     </div>
-  </div>
 </div>
 
 
 
 <!-- Grade Report Modal -->
 <div id="grade-report-modal" class="popup">
-  <span class="closebtn" onclick="hidePopup('grade-report-modal')">&times;</span>
-  <h2>Grade Report</h2>
-  <form id="grade-form" action="/reports-page/grade-report" method="POST">
-    <input type="hidden" name="reportId" id="grade-report-id" />
-    <input type="hidden" name="employeeId" id="grade-employee-id" />
-    <div class="mb-3">
-      <label for="grade-input" class="form-label">Grade</label>
-      <input type="text" class="form-control" id="grade-input" name="grade" required />
-    </div>
-    <div class="mb-3">
-      <label for="comments-input" class="form-label">Feedback</label>
-      <textarea class="form-control" id="comments-input" name="comments" rows="3" required></textarea>
-    </div>
-    <input type="hidden" class="form-control" id="grading-date-input" name="gradingDate" />
+    <span class="closebtn" onclick="hidePopup('grade-report-modal')">&times;</span>
+    <h2>Grade Report</h2>
+    <form id="grade-form" action="/reports-page/grade-report" method="POST">
+        <input type="hidden" name="reportId" id="grade-report-id" />
+        <input type="hidden" name="employeeId" id="grade-employee-id" />
+        <div class="mb-3">
+            <label for="grade-input" class="form-label">Grade</label>
+            <input type="text" class="form-control" id="grade-input" name="grade" required />
+        </div>
+        <div class="mb-3">
+            <label for="comments-input" class="form-label">Feedback</label>
+            <textarea class="form-control" id="comments-input" name="comments" rows="3" required></textarea>
+        </div>
+        <input type="hidden" class="form-control" id="grading-date-input" name="gradingDate" />
 
-    <button type="button" class="btn btn-success" id="complete-report-btn" onclick="completeReport()">Complete Report</button>
+        <button type="button" class="btn btn-success" id="complete-report-btn" onclick="completeReport()">Complete Report</button>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-  </form>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
 </div>
 
 

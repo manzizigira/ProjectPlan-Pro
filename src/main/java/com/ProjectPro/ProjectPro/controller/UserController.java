@@ -45,6 +45,7 @@ public class UserController {
     @GetMapping("/viewSignUpPage")
     public String getSignUpPage(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("roles", roleService.findAll());
         return "users/signUpPage";
     }
 
@@ -54,8 +55,9 @@ public class UserController {
     }
 
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute("user") User user) {
-        usersService.save(user);
+    public String saveUser(@ModelAttribute("user") User user, @RequestParam("roleId") int roleId) {
+        User savedUser = usersService.save(user);
+        usersService.assignRoleToUser(savedUser.getId(), roleId);
         return "redirect:/view";
     }
 
@@ -83,10 +85,20 @@ public class UserController {
         boolean isSupervisor = user.getRoles().stream()
                 .anyMatch(role -> role.getRoleName().equals("SUPERVISOR"));
 
+        boolean isHod = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equals("HOD"));
+
+        boolean isPm = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equals("PROJECTMANAGER"));
+
         if (isEmployee) {
             return "redirect:/employee-home"; // Renamed path
         } else if (isSupervisor) {
             return "redirect:/supervisor-home"; // Renamed path
+        } else if (isHod) {
+            return "redirect:/hod-home"; // Renamed path
+        } else if (isPm) {
+            return "redirect:/project-manager-home"; // Renamed path
         } else {
             return "redirect:/accessDeniedPage";
         }

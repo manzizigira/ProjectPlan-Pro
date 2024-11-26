@@ -1,7 +1,6 @@
 package com.ProjectPro.ProjectPro.dao;
 
 
-import com.ProjectPro.ProjectPro.entity.Grading;
 import com.ProjectPro.ProjectPro.entity.Report;
 import com.ProjectPro.ProjectPro.repository.GradingRepo;
 import com.ProjectPro.ProjectPro.repository.ReportRepo;
@@ -9,8 +8,8 @@ import com.ProjectPro.ProjectPro.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -74,4 +73,25 @@ public class ReportImpl implements ReportService {
     public int countGradedReports() {
         return reportRepo.countGradedReports();
     }
+
+    @Override
+    public List<Map<String, Object>> findPendingReportsByProjectManagers() {
+        return reportRepo.findPendingReportsByProjectManagers();
+    }
+
+    @Override
+    public List<Map<String, Object>> findPendingReportsByEmployees() {
+        return reportRepo.findPendingReportsByEmployees();
+    }
+
+    @Override
+    public List<Map<String, Object>> findPendingReportsByTaskLeader() {
+        return reportRepo.findPendingReportsByTaskLeader();
+    }
+
+    @Override
+    public List<Map<String, Object>> findPendingReportsBySupervisors() {
+        return reportRepo.findPendingReportsBySupervisors();
+    }
+
 }
