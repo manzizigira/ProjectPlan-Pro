@@ -93,10 +93,6 @@
         <td th:text="${report['taskLeader']}"></td> <!-- The employee who submitted the report -->
         <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
         <td th:text="${report.['status']}"></td>
-        <td>
-          <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
-          <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
-        </td>
       </tr>
       <tr th:if="${#lists.isEmpty(reports)}">
         <td colspan="7" style="text-align: center;">No task reports available.</td>

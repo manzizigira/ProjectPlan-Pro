@@ -76,7 +76,6 @@ public class TaskManagementController {
             @RequestParam ("activityName") String activityName,
             @RequestParam("employeeIds[]") List<Integer> employeeIds,
             @RequestParam(value = "taskLeaderId", required = false) Integer taskLeaderId,
-            @RequestParam(value = "supervisorId", required = false) Integer supervisorId,
             RedirectAttributes redirectAttributes) {
 
         TaskManagement taskManagementId = taskManagementService.findById(taskId);
@@ -84,11 +83,6 @@ public class TaskManagementController {
         if (taskLeaderId != null){
             Employee taskLeader = employeeService.findById(taskLeaderId);
             taskManagementId.setTaskLeader(taskLeader);
-        }
-
-        if(supervisorId != null){
-            Employee supervisor = employeeService.findById(supervisorId);
-            taskManagementId.setSupervisor(supervisor);
         }
 
         List<Employee> employees = employeeService.findAllById(employeeIds);
@@ -100,6 +94,25 @@ public class TaskManagementController {
         taskManagementId.setActivities(activity);
         activity.setTask(taskManagementId);
 
+        taskManagementService.save(taskManagementId);
+
+
+        // Redirect back to the task page
+        return "redirect:/task/taskPage";
+    }
+    @PostMapping("/assignTaskToSupervisor")
+    public String processTaskPage(
+            @RequestParam(value = "taskId", required = false) Integer taskId,
+            @RequestParam(value = "supervisorId", required = false) Integer supervisorId,
+            RedirectAttributes redirectAttributes) {
+
+        TaskManagement taskManagementId = taskManagementService.findById(taskId);
+
+
+        if(supervisorId != null){
+            Employee supervisor = employeeService.findById(supervisorId);
+            taskManagementId.setSupervisor(supervisor);
+        }
         taskManagementService.save(taskManagementId);
 
 
