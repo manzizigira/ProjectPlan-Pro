@@ -46,6 +46,15 @@ public class ProjectImpl implements ProjectService {
         return projectRepo.findAll();
     }
 
+    @Override
+    public List<Project> findProjectsByUserId(int userId) {
+        return projectRepo.findProjectsByUserId(userId);
+    }
+
+    @Override
+    public List<Project> findProjectsByDirectorateUserId(int userId) {
+        return projectRepo.findProjectsByDirectorateUserId(userId);
+    }
 
 
 }

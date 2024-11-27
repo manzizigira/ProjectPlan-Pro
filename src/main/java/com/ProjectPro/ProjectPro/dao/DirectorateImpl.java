@@ -49,4 +49,9 @@ public class DirectorateImpl implements DirectorateService {
         return directorateRepo.findAll();
     }
 
+    @Override
+    public List<Directorate> findDirectoratesByUserId(int userId) {
+        return directorateRepo.findDirectoratesByUserId(userId);
+    }
+
 }

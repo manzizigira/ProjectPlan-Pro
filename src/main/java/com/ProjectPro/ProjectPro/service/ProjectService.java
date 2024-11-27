@@ -1,6 +1,7 @@
 package com.ProjectPro.ProjectPro.service;
 
 import com.ProjectPro.ProjectPro.entity.Project;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -14,6 +15,8 @@ public interface ProjectService {
 
     List<Project> findAll();
 
+    List<Project> findProjectsByUserId(int userId);
 
+    List<Project> findProjectsByDirectorateUserId(int userId);
 
 }

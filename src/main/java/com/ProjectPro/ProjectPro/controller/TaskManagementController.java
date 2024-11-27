@@ -6,6 +6,7 @@ import com.ProjectPro.ProjectPro.entity.TaskManagement;
 import com.ProjectPro.ProjectPro.service.ActivityService;
 import com.ProjectPro.ProjectPro.service.EmployeeService;
 import com.ProjectPro.ProjectPro.service.TaskManagementService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -37,9 +38,12 @@ public class TaskManagementController {
     }
 
     @GetMapping("/taskPage")
-    public String taskPage(@RequestParam(value = "taskId", required = false) Integer taskId,Model model){
+    public String taskPage(@RequestParam(value = "taskId", required = false) Integer taskId, Model model, HttpSession session){
+
+        Integer userId = (Integer) session.getAttribute("userId");
+        List<TaskManagement> taskManagementList = taskManagementService.findTaskManagementsByUserId(userId);
         List<Employee> employees = employeeService.findAll();
-        model.addAttribute("tasks", taskManagementService.findAll());
+        model.addAttribute("tasks", taskManagementList);
         model.addAttribute("employees", employeeService.findAll());
 
         model.addAttribute("employeeCount", 1);

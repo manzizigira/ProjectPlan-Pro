@@ -2,6 +2,7 @@ package com.ProjectPro.ProjectPro.service;
 
 import com.ProjectPro.ProjectPro.entity.TaskManagement;
 import com.ProjectPro.ProjectPro.entity.User;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -39,5 +40,7 @@ public interface TaskManagementService {
     public List<TaskManagement> getSortedTasksForLoggedInUser(User user);
 
     public List<TaskManagement> findCompletedTasks();
+
+    List<TaskManagement> findTaskManagementsByUserId(int userId);
 
 }

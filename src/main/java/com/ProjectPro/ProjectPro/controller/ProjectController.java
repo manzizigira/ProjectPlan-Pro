@@ -7,6 +7,7 @@ import com.ProjectPro.ProjectPro.entity.TaskManagement;
 import com.ProjectPro.ProjectPro.service.ActivityService;
 import com.ProjectPro.ProjectPro.service.ProjectService;
 import com.ProjectPro.ProjectPro.service.TaskManagementService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -38,10 +40,20 @@ public class ProjectController {
 
 
     @GetMapping("/projectPage")
-    public String projectPage(Model model){
-        model.addAttribute("projects", projectService.findAll());
+    public String projectPage(Model model, HttpSession session){
+        Integer userId = (Integer) session.getAttribute("userId");
+        List<Project> projectList = projectService.findProjectsByUserId(userId);
+        model.addAttribute("projects", projectList);
 
         return "project/projectPage";
+    }
+    @GetMapping("/projectListPage")
+    public String projectList(Model model, HttpSession session){
+        Integer userId = (Integer) session.getAttribute("userId");
+        List<Project> projectList = projectService.findProjectsByDirectorateUserId(userId);
+        model.addAttribute("projectLists", projectList);
+
+        return "project/projectList";
     }
 
     @PostMapping("/add-project")

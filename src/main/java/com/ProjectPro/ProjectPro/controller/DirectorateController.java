@@ -7,6 +7,7 @@ import com.ProjectPro.ProjectPro.service.DirectorateService;
 import com.ProjectPro.ProjectPro.service.EmployeeService;
 import com.ProjectPro.ProjectPro.service.ProjectService;
 import com.ProjectPro.ProjectPro.service.ImplementingAgencyService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -41,10 +42,16 @@ public class DirectorateController {
 
     // Show Directorate Page
     @GetMapping("/directoratePage")
-    public String showDirectoratePage(Model model) {
+    public String showDirectoratePage(Model model, HttpSession session) {
 
-        // get the directories from db
-        List<Directorate> directories = directorateService.findAll();
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        if (userId==null){
+            return "redirect:/view";
+        }
+
+        // get the directories from session
+        List<Directorate> directories = directorateService.findDirectoratesByUserId(userId);
 
         // add to spring model
         model.addAttribute("directories", directories);
@@ -79,7 +86,25 @@ public class DirectorateController {
 
     // Add Directorate
     @PostMapping("/add-directorate")
-    public String addDirectorate(@ModelAttribute("directorate") Directorate directorate) {
+    public String addDirectorate(
+                                    @RequestParam("name") String directorateName,
+                                    @RequestParam("description") String description,
+                                    @RequestParam("agency") Integer agency,
+                                    HttpSession session
+
+    ) {
+        Directorate directorate = new Directorate();
+        directorate.setName(directorateName);
+        directorate.setDescription(description);
+        if (agency != null) {
+            ImplementingAgency implementingAgency = implementingAgencyService.findById(agency);
+            directorate.setAgency(implementingAgency);
+        }
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId != null){
+            Employee employee = employeeService.findByUserId(userId);
+            directorate.setHeadOfDirectorate(employee);
+        }
         directorateService.save(directorate);
         return "redirect:/directoratePage";
     }

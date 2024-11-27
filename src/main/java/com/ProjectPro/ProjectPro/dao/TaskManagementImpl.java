@@ -204,4 +204,9 @@ public class TaskManagementImpl implements TaskManagementService {
     public List<TaskManagement> findCompletedTasks() {
         return taskManagementRepo.findByStatus("Completed");
     }
+
+    @Override
+    public List<TaskManagement> findTaskManagementsByUserId(int userId) {
+        return taskManagementRepo.findTaskManagementsByUserId(userId);
+    }
 }

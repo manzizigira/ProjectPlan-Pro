@@ -22,5 +22,14 @@ public interface TaskManagementRepo extends JpaRepository<TaskManagement, Intege
 
     List<TaskManagement> findByStatus(String status);
 
+    @Query("""
+        SELECT t
+        FROM TaskManagement t
+        JOIN t.supervisor e
+        JOIN e.user u
+        WHERE u.id =:userId
+    """)
+    List<TaskManagement> findTaskManagementsByUserId(@Param("userId") int userId);
+
 }
 

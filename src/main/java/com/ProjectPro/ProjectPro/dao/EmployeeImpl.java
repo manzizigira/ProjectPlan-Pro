@@ -62,4 +62,9 @@ public class EmployeeImpl implements EmployeeService {
         return employeeRepo.findAllById(id);
     }
 
+    @Override
+    public Employee findByUserId(int userId) {
+        return employeeRepo.findByUserId(userId);
+    }
+
 }

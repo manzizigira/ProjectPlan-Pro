@@ -1,6 +1,7 @@
 package com.ProjectPro.ProjectPro.service;
 
 import com.ProjectPro.ProjectPro.entity.Directorate;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ public interface DirectorateService {
     void delete(int theId);
 
     List<Directorate> findAll();
+
+    List<Directorate> findDirectoratesByUserId(int userId);
 
 
 }
