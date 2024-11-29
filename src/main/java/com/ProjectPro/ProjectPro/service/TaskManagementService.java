@@ -41,6 +41,6 @@ public interface TaskManagementService {
 
     public List<TaskManagement> findCompletedTasks();
 
-    List<TaskManagement> findTaskManagementsByUserId(int userId);
+    List<TaskManagement> findTaskManagementsByProjectManagerUserId(@Param("userId") int userId);
 
 }

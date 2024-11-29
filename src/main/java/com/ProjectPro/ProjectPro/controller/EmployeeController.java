@@ -4,6 +4,7 @@ import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.User;
 import com.ProjectPro.ProjectPro.service.EmployeeService;
 import com.ProjectPro.ProjectPro.service.UsersService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,20 +27,26 @@ public class EmployeeController {
         this.usersService = usersService;
     }
 
-    @GetMapping("/employeePage")
-    public String employeePage(Model model){
+    @GetMapping("/supervisorList")
+    public String employeePage(Model model, HttpSession session){
 
-        model.addAttribute("employees", employeeService.findAll());
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        String departments = employeeService.findDepartmentByUserId(userId);
+        List<Employee> findSupervisor = employeeService.findSupervisorsByDepartment(departments);
+
+        model.addAttribute("supervisors", findSupervisor);
         model.addAttribute("users", usersService.findAll());
-
-        return "employee/employeesPage";
+        return "employee/supervisorList";
 
     }
 
     @GetMapping("/employeeListPage")
-    public String employeeListPage(Model model){
-
-        model.addAttribute("employees", employeeService.findAll());
+    public String employeeListPage(Model model, HttpSession session, String department){
+        Integer userId = (Integer) session.getAttribute("userId");
+        String departments = employeeService.findDepartmentByUserId(userId);
+        List<Employee> findEmployee = employeeService.getEmployeesByDepartment(departments);
+        model.addAttribute("employees", findEmployee);
         model.addAttribute("users", usersService.findAll());
 
         return "employee/employeeList";
@@ -92,7 +99,7 @@ public class EmployeeController {
             existingEmployee.setEmployeeType(employee.getEmployeeType());
             employeeService.save(existingEmployee);
         }
-        return "redirect:/employee/employeePage";
+        return "redirect:/employee/employeeListPage";
     }
 
 

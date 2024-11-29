@@ -52,10 +52,12 @@ public class DirectorateController {
 
         // get the directories from session
         List<Directorate> directories = directorateService.findDirectoratesByUserId(userId);
+        String departments = employeeService.findDepartmentByUserId(userId);
+        List<Employee> findProjectManager = employeeService.findProjectManagersByDepartment(departments);
 
         // add to spring model
         model.addAttribute("directories", directories);
-        model.addAttribute("employees", employeeService.findAll());
+        model.addAttribute("employees", findProjectManager);
         model.addAttribute("agencies", implementingAgencyService.findAll());
         model.addAttribute("directorate", new Directorate());
         model.addAttribute("project", new Project());

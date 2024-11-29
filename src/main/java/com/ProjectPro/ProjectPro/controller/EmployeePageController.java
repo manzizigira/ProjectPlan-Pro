@@ -141,6 +141,7 @@ public class EmployeePageController {
                     TaskDetailsDto dto = new TaskDetailsDto();
                     dto.setTaskId(task.getId());
                     dto.setTaskName(task.getName());
+                    dto.setTaskLeader(task.getTaskLeader().getName());
                     dto.setEndDate(task.getEndDate());
                     dto.setCompleted(task.getCompleted());
                     return dto;
@@ -158,11 +159,11 @@ public class EmployeePageController {
         if (task == null) {
             return ResponseEntity.notFound().build();
         }
-
         TaskDetailsDto taskDetails = new TaskDetailsDto();
         taskDetails.setTaskId(task.getId());
         taskDetails.setTaskName(task.getName());
-        taskDetails.setTaskDescription(task.getNotes());
+        taskDetails.setActivityName(task.getActivities().getActivityName());
+        taskDetails.setTaskLeader(task.getTaskLeader().getName());
 
         if (task.getProject() != null) {
             taskDetails.setProjectName(task.getProject().getName());

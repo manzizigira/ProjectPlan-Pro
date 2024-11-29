@@ -13,6 +13,7 @@ public class TaskDetailsDto {
 
     private int taskId;
     private String taskName;
+    private String taskLeader;
     private String category;
     private Date startDate;
     private Date endDate;
@@ -20,7 +21,7 @@ public class TaskDetailsDto {
     private Boolean isCompleted;
     private String status;
 
-    private String taskDescription;
+    private String activityName;
 
     // Project details
     private int projectId;
@@ -48,7 +49,7 @@ public class TaskDetailsDto {
     // Add constructors for easy initialization
 
 
-    public TaskDetailsDto(int taskId, String taskName, String category, Date startDate, Date endDate, Boolean isCompleted, String status, String taskDescription, int projectId, String projectName, String projectDescription, int objectiveId, String objectiveTitle, String objectiveDescription, int subObjectiveId, String subObjectiveTitle, String subObjectiveDescription, List<Employee> assignedEmployees) {
+    public TaskDetailsDto(int taskId, String taskName, String category, Date startDate, Date endDate, Boolean isCompleted, String status, String activityName, int projectId, String projectName, String projectDescription, int objectiveId, String objectiveTitle, String objectiveDescription, int subObjectiveId, String subObjectiveTitle, String subObjectiveDescription, List<Employee> assignedEmployees) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.category = category;
@@ -56,7 +57,7 @@ public class TaskDetailsDto {
         this.endDate = endDate;
         this.isCompleted = isCompleted;
         this.status = status;
-        this.taskDescription = taskDescription;
+        this.activityName = activityName;
         this.projectId = projectId;
         this.projectName = projectName;
         this.projectDescription = projectDescription;
@@ -118,12 +119,12 @@ public class TaskDetailsDto {
         this.status = status;
     }
 
-    public String getTaskDescription() {
-        return taskDescription;
+    public String getActivityName() {
+        return activityName;
     }
 
-    public void setTaskDescription(String taskDescription) {
-        this.taskDescription = taskDescription;
+    public void setActivityName(String activityName) {
+        this.activityName = activityName;
     }
 
     public int getProjectId() {
@@ -212,5 +213,13 @@ public class TaskDetailsDto {
 
     public void setCompleted(Boolean completed) {
         isCompleted = completed;
+    }
+
+    public String getTaskLeader() {
+        return taskLeader;
+    }
+
+    public void setTaskLeader(String taskLeader) {
+        this.taskLeader = taskLeader;
     }
 }

@@ -55,9 +55,27 @@ public class UserController {
     }
 
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute("user") User user, @RequestParam("roleId") int roleId) {
+    public String saveUser(@RequestParam("roleId") int roleId,
+                           @RequestParam("name") String name,
+                           @RequestParam("department") String department,
+                           @RequestParam("employeeType") String employmentType,
+                           @RequestParam("email") String email,
+                           @RequestParam("password") String password) {
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+
         User savedUser = usersService.save(user);
         usersService.assignRoleToUser(savedUser.getId(), roleId);
+
+        Employee employee = new Employee();
+        employee.setEmployeeType(employmentType);
+        employee.setName(name);
+        employee.setDepartment(department);
+        employee.setUsers(savedUser);
+        employeeService.save(employee);
+
         return "redirect:/view";
     }
 

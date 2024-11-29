@@ -41,10 +41,14 @@ public class TaskManagementController {
     public String taskPage(@RequestParam(value = "taskId", required = false) Integer taskId, Model model, HttpSession session){
 
         Integer userId = (Integer) session.getAttribute("userId");
-        List<TaskManagement> taskManagementList = taskManagementService.findTaskManagementsByUserId(userId);
-        List<Employee> employees = employeeService.findAll();
+
+        List<TaskManagement> taskManagementList = taskManagementService.findTaskManagementsByProjectManagerUserId(userId);
+
+        String department = employeeService.findDepartmentByUserId(userId);
+        List<Employee> supervisorList = employeeService.findSupervisorsByDepartment(department);
+
         model.addAttribute("tasks", taskManagementList);
-        model.addAttribute("employees", employeeService.findAll());
+        model.addAttribute("employees", supervisorList);
 
         model.addAttribute("employeeCount", 1);
 
@@ -74,10 +78,34 @@ public class TaskManagementController {
         return "task/taskList";
     }
 
+    @GetMapping("/taskSupervisorPage")
+    public String taskSupervisorPage(@RequestParam(value = "taskId", required = false) Integer taskId,Model model, HttpSession session){
+
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        String department = employeeService.findDepartmentByUserId(userId);
+        List<Employee> employeeList = employeeService.findEmployeesByDepartment(department);
+
+        List<Employee> employees = employeeService.findAll();
+        model.addAttribute("tasks", taskManagementService.findAll());
+        model.addAttribute("employees", employeeList);
+
+        model.addAttribute("employeeCount", 1);
+
+        if (taskId != null) {
+            model.addAttribute("task", taskManagementService.findById(taskId));
+        }
+
+        model.addAttribute("activities", activityService.findAll());
+
+        return "task/taskSupervisor";
+    }
+
     @PostMapping("/taskPopulate")
     public String processTaskPage(
             @RequestParam(value = "taskId", required = false) Integer taskId,
             @RequestParam ("activityName") String activityName,
+            @RequestParam ("notes") String notes,
             @RequestParam("employeeIds[]") List<Integer> employeeIds,
             @RequestParam(value = "taskLeaderId", required = false) Integer taskLeaderId,
             RedirectAttributes redirectAttributes) {
@@ -94,6 +122,7 @@ public class TaskManagementController {
 
         Activity activity = new Activity();
         activity.setActivityName(activityName);
+        activity.setNotes(notes);
         activity = activityService.save(activity);
         taskManagementId.setActivities(activity);
         activity.setTask(taskManagementId);
@@ -102,7 +131,7 @@ public class TaskManagementController {
 
 
         // Redirect back to the task page
-        return "redirect:/task/taskPage";
+        return "redirect:/task/taskSupervisor";
     }
     @PostMapping("/assignTaskToSupervisor")
     public String processTaskPage(

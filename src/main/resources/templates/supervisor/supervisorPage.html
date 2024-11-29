@@ -102,7 +102,7 @@
     </div>
     <br>
     <a th:href="@{/reports-page}">Reports</a>
-    <a th:href="@{/task/taskPage}">Task</a>
+    <a th:href="@{/task/taskSupervisorPage}">Task</a>
     <a th:href="@{/history}">History</a>
     <a th:href="@{/manageMessages}">Messages</a>
 
@@ -128,8 +128,8 @@
         <tr th:each="project : ${projects}">
             <td th:text="${project.name}"></td>
             <td th:text="${project.category}"></td>
-            <td th:text="${#dates.format(project.createdAt, 'yyyy-MM-dd')}"></td>
-            <td th:text="${#dates.format(project.updatedAt, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#dates.format(project.startDate, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#dates.format(project.endDate, 'yyyy-MM-dd')}"></td>
             <td th:text="${project.description}"></td>
         </tr>
         </tbody>

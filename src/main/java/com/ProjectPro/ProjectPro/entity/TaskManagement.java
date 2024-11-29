@@ -80,7 +80,7 @@ public class TaskManagement {
     @JoinColumn(name = "priority_level_id")
     private PriorityLevel priorityLevel;
 
-    @OneToOne(mappedBy = "task",fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @OneToOne(mappedBy = "task",fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private Activity activities;
 
     @ManyToOne

@@ -39,13 +39,8 @@
     <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
   </div>
   <br>
-  <a th:href="@{/project/projectPage}">Projects</a>
-  <a th:href="@{/employee/employeePage}">Employees</a>
-  <a th:href="@{/directoratePage}">Directorate</a>
-  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
   <a th:href="@{/reports-page}">Reports</a>
-  <a th:href="@{/priority-levels}">Priority</a>
-  <a th:href="@{/activity}">Activity</a>
+  <a th:href="@{/task/taskSupervisorPage}">Task</a>
   <a th:href="@{/history}">History</a>
   <a th:href="@{/manageMessages}">Messages</a>
 
@@ -69,7 +64,8 @@
 
 
   <!-- Table Actions -->
-    <div class="button cross" onclick="showAssignPopup()" style="width: 200px;">Assign to Employee</div>
+  <div class="table-actions">
+    <div class="button cross" onclick="showAssignPopup()" style="width: 200px;">Assign to Employees</div>
   </div>
 
   <!-- Task Table -->
@@ -107,9 +103,15 @@
     <input type="hidden" name="taskId" id="popup-task-id3" /> <!-- Task ID now inside the form -->
 
     <!-- Activity -->
+
     <div class="mb-3">
-      <label for="popup-activity" class="form-label">Activity Name:</label>
-      <textarea name="activityName" id="popup-activity" class="form-control" rows="4" required></textarea>
+      <label for="popup-activity-name" class="form-label">Activity name:</label>
+      <textarea name="activityName" id="popup-activity-name" class="form-control" required></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="popup-activity" class="form-label">Activity Notes:</label>
+      <textarea name="notes" id="popup-activity" class="form-control" rows="4" required></textarea>
     </div>
 
     <!-- Employee Select Section -->

@@ -1,6 +1,5 @@
 package com.ProjectPro.ProjectPro.dao;
 
-import com.ProjectPro.ProjectPro.entity.Activity;
 import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.TaskManagement;
 import com.ProjectPro.ProjectPro.entity.User;
@@ -11,6 +10,7 @@ import com.ProjectPro.ProjectPro.service.EmployeeService;
 import com.ProjectPro.ProjectPro.service.TaskManagementService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -168,23 +168,6 @@ public class TaskManagementImpl implements TaskManagementService {
         return false;
     }
 
-//    @Override
-////    public void assignActivitiesAndEmployees(Integer taskId, List<Integer> activityIds, List<Integer> employeeIds) {
-////        TaskManagement taskManagement = this.findById(taskId);
-////        List<Activity> activities = activityRepo.findAllById(activityIds);
-////        List<Employee> employees = employeeRepo.findAllById(employeeIds);
-////
-////        for (Activity activity: activities){
-////            for (Employee employee: employees){
-////                activity.setEmployee(employee);
-////                activity.setTask(taskManagement);
-////                taskManagement.getEmployees().add(employee);
-////            }
-////            activityRepo.save(activity);
-////        }
-////        taskManagementRepo.save(taskManagement);
-////    }
-
     @Override
     public List<TaskManagement> getSortedTasksForLoggedInUser(User user) {
         // Retrieve employee based on user
@@ -205,8 +188,10 @@ public class TaskManagementImpl implements TaskManagementService {
         return taskManagementRepo.findByStatus("Completed");
     }
 
+
+
     @Override
-    public List<TaskManagement> findTaskManagementsByUserId(int userId) {
-        return taskManagementRepo.findTaskManagementsByUserId(userId);
+    public List<TaskManagement> findTaskManagementsByProjectManagerUserId(int userId) {
+        return taskManagementRepo.findTaskManagementsByProjectManagerUserId(userId);
     }
 }

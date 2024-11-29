@@ -67,4 +67,30 @@ public class EmployeeImpl implements EmployeeService {
         return employeeRepo.findByUserId(userId);
     }
 
+    @Override
+    public String findDepartmentByUserId(int userId) {
+        return employeeRepo.findDepartmentByUserId(userId);
+    }
+
+    @Override
+    public List<Employee> getEmployeesByDepartment(String department) {
+        return employeeRepo.getEmployeesByDepartment(department);
+    }
+
+    @Override
+    public List<Employee> findSupervisorsByDepartment(String department) {
+        return employeeRepo.findSupervisorsByDepartment(department);
+    }
+
+    @Override
+    public List<Employee> findProjectManagersByDepartment(String department) {
+        return employeeRepo.findProjectManagersByDepartment(department);
+    }
+
+    @Override
+    public List<Employee> findEmployeesByDepartment(String department) {
+        return employeeRepo.findEmployeesByDepartment(department);
+    }
+
+
 }
