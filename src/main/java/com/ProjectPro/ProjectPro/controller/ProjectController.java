@@ -134,8 +134,7 @@ public class ProjectController {
     @PostMapping("/add-activity")
     public String addActivityPage(@RequestParam("projectId") int project,
                                   @RequestParam("activityName") String name,
-                                  @RequestParam("notes") String notes,
-                                  @RequestParam("status") String status){
+                                  @RequestParam("notes") String notes){
 
         Project project1 = projectService.findById(project);
 

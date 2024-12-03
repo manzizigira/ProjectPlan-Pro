@@ -55,7 +55,7 @@ public class ImplementingAgencyController {
     public ResponseEntity<Map<String, Object>> getODirectorateById(@PathVariable int id) {
         ImplementingAgency implementingAgency = implementingAgencyService.findById(id);
 
-        // Assuming `ImplementingAgency` has methods `getId()`, `getName()`, `getCategory()`, `getCreatedAt()`, `getUpdatedAt()`, and `getDescription()`
+        // Assuming `ImplementingAgency` has methods `getId()`, `getName()`, `getCategory()`, `getStartDate()`, `getEndDate()`, and `getDescription()`
         Map<String, Object> response = new HashMap<>();
         response.put("id", implementingAgency.getId());
         response.put("name", implementingAgency.getName());

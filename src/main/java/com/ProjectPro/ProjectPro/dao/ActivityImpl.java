@@ -164,4 +164,14 @@ public class ActivityImpl implements ActivityService {
     public List<Activity> getActivitiesForEmployee(Employee employee) {
         return activityRepo.findActivitiesByEmployees(employee);
     }
+
+    @Override
+    public List<Activity> findActivitiesByProjectManagerUserId(int userId) {
+        return activityRepo.findActivitiesByProjectManagerUserId(userId);
+    }
+
+    @Override
+    public List<Activity> findActivitiesByHeadOfDepartmentUserId(int userId) {
+        return activityRepo.findActivitiesByHeadOfDepartmentUserId(userId);
+    }
 }

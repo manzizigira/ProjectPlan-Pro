@@ -1,91 +1,64 @@
 package com.ProjectPro.ProjectPro.entity;
 
+
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
-@Table(name = "messages")
 public class MessageModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
+    private User sender; // The user who sends the message
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiver;
+    private User receiver; // The user who receives the message
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project; // The project related to the message (can be null)
 
-    @Column(nullable = false, columnDefinition = "LONGTEXT")
-    private String message;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id")
+    private TaskManagement task; // The task related to the message (can be null)
 
-    @Column(name = "date_time", nullable = false)
-    private LocalDateTime dateTime;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "activity_id")
+    private Activity activity; // The activity related to the message (can be null)
 
-    @ManyToOne
-    @JoinColumn(name = "reply_id")
-    private MessageModel reply;
+    private String messageContent; // The content of the message
 
-    @OneToMany(mappedBy = "reply", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<MessageModel> replies = new HashSet<>();
+    private LocalDateTime timestamp; // Timestamp when the message is sent
 
-    @Column(name = "is_visible", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Enumerated(EnumType.STRING)
+    private MessageStatus status; // MessageModel status, e.g., SENT, READ, etc.
 
+    // Constructor, Getters, Setters
 
-    public int getId() {
+    public MessageModel() {}
+
+    public MessageModel(User sender, User receiver, String messageContent, LocalDateTime timestamp, MessageStatus status) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.messageContent = messageContent;
+        this.timestamp = timestamp;
+        this.status = status;
+    }
+
+    // Getters and Setters...
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
-    public MessageModel getReply() {
-        return reply;
-    }
-
-    public void setReply(MessageModel reply) {
-        this.reply = reply;
-    }
-
-    public Set<MessageModel> getReplies() {
-        return replies;
-    }
-
-    public void setReplies(Set<MessageModel> replies) {
-        this.replies = replies;
-    }
-
-    public boolean isVisible() {
-        return isVisible;
-    }
-
-    public void setVisible(boolean visible) {
-        isVisible = visible;
     }
 
     public User getSender() {
@@ -102,5 +75,53 @@ public class MessageModel {
 
     public void setReceiver(User receiver) {
         this.receiver = receiver;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public TaskManagement getTask() {
+        return task;
+    }
+
+    public void setTask(TaskManagement task) {
+        this.task = task;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
+
+    public String getMessageContent() {
+        return messageContent;
+    }
+
+    public void setMessageContent(String messageContent) {
+        this.messageContent = messageContent;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public MessageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MessageStatus status) {
+        this.status = status;
     }
 }

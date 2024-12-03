@@ -1,7 +1,9 @@
 package com.ProjectPro.ProjectPro.dao;
 
 
+import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
+import com.ProjectPro.ProjectPro.entity.TaskManagement;
 import com.ProjectPro.ProjectPro.repository.GradingRepo;
 import com.ProjectPro.ProjectPro.repository.ReportRepo;
 import com.ProjectPro.ProjectPro.service.ReportService;
@@ -93,5 +95,21 @@ public class ReportImpl implements ReportService {
     public List<Map<String, Object>> findPendingReportsBySupervisors() {
         return reportRepo.findPendingReportsBySupervisors();
     }
+
+    @Override
+    public List<Report> findReportsByEmployeesForTaskLeader(int taskLeaderId) {
+        return reportRepo.findReportsByEmployeesForTaskLeader(taskLeaderId);
+    }
+
+    @Override
+    public Report findLatestReportByTaskAndEmployee(TaskManagement task, Employee employee) {
+        return reportRepo.findTopByTaskManagementAndEmployeeOrderBySubmissionDateDesc(task,employee);
+    }
+
+    @Override
+    public List<Report> findReportsByTaskLeaderUserId(Integer userId) {
+        return reportRepo.findReportsByTaskLeaderUserId(userId);
+    }
+
 
 }

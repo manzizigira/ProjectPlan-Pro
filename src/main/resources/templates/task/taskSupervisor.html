@@ -42,7 +42,7 @@
   <a th:href="@{/reports-page}">Reports</a>
   <a th:href="@{/task/taskSupervisorPage}">Task</a>
   <a th:href="@{/history}">History</a>
-  <a th:href="@{/manageMessages}">Messages</a>
+  <a th:href="@{/messages/view}">Messages</a>
 
   <div class="spacer"></div>
 
@@ -184,8 +184,8 @@
                 document.getElementById('popup-task-id').value = task.id;
                 document.getElementById('popup-name').value = task.name;
                 document.getElementById('popup-category').value = task.category;
-                document.getElementById('popup-start_date').value = formatDate(task.createdAt);
-                document.getElementById('popup-end_date').value = formatDate(task.updatedAt);
+                document.getElementById('popup-start_date').value = formatDate(task.startDate);
+                document.getElementById('popup-end_date').value = formatDate(task.endDate);
                 document.getElementById('popup-notes').value = task.notes;
                 document.getElementById('popup-status').value = task.status;
             })

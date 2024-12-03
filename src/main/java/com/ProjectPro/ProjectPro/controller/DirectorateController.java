@@ -72,7 +72,7 @@ public class DirectorateController {
     public ResponseEntity<Map<String, Object>> getDirectorateById(@PathVariable int id) {
         Directorate directorate = directorateService.findById(id);
 
-        // Assuming `Directorate` has methods `getId()`, `getName()`, `getCreatedAt()`, `getUpdatedAt()`, and `getDescription()`
+        // Assuming `Directorate` has methods `getId()`, `getName()`, `getStartDate()`, `getEndDate()`, and `getDescription()`
         Map<String, Object> response = new HashMap<>();
         response.put("id", directorate.getId());
         response.put("name", directorate.getName());

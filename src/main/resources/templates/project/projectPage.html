@@ -38,7 +38,7 @@
     <a th:href="@{/task/taskPage}">Task</a>
     <a th:href="@{/activity}">Activity</a>
     <a th:href="@{/history}">History</a>
-    <a th:href="@{/manageMessages}">Messages</a>
+    <a th:href="@{/messages/view}">Messages</a>
 
     <div class="spacer"></div>
 
@@ -115,13 +115,13 @@
         <!-- Start Date Field -->
         <div class="mb-3">
             <label for="popup-start_date" class="form-label">Start Date:</label>
-            <input type="date" name="createdAt" id="popup-start_date" class="form-control" required />
+            <input type="date" name="startDate" id="popup-start_date" class="form-control" required />
         </div>
 
         <!-- End Date Field -->
         <div class="mb-3">
             <label for="popup-end_date" class="form-label">End Date:</label>
-            <input type="date" name="updatedAt" id="popup-end_date" class="form-control" required />
+            <input type="date" name="endDate" id="popup-end_date" class="form-control" required />
         </div>
 
         <!-- Description Field -->
@@ -145,7 +145,7 @@
         <!-- Hidden field for projectId -->
         <input type="hidden" name="projectId" id="popup-project-id2" />
 
-        <!-- Confirmation Message -->
+        <!-- Confirmation MessageModel -->
         <p class="text-center">Are you sure you want to delete this project?</p>
 
         <!-- Buttons Section -->
@@ -178,14 +178,14 @@
 
         <!-- Start Date Field -->
         <div class="mb-3">
-            <label for="task-createdAt" class="form-label">Start Date:</label>
-            <input type="date" id="task-createdAt" name="startDate" class="form-control" required />
+            <label for="task-startDate" class="form-label">Start Date:</label>
+            <input type="date" id="task-startDate" name="startDate" class="form-control" required />
         </div>
 
         <!-- End Date Field -->
         <div class="mb-3">
-            <label for="task-updatedAt" class="form-label">End Date:</label>
-            <input type="date" id="task-updatedAt" name="endDate" class="form-control" required />
+            <label for="task-endDate" class="form-label">End Date:</label>
+            <input type="date" id="task-endDate" name="endDate" class="form-control" required />
         </div>
 
         <!-- Notes Field -->
@@ -217,26 +217,20 @@
 
         <!-- Start Date Field -->
         <div class="mb-3">
-            <label for="activity-createdAt" class="form-label">Start Date:</label>
-            <input type="date" id="activity-createdAt" name="createdAt" class="form-control" required />
+            <label for="activity-startDate" class="form-label">Start Date:</label>
+            <input type="date" id="activity-startDate" name="startDate" class="form-control" required />
         </div>
 
         <!-- End Date Field -->
         <div class="mb-3">
-            <label for="activity-updatedAt" class="form-label">End Date:</label>
-            <input type="date" id="activity-updatedAt" name="updatedAt" class="form-control" required />
+            <label for="activity-endDate" class="form-label">End Date:</label>
+            <input type="date" id="activity-endDate" name="endDate" class="form-control" required />
         </div>
 
         <!-- Notes Field -->
         <div class="mb-3">
             <label for="activity-notes" class="form-label">Notes:</label>
             <textarea id="activity-notes" name="notes" class="form-control" rows="4" required></textarea>
-        </div>
-
-        <!-- Status Field -->
-        <div class="mb-3">
-            <label for="activity-status" class="form-label">Status:</label>
-            <input type="text" id="activity-status" name="status" class="form-control" required />
         </div>
 
         <!-- Submit Button -->
@@ -278,8 +272,8 @@
                 document.getElementById('popup-project-id').value = project.id;
                 document.getElementById('popup-name').value = project.name;
                 document.getElementById('popup-category').value = project.category;
-                document.getElementById('popup-start_date').value = formatDate(project.createdAt);
-                document.getElementById('popup-end_date').value = formatDate(project.updatedAt);
+                document.getElementById('popup-start_date').value = formatDate(project.startDate);
+                document.getElementById('popup-end_date').value = formatDate(project.endDate);
                 document.getElementById('popup-description').value = project.description;
             })
             .catch(error => console.error('Error fetching project data:', error));

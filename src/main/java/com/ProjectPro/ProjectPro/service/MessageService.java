@@ -1,28 +1,26 @@
 package com.ProjectPro.ProjectPro.service;
 
-import com.ProjectPro.ProjectPro.entity.MessageModel;
-import com.ProjectPro.ProjectPro.entity.User;
+import com.ProjectPro.ProjectPro.entity.*;
 
 import java.util.List;
 
 public interface MessageService {
 
-    public List<MessageModel> findAllMessages();
+    List<MessageModel> getMessagesForHOD(User hod);
 
-    public List<MessageModel> findAllMessagesForAdmin(User user);
+    // Messages related to tasks created by Project Manager
+    List<MessageModel> getMessagesForProjectManager(User projectManager);
 
-    public List<MessageModel> findReplies(MessageModel message);
+    // Messages related to tasks assigned by Supervisor
+    List<MessageModel> getMessagesForSupervisor(User supervisor);
 
-    public List<MessageModel> findRepliesForAdmin(MessageModel message);
+    // Messages for Employee (either task or activity related)
+    List<MessageModel> getMessagesForEmployee(User employee);
+    void createMessage(User sender, User receiver, String messageContent, Project project, TaskManagement task, Activity activity);
 
-    public MessageModel saveMessage(MessageModel message);
+    void createTaskMessage(User projectManager, User supervisor, TaskManagement task);
 
-    public MessageModel findById(int id);
-
-    public void updateMessageVisibility(int id, boolean isVisible);
-    public List<MessageModel> findAllMessages(User employee, User supervisor);
-
-    List<MessageModel> findMessagesBetween(User supervisor, User employee);
+    public MessageModel getMessageById(Long messageId);
 
 
 }

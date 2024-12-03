@@ -41,7 +41,7 @@
     <a th:href="@{/task/taskPage}">Task</a>
     <a th:href="@{/activity}">Activity</a>
     <a th:href="@{/history}">History</a>
-    <a th:href="@{/manageMessages}">Messages</a>
+    <a th:href="@{/messages/view}">Messages</a>
 
     <div class="spacer"></div>
 
@@ -88,8 +88,8 @@
         <tbody>
         <tr th:each="implementingAgency : ${implementingAgencies}">
             <td th:text="${implementingAgency.name}"></td>
-            <td th:text="${#dates.format(implementingAgency.createdAt, 'yyyy-MM-dd')}"></td>
-            <td th:text="${#dates.format(implementingAgency.updatedAt, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#dates.format(implementingAgency.startDate, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#dates.format(implementingAgency.endDate, 'yyyy-MM-dd')}"></td>
             <td th:text="${implementingAgency.description}"></td>
         </tr>
         </tbody>
@@ -193,14 +193,14 @@
 
         <!-- Start Date -->
         <div class="mb-3">
-            <label for="createdAt" class="form-label">Start Date:</label>
-            <input type="date" id="createdAt" name="createdAt" class="form-control" required />
+            <label for="startDate" class="form-label">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" class="form-control" required />
         </div>
 
         <!-- End Date -->
         <div class="mb-3">
-            <label for="updatedAt" class="form-label">End Date:</label>
-            <input type="date" id="updatedAt" name="updatedAt" class="form-control" required />
+            <label for="endDate" class="form-label">End Date:</label>
+            <input type="date" id="endDate" name="endDate" class="form-control" required />
         </div>
 
         <!-- Project Description -->
@@ -278,8 +278,8 @@
                         if (popupSubObjectiveIdInput) popupSubObjectiveIdInput.value = data.id;
                         if (popupNameInput) popupNameInput.value = data.name;
                         if (popupCategoryInput) popupCategoryInput.value = data.category;
-                        if (popupStartDateInput) popupStartDateInput.value = formatDate(data.createdAt);
-                        if (popupEndDateInput) popupEndDateInput.value = formatDate(data.updatedAt);
+                        if (popupStartDateInput) popupStartDateInput.value = formatDate(data.startDate);
+                        if (popupEndDateInput) popupEndDateInput.value = formatDate(data.endDate);
                         if (popupDescriptionInput) popupDescriptionInput.value = data.description;
 
                         if (updatePopup) updatePopup.style.display = 'block';

@@ -20,15 +20,15 @@ public class Activity {
     @Column(name = "activity_name")
     private String activityName;
 
-    @Column(name = "created_at")
+    @Column(name = "start_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private Date startDate;
 
-    @Column(name = "updated_at")
+    @Column(name = "end_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private Date endDate;
 
     @Column(name = "notes")
     private String notes;
@@ -78,10 +78,10 @@ public class Activity {
         employees = new HashSet<>();
     }
 
-    public Activity(String activityName, LocalDateTime createdAt, LocalDateTime updatedAt, String notes, String status) {
+    public Activity(String activityName, Date startDate, Date endDate, String notes, String status) {
         this.activityName = activityName;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.notes = notes;
         this.status = status;
     }
@@ -102,20 +102,20 @@ public class Activity {
         this.activityName = activityName;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+    public Date getEndDate() {
+        return endDate;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public String getNotes() {
@@ -223,8 +223,8 @@ public class Activity {
         return "Activity{" +
                 "id=" + id +
                 ", activityName='" + activityName + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
                 ", notes='" + notes + '\'' +
                 ", status='" + status + '\'' +
                 '}';

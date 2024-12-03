@@ -16,6 +16,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.net.MalformedURLException;
+
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -137,9 +148,11 @@ public class ReportController {
 
     // Task Leader views Employees Reports
     @GetMapping("/em-report")
-    public String viewPendingEmployeeReport(Model model){
+    public String viewPendingEmployeeReport(Model model, HttpSession session){
+
+        Integer userId = (Integer) session.getAttribute("userId");
         List<Map<String,Object>> pendingReports = reportService.findPendingReportsByEmployees();
-        List<Report> reports = reportService.findAll().stream()
+        List<Report> reports = reportService.findReportsByTaskLeaderUserId(userId).stream()
                 .filter(report ->
                         (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
                                 (report.getActivity() != null && !"Completed".equals(report.getActivity().getStatus()))
@@ -153,9 +166,45 @@ public class ReportController {
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("gradedCount", gradedCount);
         model.addAttribute("pendingReportIds", pendingReportIds);
-        model.addAttribute("pendingReports", pendingReports);
+        model.addAttribute("pendingReports", reports);
         return "report/taskLeaderReport";
     }
+
+    @GetMapping("/download-report")
+    public ResponseEntity<Resource> downloadReport(@RequestParam("reportId") int reportId) {
+        Report report = reportService.findById(reportId);
+        if (report == null || report.getReportFile() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Get the upload directory
+        String uploadDir = "C:/Users/amine/Downloads/Jane/";  // Update this if necessary
+
+        // Create the file path based on the report name
+        Path filePath = Paths.get(uploadDir, report.getReportFile());
+
+        // Check if the file exists
+        if (!Files.exists(filePath)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            // Create a resource to serve the file
+            Resource resource = new UrlResource(filePath.toUri());
+
+            // Return the file as an attachment to download
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + report.getReportFile() + "\"")
+                    .body(resource);
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
+
+
 
 
     @GetMapping("/view-report")

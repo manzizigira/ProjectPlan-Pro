@@ -1,15 +1,16 @@
 package com.ProjectPro.ProjectPro.dao;
 
-import com.ProjectPro.ProjectPro.entity.MessageModel;
-import com.ProjectPro.ProjectPro.entity.User;
+import com.ProjectPro.ProjectPro.entity.*;
 import com.ProjectPro.ProjectPro.repository.MessageRepository;
 import com.ProjectPro.ProjectPro.repository.RoleRepo;
 import com.ProjectPro.ProjectPro.repository.UserRepo;
 import com.ProjectPro.ProjectPro.service.MessageService;
 import com.ProjectPro.ProjectPro.service.RoleService;
+import org.aspectj.bridge.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,64 +18,62 @@ public class MessageImpl implements MessageService {
 
     private MessageRepository messageRepository;
     private UserRepo userRepo;
-    private RoleRepo roleRepo;
-    private RoleService roleService;
 
     @Autowired
-    public MessageImpl(MessageRepository messageRepository, UserRepo userRepo, RoleRepo roleRepo, RoleService roleService) {
+    public MessageImpl(MessageRepository messageRepository, UserRepo userRepo) {
         this.messageRepository = messageRepository;
         this.userRepo = userRepo;
-        this.roleRepo = roleRepo;
-        this.roleService = roleService;
     }
 
     @Override
-    public List<MessageModel> findAllMessages() {
-        return messageRepository.findAllByReplyIsNullAndIsVisibleTrueOrderByDateTimeDesc();
+    public List<MessageModel> getMessagesForHOD(User hod) {
+        return messageRepository.findMessagesByProjectCreator(hod);
     }
 
     @Override
-    public List<MessageModel> findAllMessagesForAdmin(User user) {
-        return messageRepository.findAllByReceiverAndReplyIsNullOrderByDateTimeDesc(user);
+    public List<MessageModel> getMessagesForProjectManager(User projectManager) {
+        return messageRepository.findMessagesByTaskCreator(projectManager);
     }
 
     @Override
-    public List<MessageModel> findReplies(MessageModel message) {
-        return messageRepository.findAllByReplyAndIsVisibleTrueOrderByDateTimeAsc(message);
+    public List<MessageModel> getMessagesForSupervisor(User supervisor) {
+        return messageRepository.findMessagesByTaskAssigner(supervisor);
     }
 
     @Override
-    public List<MessageModel> findRepliesForAdmin(MessageModel message) {
-        return messageRepository.findAllByReplyOrderByDateTimeAsc(message);
+    public List<MessageModel> getMessagesForEmployee(User employee) {
+        return messageRepository.findMessagesForEmployee(employee);
     }
 
-    @Override
-    public MessageModel saveMessage(MessageModel message) {
-        return messageRepository.save(message);
-    }
-
-    @Override
-    public MessageModel findById(int id) {
-        return messageRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public void updateMessageVisibility(int id, boolean isVisible) {
-        MessageModel message = findById(id);
-        if (message != null) {
-            message.setVisible(isVisible);
-            messageRepository.save(message);
+    public void createMessage(User sender, User receiver, String messageContent, Project project, TaskManagement task, Activity activity) {
+        MessageModel message = new MessageModel(sender, receiver, messageContent, LocalDateTime.now(), MessageStatus.SENT);
+        if (project != null) {
+            message.setProject(project);
         }
+        if (task != null) {
+            message.setTask(task);
+        }
+        if (activity != null) {
+            message.setActivity(activity);
+        }
+        messageRepository.save(message);
+    }
+
+    // Example method to send a message when a project is assigned
+    public void createProjectMessage(User hod, User projectManager, Project project) {
+        String messageContent = "New project assigned: " + project.getName();
+        createMessage(hod, projectManager, messageContent, project, null, null);
+    }
+
+    // Example method to send a message when a task is assigned
+    public void createTaskMessage(User projectManager, User supervisor, TaskManagement task) {
+        String messageContent = "New task assigned: " + task.getName();
+        createMessage(projectManager, supervisor, messageContent, null, task, null);
     }
 
     @Override
-    public List<MessageModel> findAllMessages(User employee, User supervisor) {
-        return messageRepository.findAllBySenderAndReceiverAndReplyIsNullAndIsVisibleTrueOrderByDateTimeDesc(employee, supervisor);
-    }
-
-    @Override
-    public List<MessageModel> findMessagesBetween(User supervisor, User employee) {
-        return messageRepository.findAllBySenderAndReceiver(supervisor, employee);
+    public MessageModel getMessageById(Long messageId) {
+        return messageRepository.findById(messageId).orElse(null);
     }
 
 }

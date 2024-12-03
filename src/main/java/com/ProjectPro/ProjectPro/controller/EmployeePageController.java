@@ -43,18 +43,29 @@ public class EmployeePageController {
     }
 
     @PostMapping("/submitReport")
-    public String submitReport(
+    @ResponseBody
+    public ResponseEntity<?> submitReport(
             @RequestParam("userId") Integer userId,
             @RequestParam("taskId") Integer taskId,
-            @RequestParam("submissionDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date submissionDate,
             @RequestParam("reportFile") MultipartFile reportFile,
             @RequestParam("progressPercentage") Integer progressPercentage,
-            @RequestParam("reportDescription") String reportDescription,
-            Model model) {
+            @RequestParam("reportDescription") String reportDescription) {
 
         User user = usersService.findById(userId);
         Employee employee = employeeService.findByUser(user);
         TaskManagement task = taskService.findById(taskId);
+
+        // Fetch the latest report for the task by this employee
+        Report latestReport = reportService.findLatestReportByTaskAndEmployee(task, employee);
+
+        if (latestReport != null) {
+            // Validate the progress percentage
+            if (progressPercentage < latestReport.getProgressPercentage()) {
+                return ResponseEntity.badRequest().body(
+                        "You cannot submit a progress percentage lower than your previous report ("
+                                + latestReport.getProgressPercentage() + "%).");
+            }
+        }
 
         String fileName = System.currentTimeMillis() + "_" + reportFile.getOriginalFilename();
         String filePath = "reports/" + fileName;
@@ -64,22 +75,23 @@ public class EmployeePageController {
             reportFile.transferTo(targetFile);
         } catch (IOException e) {
             e.printStackTrace();
-            model.addAttribute("message", "File upload failed");
-            return "error-page";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed.");
         }
 
+        // Save the new report
         Report report = new Report();
         report.setEmployee(employee);
         report.setTaskManagement(task);
         report.setReportFile(filePath);
         report.setProgressPercentage(progressPercentage);
         report.setReportDescription(reportDescription);
-        report.setSubmissionDate(submissionDate);
+        report.setSubmissionDate(new Date());
 
         reportService.save(report);
 
-        return "redirect:/employee-home";
+        return ResponseEntity.ok("Report submitted successfully.");
     }
+
     @PostMapping("/submitActivityReport")
     public String submitActivityReport(
             @RequestParam("userId") Integer userId,

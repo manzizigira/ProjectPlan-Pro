@@ -39,15 +39,9 @@
     <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
   </div>
   <br>
-  <a th:href="@{/project/projectPage}">Projects</a>
-  <a th:href="@{/employee/employeePage}">Employees</a>
-  <a th:href="@{/directoratePage}">Directorate</a>
-  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
-  <a th:href="@{/priority-levels}">Priority</a>
-  <a th:href="@{/task/taskPage}">Task</a>
-  <a th:href="@{/activity}">Activity</a>
-  <a th:href="@{/history}">History</a>
-  <a th:href="@{/manageMessages}">Messages</a>
+  <a th:href="@{/reports-page/my-reports}">Reports</a>
+  <a th:href="@{/reports-page/em-report}">Employee Reports</a>
+  <a th:href="@{/messages/view}">Messages</a>
 
   <div class="spacer"></div>
 
@@ -64,7 +58,6 @@
       <div class="row">
         <div class="col-md-6 widget bg-container">
           <h4>Grading Summary</h4>
-          <p>Graded Reports: <span id="graded-reports" th:text="${gradedCount}">0</span></p>
           <p>Pending Reports: <span id="pending-reports" th:text="${pendingCount}">0</span></p>
         </div>
       </div>
@@ -79,19 +72,17 @@
         <th>Task</th>
         <th>Employee Name</th>
         <th>Submission Date</th>
-        <th>Status</th>
+        <th>View Report</th>
       </tr>
       </thead>
       <tbody>
       <tr th:each="report : ${pendingReports}">
-        <td th:text="${report['reportDescription']}"></td>
-        <td th:text="${report['taskName']}"></td>
-        <td th:text="${report['employeeName']}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.['status']}"></td>
+        <td th:text="${report.reportDescription}"></td>
+        <td th:text="${report.taskManagement.name}"></td>
+        <td th:text="${report.employee.name}"></td> <!-- The employee who submitted the report -->
+        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
         <td>
           <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
-          <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
         </td>
       </tr>
       <tr th:if="${#lists.isEmpty(reports)}">
@@ -107,416 +98,172 @@
 
 <!-- Modals -->
 <!-- View Report Modal -->
-<div id="view-report-modal" class="popup" style="display: none;">
-  <div class="popup-content">
-    <span class="closebtn" onclick="hidePopup('view-report-modal')">&times;</span>
+  <div id="view-report-modal" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
     <h2>View Report</h2>
     <div id="view-report-content">
-      Report Description:
-      <p id="report-description"></p>
-      Project name: <p id="project-name"></p>
-      Task name: <p id="task-name"></p>
-      Employee name: <p id="employee-name"></p>
-      Progress Percentage: <p id="progress-percentage"></p>
-      Submission Date: <p id="submission-date"></p>
-      Status: <p id="status"></p>
-      <a id="view-report-file" onclick="viewReport(${reportId})" class="btn btn-info" target="_blank" style="display: none;">View Report</a>
-      <a id="download-report-file" href="#" class="btn btn-success" download style="display: none;">Download Report</a>
-      <button type="button" onclick="hidePopup('view-report-modal')">Close</button>
+
+      <br>
+
+      <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/project.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Project:</h6>
+        <p id="project-name" style="display: inline; margin-left: 5px;"></p>
+      </div>
+
+      <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/clipboard.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Task Name:</h6>
+        <p id="task-name" style="display: inline; margin-left: 5px;"></p>
+      </div>
+
+      <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/man.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Employee name:</h6>
+        <p id="employee-name" style="display: inline; margin-left: 5px;"></p>
+      </div>
+
+      <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/progressive.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Progress Percentage:</h6>
+        <p id="progress-percentage" style="display: inline; margin-left: 5px;"></p>
+      </div>
+
+      <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/calendar.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Submission Date:</h6>
+        <p id="submission-date" style="display: inline; margin-left: 5px;"></p>
+      </div>
+
+      <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/play-button.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Status:</h6>
+        <p id="status" style="display: inline; margin-left: 5px;"></p>
+      </div>
+
+      <div class="mb-3" style="margin-left:15px">
+        <h6 style="display: inline;">Report Description:</h6>
+        <p id="report-description" style="display: inline; margin-left: 5px;"></p>
+      </div>
+
+      <br>
+
+      <div class="d-flex justify-content-between">
+        <button id="download-report-file" class="btn btn-success" style="display: none;" onclick="downloadReport()">Download Report</button>
+        <button type="button" class="btn btn-secondary" onclick="hidePopup('view-report-modal')">Close</button>
+      </div>
     </div>
-  </div>
 </div>
-
-
-
-<!-- Grade Report Modal -->
-<div id="grade-report-modal" class="popup">
-  <span class="closebtn" onclick="hidePopup('grade-report-modal')">&times;</span>
-  <h2>Grade Report</h2>
-  <form id="grade-form" action="/reports-page/grade-report" method="POST">
-    <input type="hidden" name="reportId" id="grade-report-id" />
-    <input type="hidden" name="employeeId" id="grade-employee-id" />
-    <div class="mb-3">
-      <label for="grade-input" class="form-label">Grade</label>
-      <input type="text" class="form-control" id="grade-input" name="grade" required />
-    </div>
-    <div class="mb-3">
-      <label for="comments-input" class="form-label">Feedback</label>
-      <textarea class="form-control" id="comments-input" name="comments" rows="3" required></textarea>
-    </div>
-    <input type="hidden" class="form-control" id="grading-date-input" name="gradingDate" />
-
-    <button type="button" class="btn btn-success" id="complete-report-btn" onclick="completeReport()">Complete Report</button>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-  </form>
-</div>
-
-
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   let currentReportId = null;
   let currentActivityReportId = null;
 
-     // Function to toggle sidebar visibility
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-    }
-
-  function showReportDetails(reportId) {
-      currentReportId = reportId;  // Set the global currentReportId
-      fetch(`/reports-page/api/report-details/${reportId}`)
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.json(); // Read response as JSON
-          })
-          .then(data => {
-              console.log('Parsed data:', data); // Log parsed data
-
-              // Check if elements exist before setting their properties
-              let reportDescription = document.getElementById('report-description');
-              if (reportDescription) {
-                  reportDescription.textContent = data.reportDescription || 'N/A';
-              }
-
-              let projectName = document.getElementById('project-name');
-              if (projectName) {
-                  projectName.textContent = data.taskManagement && data.taskManagement.projectName ? data.taskManagement.projectName : 'N/A';
-              }
-
-
-              let taskName = document.getElementById('task-name');
-              if (taskName) {
-                  taskName.textContent = data.taskManagement ? data.taskManagement.name || 'N/A' : 'N/A';
-              }
-
-              let employeeName = document.getElementById('employee-name');
-              if (employeeName) {
-                  employeeName.textContent = data.employee ? data.employee.name || 'No Sub Objective' : 'No Sub Objective';
-              }
-
-              let submissionDate = document.getElementById('submission-date');
-              if (submissionDate) {
-                  submissionDate.textContent = data.submissionDate || 'N/A';
-              }
-
-              let status = document.getElementById('status');
-              if (status) {
-                  status.textContent = data.taskManagement ? data.taskManagement.status || 'N/A' : 'N/A';
-              }
-
-              let progressPercentage = document.getElementById('progress-percentage');
-              if (progressPercentage) {
-                  progressPercentage.textContent = data.progressPercentage || 'N/A';
-              }
-
-              // Handle file links
-              let reportFileElement = document.getElementById('view-report-file');
-              let downloadFileElement = document.getElementById('download-report-file');
-
-              if (reportFileElement && data.reportFile) {
-                  reportFileElement.href = data.reportFile;
-                  reportFileElement.style.display = 'inline';
-                  downloadFileElement.href = data.reportFile;
-                  downloadFileElement.style.display = 'inline';
-              } else {
-                  if (reportFileElement) reportFileElement.style.display = 'none';
-                  if (downloadFileElement) downloadFileElement.style.display = 'none';
-              }
-
-
-              // Show the popup
-              let viewReportModal = document.getElementById('view-report-modal');
-              if (viewReportModal) {
-                  viewReportModal.style.display = 'block';
-              }
-          })
-          .catch(error => {
-              console.error('Error fetching Report details:', error);
-          });
+  // Function to toggle sidebar visibility
+  function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
   }
 
-  function showActivityReportDetails(reportActivityId) {
-      currentActivityReportId = reportActivityId;  // Set the global currentReportId
-      fetch(`/reports-page/api/activity-details/${reportActivityId}`)
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.json(); // Read response as JSON
-          })
-          .then(data => {
-              console.log('Parsed data:', data); // Log parsed data
+  // Function to handle the download
+  function downloadReport() {
+      // Get the reportId (you can pass it dynamically when setting up the button)
+      var reportId = currentReportId;
 
-              let reportDescription = document.getElementById('report-description');
-              if (reportDescription) {
-                  console.log("Report description:", data.reportDescription);  // Log the specific property
-                  reportDescription.textContent = data.reportDescription || 'N/A';
-              }
+      // Construct the download URL based on the reportId
+      var downloadUrl = "/reports-page/download-report?reportId=" + reportId;
 
-              // Since this is for Activity reports, we get the project from the activity
-              let projectName = document.getElementById('project-name');
-              if (projectName) {
-                  projectName.textContent = data.activity && data.activity.project && data.activity.project.name ? data.activity.project.name : 'N/A';
-              }
+      // Create an anchor tag dynamically to trigger the download
+      var link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = ""; // Optionally set a default filename
+      link.click(); // Trigger the click event to start the download
+  }
 
-              // For Activity reports, display the activity name instead of the task name
-              let activityName = document.getElementById('activity-name');  // Updated from taskName to activityName
-              if (activityName) {
-                  activityName.textContent = data.activity ? data.activity.activityName || 'N/A' : 'N/A';
-              }
+  function showDownloadButton(reportId) {
+      var downloadButton = document.getElementById("download-report-file");
 
-              // Employee name is linked directly to the employee for the activity
-              let employeeName = document.getElementById('employee-name');
-              if (employeeName) {
-                  employeeName.textContent = data.employee ? data.employee.name || 'No Employee' : 'No Employee';
-              }
+      // Set current report ID
+      currentReportId = reportId;
 
-              let submissionDate = document.getElementById('submission-date');
-              if (submissionDate) {
-                  submissionDate.textContent = data.submissionDate || 'N/A';
-              }
-
-              // Status is linked to the activity, not task management
-              let status = document.getElementById('status');
-              if (status) {
-                  status.textContent = data.activity ? data.activity.status || 'N/A' : 'N/A';
-              }
-
-              // Progress percentage, if applicable for activities
-              let progressPercentage = document.getElementById('progress-percentage');
-              if (progressPercentage) {
-                  progressPercentage.textContent = data.progressPercentage || 'N/A';
-              }
-
-              // Handle file links
-              let reportFileElement = document.getElementById('view-report-file');
-              let downloadFileElement = document.getElementById('download-report-file');
-
-              if (reportFileElement && data.reportFile) {
-                  reportFileElement.href = data.reportFile;
-                  reportFileElement.style.display = 'inline';
-                  downloadFileElement.href = data.reportFile;
-                  downloadFileElement.style.display = 'inline';
-              } else {
-                  if (reportFileElement) reportFileElement.style.display = 'none';
-                  if (downloadFileElement) downloadFileElement.style.display = 'none';
-              }
-
-              // Show the popup
-              let viewReportModal = document.getElementById('view-report-modal');
-              if (viewReportModal) {
-                  viewReportModal.style.display = 'block';
-                }
-          })
-          .catch(error => {
-              console.error('Error fetching Report details:', error);
-          });
+      // Make the download button visible
+      downloadButton.style.display = "inline-block";
   }
 
 
-  function hidePopup(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-  }
-
-      document.addEventListener("DOMContentLoaded", function() {
-      fetch('/reports-page/graded-reports-count')
+function showReportDetails(reportId) {
+    currentReportId = reportId;  // Set the global currentReportId
+    fetch(`/reports-page/api/report-details/${reportId}`)
         .then(response => response.json())
-        .then(count => {
-          document.getElementById('graded-reports').textContent = count;
-        })
-        .catch(error => {
-          console.error('Error fetching graded reports count:', error);
-        });
-    });
-
-  document.addEventListener("DOMContentLoaded", function() {
-      // Function to show the modal and set form values
-      function openGradeReportModal(reportId, employeeId) {
-          document.getElementById('grade-report-id').value = reportId;
-          document.getElementById('grade-employee-id').value = employeeId;
-          var today = new Date().toISOString().split('T')[0];
-          document.getElementById('grading-date-input').value = today;
-
-          document.getElementById('grade-report-modal').style.display = 'block';
-      }
-
-      // Function to hide the modal
-      function hidePopup(modalId) {
-          document.getElementById(modalId).style.display = 'none';
-      }
-
-      // Add event listener to the form to handle submission and redirection
-      document.getElementById('grade-form').addEventListener('submit', function(event) {
-          event.preventDefault(); // Prevent default form submission
-
-          const form = event.target;
-          const formData = new FormData(form);
-
-          // Use fetch to submit the form data
-          fetch(form.action, {
-              method: 'POST',
-              body: formData
-          })
-          .then(response => {
-              if (response.redirected) {
-                  // Redirect to the new URL if successful
-                  window.location.href = response.url;
-              } else {
-                  throw new Error('Form submission failed');
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              alert('There was a problem with the submission. Please try again.');
-          });
-      });
-
-      // Expose functions to the global scope
-      window.openGradeReportModal = openGradeReportModal;
-      window.hidePopup = hidePopup;
-  });
-
-  function viewReport(reportId) {
-      fetch(`/reports-page/api/report-details/${reportId}`)
-          .then(response => response.json())
-          .then(data => {
-              // Populate the modal fields
-              document.getElementById("report-description").innerText = data.reportDescription;
-              document.getElementById("project-name").innerText = `Project: ${data.taskManagement.projectName}`;
-              document.getElementById("task-name").innerText = `Task: ${data.taskManagement.name}`;
-              document.getElementById("employee-name").innerText = `Employee: ${data.employee.name}`;
-              document.getElementById("progress-percentage").innerText = `Progress: ${data.progressPercentage}%`;
-              document.getElementById("submission-date").innerText = `Submitted on: ${data.submissionDate}`;
-              document.getElementById("status").innerText = `Status: ${data.taskManagement.status}`;
-
-              // Set the href attributes for viewing and downloading the report file
-              let viewReportFileLink = document.getElementById("view-report-file");
-              let downloadReportFileLink = document.getElementById("download-report-file");
-
-              viewReportFileLink.href = data.reportFile;
-              downloadReportFileLink.href = data.reportFile;
-
-              // Make the links visible if the report file exists
-              viewReportFileLink.style.display = "block";
-              downloadReportFileLink.style.display = "block";
-
-              // Show the modal
-              document.getElementById("view-report-modal").style.display = "block";
-          })
-          .catch(error => {
-              console.error('Error fetching report details:', error);
-          });
-  }
-
-  function hidePopup(modalId) {
-      document.getElementById(modalId).style.display = "none";
-  }
-
-function showGradeReportModal(reportId, employeeId) {
-    console.log('showGradeReportModal called with reportId:', reportId, 'and employeeId:', employeeId);
-
-    // Fetch progress status from the backend
-    fetch(`/api/progress-status/${reportId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch progress status');
-            }
-            return response.json(); // Assuming the API returns JSON
-        })
         .then(data => {
-            // Log for debugging
-            console.log('Progress status:', data.isComplete);
+            console.log('Received report data:', data); // Log the response data
 
-            // Set the reportId and employeeId values in the hidden fields
-            document.getElementById('grade-report-id').value = reportId;
-            document.getElementById('grade-employee-id').value = employeeId;
+            let downloadFileElement = document.getElementById('download-report-file');
 
-            // Check the 'isComplete' flag from the backend response
-            const completeReportBtn = document.getElementById('complete-report-btn');
-            if (data.isComplete) {
-                console.log('Progress is 100%, showing the complete button');
-                completeReportBtn.style.display = 'block';
+            if (data.reportFile) {
+                console.log("Report file available:", data.reportFile); // Log file URL
+                // Update the button's download link
+                downloadFileElement.href = `/reports-page/download-report?reportId=${currentReportId}`;
+                downloadFileElement.style.display = 'inline'; // Make the button visible
             } else {
-                console.log('Progress is less than 100%, hiding the complete button');
-                completeReportBtn.style.display = 'none';
+                console.log("No report file found for reportId:", reportId);  // Log if no file
+                downloadFileElement.style.display = 'none'; // Hide the button if no file
             }
 
-            // Show the modal
-            document.getElementById('grade-report-modal').style.display = 'block';
+            // Populate modal content
+            document.getElementById("report-description").innerText = data.reportDescription || 'N/A';
+            document.getElementById("project-name").innerText = `Project: ${data.taskManagement.projectName}`;
+            document.getElementById("task-name").innerText = `Task: ${data.taskManagement.name}`;
+            document.getElementById("employee-name").innerText = `Employee: ${data.employee.name}`;
+            document.getElementById("progress-percentage").innerText = `Progress: ${data.progressPercentage}%`;
+            document.getElementById("submission-date").innerText = `Submitted on: ${data.submissionDate}`;
+            document.getElementById("status").innerText = `Status: ${data.taskManagement.status}`;
+            console.log("Download link:", downloadFileElement.href); // Log the generated URL
+            // Show modal
+            document.getElementById("view-report-modal").style.display = "block";
         })
         .catch(error => {
-            console.error('Error fetching progress status:', error);
+            console.error('Error fetching report details:', error);
         });
 }
 
 
-
-
-
-
-
-  function hidePopup(popupId) {
-    document.getElementById(popupId).style.display = 'none';
+  function hidePopup(modalId) {
+      document.getElementById(modalId).style.display = 'none';
   }
 
-  function completeReport() {
-    const reportId = document.getElementById('grade-report-id').value;
-    const employeeId = document.getElementById('grade-employee-id').value;
-
-    // Send AJAX request to complete the report
-    fetch('/reports-page/complete-report', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reportId: reportId,
-        employeeId: employeeId
-      })
-    })
-    .then(response => {
-      if (response.ok) {
-        alert('Report marked as completed.');
-        hidePopup('grade-report-modal');
-      } else {
-        alert('Failed to complete the report.');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Error completing the report.');
-    });
-  }
-
-
-// JavaScript to filter the table based on status
-  document.getElementById('show-graded').addEventListener('click', function() {
-    filterTable('graded');
+  // Bind event listener to the button
+  document.getElementById("view-report-file").addEventListener("click", function() {
+      viewReport(currentReportId);
   });
 
+  // Handle modal close
+  document.getElementById('view-report-modal').addEventListener('click', function(event) {
+      if (event.target.id === 'view-report-modal') {
+          hidePopup('view-report-modal');
+      }
+  });
+
+  // Handle the report filtering
   document.getElementById('show-pending').addEventListener('click', function() {
-    filterTable('pending');
+      filterTable('pending');
   });
 
   document.getElementById('show-all').addEventListener('click', function() {
-    filterTable('all');
+      filterTable('all');
   });
 
+  // Filter table based on status
   function filterTable(status) {
-    let rows = document.querySelectorAll('#report-table tbody tr');
-    rows.forEach(row => {
-      if (status === 'all') {
-        row.style.display = '';
-      } else if (row.getAttribute('data-status') === status) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    });
+      let rows = document.querySelectorAll('#report-table tbody tr');
+      rows.forEach(row => {
+          if (status === 'all') {
+              row.style.display = '';
+          } else if (row.getAttribute('data-status') === status) {
+              row.style.display = '';
+          } else {
+              row.style.display = 'none';
+          }
+      });
   }
 </script>
 </body>

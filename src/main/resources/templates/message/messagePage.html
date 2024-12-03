@@ -166,7 +166,7 @@
         <div class="message-container">
             <!-- Flattened Messages and Replies -->
             <div th:each="message : ${messages}">
-                <!-- Main Message and Replies Together in Chronological Order -->
+                <!-- Main MessageModel and Replies Together in Chronological Order -->
                 <div class="message-box" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'">
                     <div class="message-content" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'" th:data-message-id="${message.id}">
                         <h5 class="user-name">
@@ -208,7 +208,7 @@
         </form>
         </div>
 
-        <!-- Message form -->
+        <!-- MessageModel form -->
 
     </div>
 </main>

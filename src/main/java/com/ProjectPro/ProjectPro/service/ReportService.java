@@ -1,6 +1,9 @@
 package com.ProjectPro.ProjectPro.service;
 
+import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
+import com.ProjectPro.ProjectPro.entity.TaskManagement;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,13 @@ public interface ReportService {
     List<Map<String,Object>> findPendingReportsByTaskLeader();
 
     List<Map<String,Object>> findPendingReportsBySupervisors();
+
+    List<Report> findReportsByEmployeesForTaskLeader(@Param("taskLeaderId") int taskLeaderId);
+
+    Report findLatestReportByTaskAndEmployee(TaskManagement task, Employee employee);
+
+    List<Report> findReportsByTaskLeaderUserId(@Param("userId") Integer userId);
+
 
 
 }

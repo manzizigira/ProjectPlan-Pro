@@ -1,8 +1,11 @@
 package com.ProjectPro.ProjectPro.repository;
 
+import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
+import com.ProjectPro.ProjectPro.entity.TaskManagement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -113,6 +116,28 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
     """)
     List<Map<String,Object>> findPendingReportsByProjectManagers();
 
+    @Query(
+            """
+                SELECT r
+                FROM Report r
+                JOIN r.taskManagement t
+                JOIN t.employees e
+                JOIN e.user u
+                WHERE t.taskLeader.id = e.id
+                  AND t.taskLeader.id = :taskLeaderId
+                  AND r.employee.id != t.taskLeader.id
+
+            """
+    )
+    List<Report> findReportsByEmployeesForTaskLeader(@Param("taskLeaderId") int taskLeaderId);
+
+    @Query("SELECT r FROM Report r WHERE r.taskManagement = :task AND r.employee = :employee ORDER BY r.submissionDate DESC")
+    Report findTopByTaskManagementAndEmployeeOrderBySubmissionDateDesc(
+            @Param("task") TaskManagement task,
+            @Param("employee") Employee employee);
+
+    @Query("SELECT r FROM Report r WHERE r.taskManagement.taskLeader.user.id = :userId")
+    List<Report> findReportsByTaskLeaderUserId(@Param("userId") Integer userId);
 
 
 }

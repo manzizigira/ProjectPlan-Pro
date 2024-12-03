@@ -32,15 +32,13 @@
     <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
   </div>
   <br>
-  <a th:href="@{/project/projectListPage}">Projects</a>
-  <a th:href="@{/employee/employeePage}">Employees</a>
-  <a th:href="@{/directoratePage}">Directorate</a>
-  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+  <a th:href="@{/project/projectPage}">Projects</a>
+  <a th:href="@{/employee/supervisorList}">Supervisors</a>
   <a th:href="@{/reports-page}">Reports</a>
-  <a th:href="@{/priority-levels}">Priority</a>
   <a th:href="@{/task/taskPage}">Task</a>
+  <a th:href="@{/activity}">Activity</a>
   <a th:href="@{/history}">History</a>
-  <a th:href="@{/manageMessages}">Messages</a>
+  <a th:href="@{/messages/view}">Messages</a>
 
   <div class="spacer"></div>
 
@@ -80,8 +78,8 @@
     <tbody>
     <tr th:each="activity : ${activities}">
       <td th:text="${activity.activityName}"></td>
-      <td th:text="${#dates.format(activity.createdAt, 'yyyy-MM-dd')}"></td>
-      <td th:text="${#dates.format(activity.updatedAt, 'yyyy-MM-dd')}"></td>
+      <td th:text="${#dates.format(activity.startDate, 'yyyy-MM-dd')}"></td>
+      <td th:text="${#dates.format(activity.endDate, 'yyyy-MM-dd')}"></td>
     </tr>
     </tbody>
   </table>
@@ -125,11 +123,12 @@
   <h2>Assign Activity to Employees</h2>
   <form th:action="@{/activity/assign-activity}" method="post">
     <input type="hidden" name="activityId" id="popup-activity-id3">
+    <br>
     <label for="employee-select">Select Employee:</label>
     <select class="form-select" id="employee-select" name="employeeId">
       <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
     </select>
-
+    <br>
     <div class="d-flex justify-content-between">
       <button type="submit" class="btn btn-primary">Submit</button>
       <button type="button" id="close-popup-btn" class="btn btn-secondary">Close</button>
@@ -193,8 +192,8 @@
               // Populate the form fields with the fetched data
               document.getElementById('popup-activity-id').value = activity.id;
               document.getElementById('popup-name').value = activity.activityName;
-              document.getElementById('popup-start').value = new Date(activity.createdAt).toISOString().slice(0, 10);
-              document.getElementById('popup-end').value = new Date(activity.updatedAt).toISOString().slice(0, 10);
+              document.getElementById('popup-start').value = new Date(activity.startDate).toISOString().slice(0, 10);
+              document.getElementById('popup-end').value = new Date(activity.endDate).toISOString().slice(0, 10);
               document.getElementById('popup-description').value = activity.notes;
               document.getElementById('popup-status').value = activity.status;
 

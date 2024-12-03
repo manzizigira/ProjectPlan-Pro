@@ -40,7 +40,7 @@
     <a th:href="@{/priority-levels}">Priority</a>
     <a th:href="@{/task/taskListPage}">Task</a>
     <a th:href="@{/history}">History</a>
-    <a th:href="@{/manageMessages}">Messages</a>
+    <a th:href="@{/messages/view}">Messages</a>
 
     <div class="spacer"></div>
 
@@ -63,8 +63,8 @@
         <tbody>
         <tr th:each="activity : ${activities}">
             <td th:text="${activity.activityName}"></td>
-            <td th:text="${#temporals.format(activity.createdAt, 'yyyy-MM-dd')}"></td>
-            <td th:text="${#temporals.format(activity.updatedAt, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#dates.format(activity.startDate, 'yyyy-MM-dd')}"></td>
+            <td th:text="${#dates.format(activity.endDate, 'yyyy-MM-dd')}"></td>
         </tr>
         </tbody>
     </table>

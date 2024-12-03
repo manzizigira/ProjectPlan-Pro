@@ -19,5 +19,29 @@ public interface ActivityRepo extends JpaRepository<Activity, Integer> {
 
     List<Activity> findActivitiesByEmployees(Employee employee);
 
+    @Query(
+            """
+                SELECT a
+                FROM Activity a
+                JOIN a.project p
+                JOIN p.projectManager pm
+                JOIN pm.user u
+                WHERE u.id =:userId
+            """
+    )
+    List<Activity> findActivitiesByProjectManagerUserId(@Param("userId") int userId);
 
+
+    @Query(
+            """
+                SELECT a
+                FROM Activity a
+                JOIN a.project p
+                JOIN p.directorate d
+                JOIN d.headOfDirectorate hd
+                JOIN hd.user u
+                WHERE u.id =:userId
+            """
+    )
+    List<Activity> findActivitiesByHeadOfDepartmentUserId(@Param("userId") int userId);
 }

@@ -11,32 +11,19 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MessageRepository extends JpaRepository<MessageModel, Integer> {
-    @EntityGraph(attributePaths = {"replies", "replies.user", "replies.replies"})
-    List<MessageModel> findAllByReplyIsNullAndIsVisibleTrueOrderByDateTimeDesc();
+public interface MessageRepository extends JpaRepository<MessageModel, Long> {
 
-    List<MessageModel> findAllByReplyAndIsVisibleTrueOrderByDateTimeAsc(MessageModel reply);
+    // Messages related to projects created by HOD
+    List<MessageModel> findMessagesByProjectCreator(User hod);
 
-    @EntityGraph(attributePaths = {"replies", "replies.user", "replies.replies"})
-    List<MessageModel> findAllByReplyIsNullOrderByDateTimeDesc(); // For admin to see all messages
+    // Messages related to tasks created by Project Manager
+    List<MessageModel> findMessagesByTaskCreator(User projectManager);
 
-    List<MessageModel> findAllByReplyOrderByDateTimeAsc(MessageModel reply); // For admin to see all replies
+    // Messages related to tasks assigned by Supervisor
+    List<MessageModel> findMessagesByTaskAssigner(User supervisor);
 
-    @EntityGraph(attributePaths = {"replies", "replies.sender", "replies.replies"})
-    List<MessageModel> findAllBySenderAndReceiverAndReplyIsNullAndIsVisibleTrueOrderByDateTimeDesc(User sender, User receiver);
-
-    @Query("SELECT m FROM MessageModel m WHERE (m.sender = :user1 AND m.receiver = :user2) OR (m.sender = :user2 AND m.receiver = :user1)")
-    List<MessageModel> findAllBySenderAndReceiver(@Param("user1") User user1, @Param("user2") User user2);
-
-
-    @EntityGraph(attributePaths = {"replies", "replies.sender", "replies.replies"})
-    List<MessageModel> findAllByReceiverAndSenderAndReplyIsNullAndIsVisibleTrueOrderByDateTimeDesc(User receiver, User sender);
-
-    List<MessageModel> findAllByReceiverAndReplyIsNullOrderByDateTimeDesc(User receiver);
-
-    @Query("SELECT m FROM MessageModel m WHERE (m.sender = :supervisor AND m.receiver = :employee) " +
-            "OR (m.sender = :employee AND m.receiver = :supervisor) ORDER BY m.dateTime ASC")
-    List<MessageModel> findMessagesBetweenUsers(@Param("supervisor") User supervisor, @Param("employee") User employee);
+    // Messages for Employee (either task or activity related)
+    List<MessageModel> findMessagesForEmployee(User employee);
 
 }
 
