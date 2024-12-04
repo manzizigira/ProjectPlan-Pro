@@ -6,21 +6,32 @@ import java.util.List;
 
 public interface MessageService {
 
-    List<MessageModel> getMessagesForHOD(User hod);
+    // Find messages for HOD (HOD sends to Project Manager, etc.)
+    List<MessageModel> findBySenderIdAndProjectNotNull(Integer senderId);
 
-    // Messages related to tasks created by Project Manager
-    List<MessageModel> getMessagesForProjectManager(User projectManager);
+    // Find messages for Project Manager
+    List<MessageModel> findByReceiverIdAndProjectNotNull(Integer receiverId);
 
-    // Messages related to tasks assigned by Supervisor
-    List<MessageModel> getMessagesForSupervisor(User supervisor);
+    // Find messages for Supervisor or Employee
+    List<MessageModel> findByReceiverIdAndTaskNotNull(Integer receiverId);
 
-    // Messages for Employee (either task or activity related)
-    List<MessageModel> getMessagesForEmployee(User employee);
+    // Find messages for a task related to the current employee
+    List<MessageModel> findBySenderIdAndTaskNotNull(Integer senderId);
+
+    // Custom query for checking chats involving a project assignment (HOD -> Project Manager)
+    List<MessageModel> findByProjectIdAndReceiverRole(Integer projectId, Role role);
+
+
     void createMessage(User sender, User receiver, String messageContent, Project project, TaskManagement task, Activity activity);
 
     void createTaskMessage(User projectManager, User supervisor, TaskManagement task);
 
-    public MessageModel getMessageById(Long messageId);
+    MessageModel getMessageById(int messageId);
 
+    void createProjectAssignmentMessage(User sender, User receiver, Project project, Role senderRole, Role receiverRole);
+
+    void createChatIfNotExists(User sender, User receiver);
+
+    List<MessageModel> findMessagesByChatId(int senderId, int receiverId);
 
 }

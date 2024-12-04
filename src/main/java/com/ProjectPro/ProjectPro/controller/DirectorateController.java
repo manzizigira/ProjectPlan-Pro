@@ -1,12 +1,6 @@
 package com.ProjectPro.ProjectPro.controller;
-import com.ProjectPro.ProjectPro.entity.Directorate;
-import com.ProjectPro.ProjectPro.entity.Employee;
-import com.ProjectPro.ProjectPro.entity.ImplementingAgency;
-import com.ProjectPro.ProjectPro.entity.Project;
-import com.ProjectPro.ProjectPro.service.DirectorateService;
-import com.ProjectPro.ProjectPro.service.EmployeeService;
-import com.ProjectPro.ProjectPro.service.ProjectService;
-import com.ProjectPro.ProjectPro.service.ImplementingAgencyService;
+import com.ProjectPro.ProjectPro.entity.*;
+import com.ProjectPro.ProjectPro.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,15 +23,21 @@ public class DirectorateController {
     private ProjectService projectService;
 
     private ImplementingAgencyService implementingAgencyService;
+    private RoleService roleService;
 
     private EmployeeService employeeService;
+    private UsersService usersService;
+    private MessageService messageService;
 
     @Autowired
-    public DirectorateController(DirectorateService directorateService, ProjectService projectService, ImplementingAgencyService implementingAgencyService, EmployeeService employeeService) {
+    public DirectorateController(DirectorateService directorateService, ProjectService projectService, ImplementingAgencyService implementingAgencyService, RoleService roleService, EmployeeService employeeService, UsersService usersService, MessageService messageService) {
         this.directorateService = directorateService;
         this.projectService = projectService;
         this.implementingAgencyService = implementingAgencyService;
+        this.roleService = roleService;
         this.employeeService = employeeService;
+        this.usersService = usersService;
+        this.messageService = messageService;
     }
 
     // Show Directorate Page
@@ -129,19 +129,21 @@ public class DirectorateController {
 
     // save and associate a project with an objective
     @PostMapping("/add-project")
-    public String addProject(@RequestParam("directorateId") int directorateId,
-                             @RequestParam("name") String name,
-                             @RequestParam("category") String category,
-                             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
-                             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
-                             @RequestParam("description") String description,
-                             @RequestParam(value = "projectManagerId") Integer projectManagerId,
-                             Model model) {
+    public String addProject(
+            @RequestParam("directorateId") int directorateId,
+            @RequestParam("name") String name,
+            @RequestParam("category") String category,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
+            @RequestParam("description") String description,
+            @RequestParam(value = "projectManagerId", required = false) Integer projectManagerId,
+            HttpSession session,
+            Model model) {
 
         // Retrieve the directorate by id
         Directorate directorate = directorateService.findById(directorateId);
 
-        // Create and save the new project
+        // Create a new project object
         Project newProject = new Project();
         newProject.setName(name);
         newProject.setCategory(category);
@@ -150,17 +152,38 @@ public class DirectorateController {
         newProject.setDescription(description);
         newProject.setDirectorate(directorate);
 
-        if (projectManagerId != null){
-            Employee projectManager = employeeService.findById(projectManagerId);
-            newProject.setProjectManager(projectManager);
-        }
-
-        // Save the new project
+        // Save the new project first
         projectService.save(newProject);
 
-        // Redirect to the directorates page or wherever appropriate
-        return "redirect:/directoratePage";
+        // Handle the project manager if provided
+        if (projectManagerId != null) {
+            Employee projectManager = employeeService.findById(projectManagerId);
+            newProject.setProjectManager(projectManager);
+
+            // Assuming Employee is related to User (either extends or has a reference)
+            User projectManagerUser = projectManager.getUser();  // Assuming this method exists to get User object
+
+            // Retrieve the HOD (current logged-in user)
+            Integer userId = (Integer) session.getAttribute("userId");
+            User hod = usersService.findById(userId);
+
+            // Retrieve the Role for HOD and Project Manager
+            Role hodRole = roleService.findByRoleName("HOD");
+            Role projectManagerRole = roleService.findByRoleName("PROJECTMANAGER");
+
+            // Create the message between HOD and PROJECTMANAGER about the project assignment
+            messageService.createProjectAssignmentMessage(hod, projectManagerUser, newProject, hodRole, projectManagerRole);
+
+            // Ensure a chat is created for both HOD and PROJECTMANAGER
+            messageService.createChatIfNotExists(hod, projectManagerUser);
+        }
+
+        // Redirect to the appropriate page (probably the directorate page or project details)
+        return "redirect:/directoratePage";  // Modify this based on where you want to go after project assignment
     }
+
+
+
 
 
     //Add New Sub-Directorate and associate it with an Directorate

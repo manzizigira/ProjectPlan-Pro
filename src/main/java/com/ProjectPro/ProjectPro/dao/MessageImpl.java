@@ -2,11 +2,8 @@ package com.ProjectPro.ProjectPro.dao;
 
 import com.ProjectPro.ProjectPro.entity.*;
 import com.ProjectPro.ProjectPro.repository.MessageRepository;
-import com.ProjectPro.ProjectPro.repository.RoleRepo;
 import com.ProjectPro.ProjectPro.repository.UserRepo;
 import com.ProjectPro.ProjectPro.service.MessageService;
-import com.ProjectPro.ProjectPro.service.RoleService;
-import org.aspectj.bridge.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,24 +22,30 @@ public class MessageImpl implements MessageService {
         this.userRepo = userRepo;
     }
 
+
     @Override
-    public List<MessageModel> getMessagesForHOD(User hod) {
-        return messageRepository.findMessagesByProjectCreator(hod);
+    public List<MessageModel> findBySenderIdAndProjectNotNull(Integer senderId) {
+        return messageRepository.findBySenderIdAndProjectNotNull(senderId);
     }
 
     @Override
-    public List<MessageModel> getMessagesForProjectManager(User projectManager) {
-        return messageRepository.findMessagesByTaskCreator(projectManager);
+    public List<MessageModel> findByReceiverIdAndProjectNotNull(Integer receiverId) {
+        return messageRepository.findByReceiverIdAndProjectNotNull(receiverId);
     }
 
     @Override
-    public List<MessageModel> getMessagesForSupervisor(User supervisor) {
-        return messageRepository.findMessagesByTaskAssigner(supervisor);
+    public List<MessageModel> findByReceiverIdAndTaskNotNull(Integer receiverId) {
+        return messageRepository.findByReceiverIdAndTaskNotNull(receiverId);
     }
 
     @Override
-    public List<MessageModel> getMessagesForEmployee(User employee) {
-        return messageRepository.findMessagesForEmployee(employee);
+    public List<MessageModel> findBySenderIdAndTaskNotNull(Integer senderId) {
+        return messageRepository.findBySenderIdAndTaskNotNull(senderId);
+    }
+
+    @Override
+    public List<MessageModel> findByProjectIdAndReceiverRole(Integer projectId, Role role) {
+        return messageRepository.findByProjectIdAndReceiverRole(projectId,role);
     }
 
     public void createMessage(User sender, User receiver, String messageContent, Project project, TaskManagement task, Activity activity) {
@@ -72,8 +75,37 @@ public class MessageImpl implements MessageService {
     }
 
     @Override
-    public MessageModel getMessageById(Long messageId) {
+    public MessageModel getMessageById(int messageId) {
         return messageRepository.findById(messageId).orElse(null);
+    }
+
+    @Override
+    public void createProjectAssignmentMessage(User sender, User receiver, Project project, Role senderRole, Role receiverRole) {
+        String messageContent = "You have been assigned a new project: " + project.getName();
+        MessageModel message = new MessageModel(sender, receiver, messageContent, LocalDateTime.now(), MessageStatus.SENT);
+        message.setProject(project); // Set the project in the message
+        message.setSenderRole(senderRole); // Set the sender's role
+        message.setReceiverRole(receiverRole); // Set the receiver's role
+        messageRepository.save(message);
+    }
+
+    @Override
+    public void createChatIfNotExists(User sender, User receiver) {
+        boolean chatExists = messageRepository.existsBySenderIdAndReceiverId(sender.getId(), receiver.getId());
+        if (!chatExists) {
+            // Create a new chat message
+            MessageModel message = new MessageModel();
+            message.setSender(sender);
+            message.setReceiver(receiver);
+            message.setMessageContent("Project assigned");
+            message.setTimestamp(LocalDateTime.now());
+            messageRepository.save(message);
+        }
+    }
+
+    @Override
+    public List<MessageModel> findMessagesByChatId(int senderId, int receiverId) {
+        return messageRepository.findMessagesBySenderAndReceiver(senderId, receiverId);
     }
 
 }

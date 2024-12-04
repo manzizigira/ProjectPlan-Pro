@@ -73,6 +73,9 @@ public class Activity {
     @JoinColumn(name = "priority_level_id")
     private PriorityLevel priorityLevel;
 
+    @OneToMany(mappedBy = "activity")
+    private List<MessageModel> messageModels;
+
     public Activity() {
         reports = new ArrayList<>();
         employees = new HashSet<>();
@@ -204,6 +207,14 @@ public class Activity {
 
     public void setCompleted(Boolean completed) {
         isCompleted = completed;
+    }
+
+    public List<MessageModel> getMessageModels() {
+        return messageModels;
+    }
+
+    public void setMessageModels(List<MessageModel> messageModels) {
+        this.messageModels = messageModels;
     }
 
     public void add(Employee employee) {

@@ -6,9 +6,7 @@
     <title>PROJECTPLAN PRO</title>
     <!-- Fonts and icons -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-    <link rel="stylesheet" th:href="@{/objectiveStyle.css}">
-    <style>
-    <link id="pagestyle" href="css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/directorateStyle.css}">
     <style>
         :root {
           --bs-primary: #3E8914;
@@ -126,11 +124,100 @@
           margin-left: 10px;
           color: #2196F3;
         }
+
+    .side-panel {
+        width: 250px;
+        background-color: #f4f4f4;
+        padding: 10px;
+        border-right: 1px solid #ccc;
+    }
+
+    .chat-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .chat-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+
+    .chat-item:hover {
+        background-color: #e0e0e0;
+    }
+
+    .sender-info {
+        font-weight: bold;
+    }
+
+    .message-preview {
+        font-size: 0.9em;
+        color: gray;
+    }
+
+    .message-container {
+    display: flex;
+    flex-direction: column;
+    height: 60vh;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    width: 100%;
+    padding: 10px;
+}
+
+.message-box {
+    display: flex;
+    margin-bottom: 1rem;
+    flex-direction: column;
+}
+
+.message-content {
+    max-width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.message-content.sent {
+    background-color: #dcf8c6;
+    align-self: flex-end;
+}
+
+.message-content.received {
+    background-color: #2198ff;
+    color: white;
+    align-self: flex-start;
+}
+
+.user-name {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #3E8914;
+}
+
+.text-muted {
+    font-size: 0.75rem;
+    color: gray;
+    margin-top: 5px;
+}
+@media (min-width: 1200px) {
+    .message-container {
+        width: 60%;
+    }
+}
+
+@media (max-width: 767px) {
+    .message-container {
+        width: 100%;
+    }
+}
+
+
     </style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
-
     <!-- Top Navigation Bar -->
     <div class="navbar" style="background: #002147; height: 45px;">
         <div class="drawer-logo">
@@ -150,69 +237,61 @@
             <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
         </div>
         <br>
-
         <a th:href="@{/employee-home}">Dashboard</a>
         <a th:href="@{/reports-page/my-reports}">Reports</a>
         <a th:href="@{/grades(userId=${userId})}">Grades</a>
-
         <div class="spacer"></div>
         <a class="logout-btn" th:href="@{/logout}">Logout</a>
     </div>
 
-    <br><br><br>
+    <!-- Main Content Area (Message and Side Panel) -->
+    <div class="container" style="margin-left: 400px; background-color: #002147; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); margin-top:150px; margin-right: 200px;">
+        <h1 class="mt-4" style="margin-top:5px;">Messages</h1>
+        <div class="content-wrapper" style="display: flex;">
+            <!-- Side Panel (Chat List) -->
+            <div class="side-panel" style="flex: 1;">
+                <ul class="chat-list">
+                    <li th:each="chatName : ${chatNames}">
+                        <!-- Use data-* attributes to store the values -->
+                        <a href="javascript:void(0);"
+                           th:data-sender-id="${currentUser}"
+                           th:data-receiver-id="${chatName.id}"
+                           onclick="openChat(this)">
+                            <div class="chat-item">
+                                <div class="sender-info">
+                                    <span th:text="${chatName.name}"></span>
+                                </div>
+                                <div class="message-preview">
+                                    <span th:text="'Project Assigned'"></span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-    <div class="container" style="margin-left: 400px; background-color: #f0f4f8; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); margin-top:50px; margin-right: 200px;">
-        <h1 class="mt-4" style="margin-top:5px;">Messages</h1> <!-- Adjusted margin-top -->
-        <div class="message-container">
-            <!-- Flattened Messages and Replies -->
-            <div th:each="message : ${messages}">
-                <!-- Main MessageModel and Replies Together in Chronological Order -->
-                <div class="message-box" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'">
-                    <div class="message-content" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'" th:data-message-id="${message.id}">
-                        <h5 class="user-name">
-                            <!-- Show 'You' if the message is from the logged-in user -->
-                            <span th:if="${message.sender.id == userId}">You</span>
-                            <!-- If the sender is not the logged-in user, show the employee's name -->
-                            <span th:if="${message.sender.id != userId}" th:text="${message.sender.employee != null ? message.sender.employee.name : 'Supervisor'}"></span>
-                        </h5>
-                        <p th:text="${message.message}"></p>
-                        <p class="text-muted" th:text="${#temporals.format(message.dateTime, 'yyyy/MM/dd HH:mm:ss')}"></p>
-                    </div>
-                </div>
-
-                <!-- Render Replies in Chronological Order (if any) -->
-                <div th:if="${message.replies != null and #lists.size(message.replies) > 0}">
-                    <div th:each="reply : ${message.replies}" th:object="${reply}">
-                        <div class="message-box" th:classappend="${reply.sender.id == userId} ? 'sent' : 'received'">
-                            <div class="message-content" th:classappend="${reply.sender.id == userId} ? 'sent' : 'received'" th:data-message-id="${reply.id}">
-                                <h6 class="user-name">
-                                    <!-- Show 'You' if the reply is from the logged-in user -->
-                                    <span th:if="${reply.sender.id == userId}">You</span>
-                                    <!-- If the reply sender is not the logged-in user, show the employee's name -->
-                                    <span th:if="${reply.sender.id != userId}" th:text="${reply.sender.employee != null ? reply.sender.employee.name : 'Supervisor'}"></span>
-                                </h6>
-                                <p th:text="${reply.message}"></p>
-                                <p class="text-muted" th:text="${#temporals.format(reply.dateTime, 'yyyy/MM/dd HH:mm:ss')}"></p>
+            <!-- Message Container -->
+            <div class="message-container" id="chatContainer" style="flex: 3; margin-left: 20px;">
+                    <div th:each="message : ${messages}">
+                        <div class="message-box" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'">
+                            <div class="message-content" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'" th:data-message-id="${message.id}">
+                                <p th:text="${message.message}"></p>
+                                <p class="text-muted" th:text="${#temporals.format(message.dateTime, 'yyyy/MM/dd HH:mm:ss')}"></p>
                             </div>
                         </div>
                     </div>
-                </div>
+                <!-- MessageModel input form -->
+                <form th:action="@{/manageMessages/post}" method="post" class="message-form">
+                    <input type="hidden" name="userId" th:value="${userId}" />
+                    <input type="hidden" name="receiverId" th:value="${selectedEmployeeId}" />
+                    <textarea name="message" class="message-input" placeholder="Enter your message"></textarea>
+                    <button type="submit" class="send-button"><i class="fa fa-paper-plane"></i></button>
+                </form>
             </div>
 
         </div>
-        <form th:action="@{/messages/post}" method="post" class="message-form" style="margin-left:200px;">
-            <input type="hidden" name="userId" th:value="${userId}" />
-            <input type="hidden" name="replyId" id="replyId" />
-            <textarea name="message" class="message-input" placeholder="Enter your message"></textarea>
-            <button type="submit" class="send-button"><i class="fa fa-paper-plane"></i></button>
-        </form>
-        </div>
-
-        <!-- MessageModel form -->
-
     </div>
 </main>
-
 <script>
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
@@ -228,6 +307,65 @@
             console.error("Message content not found for messageId: " + messageId);
         }
     }
+function openChat(element) {
+    var senderId = element.getAttribute('data-sender-id');
+    var receiverId = element.getAttribute('data-receiver-id');
+
+    console.log("Opening chat with sender: " + senderId + " and receiver: " + receiverId);
+
+    fetch(`/messages/chat/${senderId}/${receiverId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Response data:", data);  // Log the entire response data
+            var messages = data.messages || [];  // Ensure it's an array, even if no messages exist
+            var currentUser = data.currentUser;
+            displayMessages(messages, currentUser);
+        })
+        .catch(error => {
+            console.error("Error loading chat:", error);
+        });
+}
+
+
+
+function displayMessages(messages, currentUser) {
+    var chatContainer = document.querySelector(".message-container");
+    chatContainer.innerHTML = '';  // Clear previous messages
+
+    if (!Array.isArray(messages)) {
+        console.error("Invalid messages format:", messages);
+        return;
+    }
+
+    messages.forEach(message => {
+        var messageElement = document.createElement("div");
+        messageElement.classList.add("message-box", message.senderId === currentUser ? 'sent' : 'received');
+
+        var messageContent = document.createElement("div");
+        messageContent.classList.add("message-content", message.senderId === currentUser ? 'sent' : 'received');
+        messageContent.textContent = message.content;  // Adjust according to your message object structure
+
+        var messageUserName = document.createElement("div");
+        messageUserName.classList.add("user-name");
+        messageUserName.textContent = message.senderName;  // If you have senderName or any identifier
+
+        var messageTimestamp = document.createElement("div");
+        messageTimestamp.classList.add("text-muted");
+        messageTimestamp.textContent = message.timestamp;  // Adjust if you have a timestamp
+
+        messageElement.appendChild(messageUserName);
+        messageElement.appendChild(messageContent);
+        messageElement.appendChild(messageTimestamp);
+        chatContainer.appendChild(messageElement);
+    });
+}
+
+
 </script>
 </body>
 </html>

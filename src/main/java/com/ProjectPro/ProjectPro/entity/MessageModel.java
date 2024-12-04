@@ -6,11 +6,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "messages")
 public class MessageModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
@@ -39,6 +40,14 @@ public class MessageModel {
     @Enumerated(EnumType.STRING)
     private MessageStatus status; // MessageModel status, e.g., SENT, READ, etc.
 
+    @ManyToOne
+    @JoinColumn(name = "sender_role_id")
+    private Role senderRole;
+
+    @ManyToOne
+    @JoinColumn(name = "receiver_role_id")
+    private Role receiverRole;
+
     // Constructor, Getters, Setters
 
     public MessageModel() {}
@@ -53,11 +62,11 @@ public class MessageModel {
 
     // Getters and Setters...
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -123,5 +132,29 @@ public class MessageModel {
 
     public void setStatus(MessageStatus status) {
         this.status = status;
+    }
+
+    public Employee getSenderEmployee() {
+        return sender != null ? sender.getEmployee() : null;
+    }
+
+    public Employee getReceiverEmployee() {
+        return receiver != null ? receiver.getEmployee() : null;
+    }
+
+    public Role getSenderRole() {
+        return senderRole;
+    }
+
+    public void setSenderRole(Role senderRole) {
+        this.senderRole = senderRole;
+    }
+
+    public Role getReceiverRole() {
+        return receiverRole;
+    }
+
+    public void setReceiverRole(Role receiverRole) {
+        this.receiverRole = receiverRole;
     }
 }

@@ -58,6 +58,9 @@ public class Project {
     @JoinColumn(name = "project_manager_id")
     private Employee projectManager;
 
+    @OneToMany(mappedBy = "project")
+    private List<MessageModel> messageModels;
+
     public Project() {
     }
 
@@ -155,6 +158,14 @@ public class Project {
 
     public void setProjectManager(Employee projectManager) {
         this.projectManager = projectManager;
+    }
+
+    public List<MessageModel> getMessageModels() {
+        return messageModels;
+    }
+
+    public void setMessageModels(List<MessageModel> messageModels) {
+        this.messageModels = messageModels;
     }
 
     public void addActivities(Activity activity){

@@ -27,6 +27,12 @@ public class Role {
     )
     private List<User> users;
 
+    @OneToMany(mappedBy = "receiverRole")
+    private List<MessageModel> messageModels;
+
+    @OneToMany(mappedBy = "senderRole")
+    private List<MessageModel> sender;
+
     public Role(){
 
     }
@@ -57,6 +63,22 @@ public class Role {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    public List<MessageModel> getMessageModels() {
+        return messageModels;
+    }
+
+    public void setMessageModels(List<MessageModel> messageModels) {
+        this.messageModels = messageModels;
+    }
+
+    public List<MessageModel> getSender() {
+        return sender;
+    }
+
+    public void setSender(List<MessageModel> sender) {
+        this.sender = sender;
     }
 
     // add convenience method

@@ -91,6 +91,9 @@ public class TaskManagement {
     @JoinColumn(name = "supervisor_id", nullable = true)
     private Employee supervisor;
 
+    @OneToMany(mappedBy = "task")
+    private List<MessageModel> messageModels;
+
     public TaskManagement() {
         this.employees = new ArrayList<>();
         this.reports = new ArrayList<>();
@@ -247,6 +250,14 @@ public class TaskManagement {
 
     public void setSupervisor(Employee supervisor) {
         this.supervisor = supervisor;
+    }
+
+    public List<MessageModel> getMessageModels() {
+        return messageModels;
+    }
+
+    public void setMessageModels(List<MessageModel> messageModels) {
+        this.messageModels = messageModels;
     }
 
     // add convenience method

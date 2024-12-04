@@ -1,8 +1,7 @@
 package com.ProjectPro.ProjectPro.repository;
 
 import com.ProjectPro.ProjectPro.entity.MessageModel;
-import com.ProjectPro.ProjectPro.entity.User;
-import org.springframework.data.jpa.repository.EntityGraph;
+import com.ProjectPro.ProjectPro.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,19 +10,27 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MessageRepository extends JpaRepository<MessageModel, Long> {
+public interface MessageRepository extends JpaRepository<MessageModel, Integer> {
 
-    // Messages related to projects created by HOD
-    List<MessageModel> findMessagesByProjectCreator(User hod);
+    // Find messages for HOD (HOD sends to Project Manager, etc.)
+    List<MessageModel> findBySenderIdAndProjectNotNull(Integer senderId);
 
-    // Messages related to tasks created by Project Manager
-    List<MessageModel> findMessagesByTaskCreator(User projectManager);
+    // Find messages for Project Manager
+    List<MessageModel> findByReceiverIdAndProjectNotNull(Integer receiverId);
 
-    // Messages related to tasks assigned by Supervisor
-    List<MessageModel> findMessagesByTaskAssigner(User supervisor);
+    // Find messages for Supervisor or Employee
+    List<MessageModel> findByReceiverIdAndTaskNotNull(Integer receiverId);
 
-    // Messages for Employee (either task or activity related)
-    List<MessageModel> findMessagesForEmployee(User employee);
+    // Find messages for a task related to the current employee
+    List<MessageModel> findBySenderIdAndTaskNotNull(Integer senderId);
+
+    // Custom query for checking chats involving a project assignment (HOD -> Project Manager)
+    public List<MessageModel> findByProjectIdAndReceiverRole(Integer projectId, Role role);
+
+    boolean existsBySenderIdAndReceiverId(Integer senderId, Integer receiverId);
+
+    @Query("SELECT m FROM MessageModel m WHERE (m.sender.id = :senderId AND m.receiver.id = :receiverId) OR (m.sender.id = :receiverId AND m.receiver.id = :senderId)")
+    List<MessageModel> findMessagesBySenderAndReceiver(@Param("senderId") int senderId, @Param("receiverId") int receiverId);
+
 
 }
-
