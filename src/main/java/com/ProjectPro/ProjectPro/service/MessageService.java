@@ -1,6 +1,9 @@
 package com.ProjectPro.ProjectPro.service;
 
+import com.ProjectPro.ProjectPro.Dto.ChatMessageDTO;
+import com.ProjectPro.ProjectPro.Dto.MessageDTO;
 import com.ProjectPro.ProjectPro.entity.*;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -30,8 +33,9 @@ public interface MessageService {
 
     void createProjectAssignmentMessage(User sender, User receiver, Project project, Role senderRole, Role receiverRole);
 
-    void createChatIfNotExists(User sender, User receiver);
+    List<MessageModel> getReceiverMessages(int user);
+    List<MessageDTO> findSenderByReceiver(@Param("receiverId") int receiverId);
 
-    List<MessageModel> findMessagesByChatId(int senderId, int receiverId);
+    List<ChatMessageDTO> getChatMessagesBetweenUsers(int currentUserId, int senderId);
 
 }

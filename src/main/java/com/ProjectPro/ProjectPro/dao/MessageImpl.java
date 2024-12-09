@@ -1,7 +1,11 @@
 package com.ProjectPro.ProjectPro.dao;
 
+import com.ProjectPro.ProjectPro.Dto.ChatMessageDTO;
+import com.ProjectPro.ProjectPro.Dto.MessageDTO;
 import com.ProjectPro.ProjectPro.entity.*;
+import com.ProjectPro.ProjectPro.repository.EmployeeRepo;
 import com.ProjectPro.ProjectPro.repository.MessageRepository;
+import com.ProjectPro.ProjectPro.repository.RoleRepo;
 import com.ProjectPro.ProjectPro.repository.UserRepo;
 import com.ProjectPro.ProjectPro.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,19 +13,23 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageImpl implements MessageService {
 
     private MessageRepository messageRepository;
     private UserRepo userRepo;
+    private EmployeeRepo employeeRepo;
+    private RoleRepo roleRepo;
 
     @Autowired
-    public MessageImpl(MessageRepository messageRepository, UserRepo userRepo) {
+    public MessageImpl(MessageRepository messageRepository, UserRepo userRepo, EmployeeRepo employeeRepo, RoleRepo roleRepo) {
         this.messageRepository = messageRepository;
         this.userRepo = userRepo;
+        this.employeeRepo = employeeRepo;
+        this.roleRepo = roleRepo;
     }
-
 
     @Override
     public List<MessageModel> findBySenderIdAndProjectNotNull(Integer senderId) {
@@ -90,22 +98,30 @@ public class MessageImpl implements MessageService {
     }
 
     @Override
-    public void createChatIfNotExists(User sender, User receiver) {
-        boolean chatExists = messageRepository.existsBySenderIdAndReceiverId(sender.getId(), receiver.getId());
-        if (!chatExists) {
-            // Create a new chat message
-            MessageModel message = new MessageModel();
-            message.setSender(sender);
-            message.setReceiver(receiver);
-            message.setMessageContent("Project assigned");
-            message.setTimestamp(LocalDateTime.now());
-            messageRepository.save(message);
-        }
+    public List<MessageModel> getReceiverMessages(int user) {
+        return messageRepository.findReceiverMessages(user);
     }
 
     @Override
-    public List<MessageModel> findMessagesByChatId(int senderId, int receiverId) {
-        return messageRepository.findMessagesBySenderAndReceiver(senderId, receiverId);
+    public List<MessageDTO> findSenderByReceiver(int receiverId) {
+        return messageRepository.findSenderByReceiver(receiverId);
     }
+
+    @Override
+    public List<ChatMessageDTO> getChatMessagesBetweenUsers(int currentUserId, int senderId) {
+        List<MessageModel> messages = messageRepository.findMessagesBetweenUsers(currentUserId, senderId);
+
+        return messages.stream()
+                .map(message -> new ChatMessageDTO(
+                        message.getSender().getId(),
+                        message.getReceiver().getId(),
+                        message.getSender().getEmployee().getName(),
+                        message.getReceiver().getEmployee().getName(),
+                        message.getMessageContent(),
+                        message.getTimestamp()
+                ))
+                .collect(Collectors.toList());
+    }
+
 
 }

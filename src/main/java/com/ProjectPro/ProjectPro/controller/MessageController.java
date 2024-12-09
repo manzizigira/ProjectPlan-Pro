@@ -1,5 +1,7 @@
 package com.ProjectPro.ProjectPro.controller;
 
+import com.ProjectPro.ProjectPro.Dto.ChatMessageDTO;
+import com.ProjectPro.ProjectPro.Dto.MessageDTO;
 import com.ProjectPro.ProjectPro.Dto.UserChat;
 import com.ProjectPro.ProjectPro.entity.*;
 import com.ProjectPro.ProjectPro.service.*;
@@ -9,9 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Controller
 @RequestMapping("/messages")
@@ -33,90 +36,66 @@ public class MessageController {
     }
 
     @GetMapping("/view")
-    public String viewMessages(HttpSession session, Model model) {
+    public String projectManagerPage(HttpSession session, Model model) {
         Integer userId = (Integer) session.getAttribute("userId");
-        User currentUser = usersService.findById(userId);
-        String roleName = currentUser.getRoles().get(0).getRoleName();
+        List<MessageDTO> messageDTOs = messageService.findSenderByReceiver(userId);
 
-        // Fetch the Role entity based on role name
-        Role role = roleService.findByRoleName(roleName);
-        if (role == null) {
-            model.addAttribute("error", "Role not found.");
-            return "message/messagePage";
-        }
+        // Filter the list to only include unique senderIds
+        List<MessageDTO> uniqueMessageDTOs = messageDTOs.stream()
+                .filter(distinctByKey(MessageDTO::getSenderId))
+                .toList();
 
-        Employee employee = employeeService.findByUser(currentUser);
-        Project project = employee.getProjects().isEmpty() ? null : employee.getProjects().get(0);
-        Integer projectId = project != null ? project.getId() : null;
-        List<MessageModel> messages = null;
-
-        if (projectId == null) {
-            model.addAttribute("error", "No project associated with this employee.");
-            return "message/messagePage";
-        }
-
-        // Modify the logic to use Role entity
-        if (role.getRoleName().equals("HOD")) {
-            messages = messageService.findByProjectIdAndReceiverRole(projectId, role);
-        } else if (role.getRoleName().equals("PROJECTMANAGER")) {
-            messages = messageService.findByProjectIdAndReceiverRole(projectId, role);
-        }
-
-        // Populate the side panel with dynamic chat names
-        // In your controller
-        List<Map<String, Object>> chatNames = new ArrayList<>();
-        if ("HOD".equals(roleName)) {
-            chatNames.add(Map.of("id", project.getProjectManager().getId(), "name", project.getProjectManager().getName()));
-        } else if ("PROJECTMANAGER".equals(roleName)) {
-            chatNames.add(Map.of("id", project.getDirectorate().getHeadOfDirectorate().getId(), "name", project.getDirectorate().getHeadOfDirectorate().getName()));
-        }
-
-        model.addAttribute("chatNames", chatNames);
-        model.addAttribute("currentUser", userId);
-        model.addAttribute("messages", messages);
+        model.addAttribute("chatNames", uniqueMessageDTOs);
 
         return "message/messagePage";
+    }
+
+    // Helper method to filter by a key
+    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 
 
     @PostMapping("/post")
     public String postMessage(
-            @RequestParam("userId") Integer userId,
-            @RequestParam(value = "replyId", required = false) Integer replyId,
+            @RequestParam("receiverId") Integer receiverId,
             @RequestParam("message") String messageContent,
             HttpSession session) {
 
-        User sender = usersService.findById(userId);
-        User receiver = null;
-
-        // Handle reply logic
-        if (replyId != null) {
-            MessageModel originalMessage = messageService.getMessageById(replyId);
-            receiver = originalMessage != null ? originalMessage.getSender() : null;
+        if (messageContent == null || messageContent.trim().isEmpty()) {
+            return "redirect:/messages/view?error=Message content cannot be empty";
         }
 
-        if (receiver != null) {
-            messageService.createMessage(sender, receiver, messageContent, null, null, null);  // Reply
-        } else {
-            messageService.createMessage(sender, null, messageContent, null, null, null);  // New message
-        }
-
-        return "redirect:/messages/view";  // Or use AJAX to refresh the messages without page reload
-    }
-
-
-    @GetMapping("/chat/{senderId}/{receiverId}")
-    @ResponseBody
-    public List<MessageModel> getMessagesBySenderAndReceiver(
-            @PathVariable("senderId") int senderId,
-            @PathVariable("receiverId") int receiverId, Model model, HttpSession session) {
+        // Get the sender (current logged-in user)
         Integer userId = (Integer) session.getAttribute("userId");
-        model.addAttribute("currentUser", userId);
-        return messageService.findMessagesByChatId(senderId, receiverId);
+        User sender = usersService.findById(userId);
+
+        // Get the receiver
+        User receiver = usersService.findById(receiverId);
+
+        // Create the message
+        messageService.createMessage(sender, receiver, messageContent, null, null, null);
+
+        return "redirect:/messages/view";
     }
 
 
 
+    @GetMapping("/chat/{senderId}")
+    @ResponseBody
+    public Map<String, Object> getChatMessages(@PathVariable("senderId") int senderId, HttpSession session) {
+        Integer currentUserId = (Integer) session.getAttribute("userId");
+
+        // Fetch messages between the current user and the sender
+        List<ChatMessageDTO> messages = messageService.getChatMessagesBetweenUsers(currentUserId, senderId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("messages", messages);
+        response.put("currentUserId", currentUserId); // Include current user ID for reference on the client side
+
+        return response;
+    }
 
 
 }

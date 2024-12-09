@@ -1,10 +1,7 @@
 package com.ProjectPro.ProjectPro.service;
 
 
-import com.ProjectPro.ProjectPro.entity.Activity;
-import com.ProjectPro.ProjectPro.entity.Employee;
-import com.ProjectPro.ProjectPro.entity.TaskManagement;
-import com.ProjectPro.ProjectPro.entity.User;
+import com.ProjectPro.ProjectPro.entity.*;
 
 import java.util.List;
 
@@ -29,4 +26,7 @@ public interface UsersService {
 
     public boolean hasRole(User user, String roleName);
     List<Employee> findAllEmployees();
+    User getEmployee (Employee employee);
+
+    User getUsersByMessageSupervisor(List<MessageModel> messageModel);
 }

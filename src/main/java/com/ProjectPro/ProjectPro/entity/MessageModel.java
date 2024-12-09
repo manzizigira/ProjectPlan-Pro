@@ -157,4 +157,16 @@ public class MessageModel {
     public void setReceiverRole(Role receiverRole) {
         this.receiverRole = receiverRole;
     }
+
+    @Override
+    public String toString() {
+        return "MessageModel{" +
+                "id=" + id +
+                ", sender=" + sender.getEmail() + // Assuming you want the sender's email
+                ", receiver=" + receiver.getEmail() + // Assuming you want the receiver's email
+                ", messageContent='" + messageContent + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
+    }
+
 }

@@ -174,8 +174,6 @@ public class DirectorateController {
             // Create the message between HOD and PROJECTMANAGER about the project assignment
             messageService.createProjectAssignmentMessage(hod, projectManagerUser, newProject, hodRole, projectManagerRole);
 
-            // Ensure a chat is created for both HOD and PROJECTMANAGER
-            messageService.createChatIfNotExists(hod, projectManagerUser);
         }
 
         // Redirect to the appropriate page (probably the directorate page or project details)

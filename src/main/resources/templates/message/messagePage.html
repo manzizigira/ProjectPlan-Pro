@@ -1,220 +1,200 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>PROJECTPLAN PRO</title>
-    <!-- Fonts and icons -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Messages</title>
+<!-- Fonts and icons -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/directorateStyle.css}">
-    <style>
-        :root {
-          --bs-primary: #3E8914;
-          --bs-info: #3E8914;
-          --bs-success: #3E8914;
-          --bs-gradient-primary: linear-gradient(195deg, #3E8914, #295612);
-        }
+<style>
 
-        .bg-gradient-primary {
-          background: var(--bs-gradient-primary);
-        }
-
-        .text-primary {
-          color: #3E8914 !important;
-        }
-
-        .btn-primary {
-          background-color: #3E8914;
-          border-color: #295612;
-        }
-
-        .btn {
-          margin-bottom: 0rem !important;
-          float: right;
-        }
-
-        /* Adjusted margin-top for Messages header */
-        h1.mt-4 {
-          margin-top: 90px;
-          margin-left: 90px;
-        }
-
-        .message-container {
-          display: flex;
-          flex-direction: column;
-          height: 60vh; /* Corrected to ensure proper scroll direction */
-          overflow-y: auto;
-          margin-bottom: 1rem;
-          width: 70%; /* Reduced width */
-          margin-left: auto;
-          margin-right: auto;
-        }
-
-        .message-box, .reply-box {
-          display: flex;
-          margin-bottom: 1rem;
-        }
-
-        .message-box.sent, .reply-box.sent {
-          justify-content: flex-end;
-        }
-
-        .message-box.received, .reply-box.received {
-          justify-content: flex-start;
-        }
-
-        .message-content, .reply-content {
-          max-width: 80%; /* Adjusted to fit smaller container */
-          padding: 10px;
-          border-radius: 10px; /* Slightly reduced border radius */
-        }
-
-        .message-content.sent {
-          background-color: #dcf8c6;
-          align-self: flex-end;
-          width: 400px; /* Reduced message width */
-        }
-
-        .message-content.received {
-          background-color: #2198ff70;
-          align-self: flex-start;
-          border: 1px solid #ddd;
-          width: 400px; /* Reduced message width */
-        }
-
-        .user-name {
-          font-size: 0.85rem; /* Slightly smaller font */
-          color: #3E8914;
-          margin-bottom: 5px;
-        }
-
-        .text-muted {
-          font-size: 0.75rem; /* Slightly smaller text for timestamp */
-          margin-top: 5px;
-        }
-
-        .message-form {
-          display: flex;
-          align-items: center;
-          position: relative;
-          margin-left: auto;
-          margin-right: auto;
-          width: 70%; /* Reduced width to match chat container */
-        }
-
-        .message-input {
-          flex: 1;
-          padding: 8px 12px; /* Reduced padding */
-          border-radius: 15px;
-          border: 1px solid #ddd;
-          margin-right: 10px;
-        }
-
-        .send-button {
-          background-color: #3E8914;
-          border: none;
-          color: white;
-          padding: 8px 15px; /* Reduced padding */
-          border-radius: 15px;
-          cursor: pointer;
-        }
-
-        .reply-button {
-          cursor: pointer;
-          margin-left: 10px;
-          color: #2196F3;
-        }
-
-    .side-panel {
-        width: 250px;
-        background-color: #f4f4f4;
-        padding: 10px;
-        border-right: 1px solid #ccc;
-    }
-
-    .chat-list {
-        list-style: none;
-        padding: 0;
-    }
-
-    .chat-item {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 10px;
-        cursor: pointer;
-    }
-
-    .chat-item:hover {
-        background-color: #e0e0e0;
-    }
-
-    .sender-info {
-        font-weight: bold;
-    }
-
-    .message-preview {
-        font-size: 0.9em;
-        color: gray;
-    }
-
-    .message-container {
-    display: flex;
-    flex-direction: column;
-    height: 60vh;
-    overflow-y: auto;
-    margin-bottom: 1rem;
-    width: 100%;
-    padding: 10px;
+.side-panel {
+    width: 300px;
+    background-color: #f9f9f9;
+    border-right: 2px solid #e0e0e0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.message-box {
-    display: flex;
-    margin-bottom: 1rem;
-    flex-direction: column;
+.side-panel-title {
+    font-size: 1.5em;
+    color: #002147;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #002147;
+    padding-bottom: 10px;
 }
 
-.message-content {
-    max-width: 80%;
+.no-chats-message {
+    font-size: 1em;
+    color: #666;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.chat-item {
+    margin-bottom: 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chat-item:hover {
+    background-color: #e6f0ff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
     padding: 10px;
     border-radius: 8px;
+    color: #333;
+    font-family: 'Open Sans', sans-serif;
+    transition: color 0.3s ease;
 }
 
-.message-content.sent {
-    background-color: #dcf8c6;
-    align-self: flex-end;
+.chat-link:hover {
+    color: #002147;
 }
 
-.message-content.received {
-    background-color: #2198ff;
-    color: white;
-    align-self: flex-start;
+.chat-icon {
+    font-size: 2em;
+    color: #002147;
+    margin-right: 15px;
 }
 
-.user-name {
-    font-size: 0.85rem;
+.chat-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chat-name {
+    font-size: 1.1em;
     font-weight: bold;
-    color: #3E8914;
+    color: #002147;
 }
 
-.text-muted {
-    font-size: 0.75rem;
-    color: gray;
+.chat-preview {
+    font-size: 0.9em;
+    color: #666;
+}
+
+#chatContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+    margin-left: 20px;
+    min-height: 300px;
+    border: 1px solid #ccc;
+    background-color: white;
+    padding: 10px;
+}
+
+#messageArea {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.message-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+/* General styles for message boxes */
+.message-box {
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.message-box.sent {
+    background-color: #e0f7fa;
+    align-self: flex-end;
+    text-align: right;
+    margin-left: auto; /* Push the sent message to the right */
+}
+
+.message-box.received {
+    background-color: #d1c4e9;
+    align-self: flex-start;
+    text-align: left;
+    margin-right: auto; /* Push the received message to the left */
+}
+
+
+.message-timestamp {
+    font-size: 0.8em;
+    color: #757575;
     margin-top: 5px;
 }
-@media (min-width: 1200px) {
-    .message-container {
-        width: 60%;
-    }
+
+
+.message-content p {
+    margin: 0;
+    font-size: 1em;
+}
+.message-text {
+    margin-bottom: 5px;
 }
 
-@media (max-width: 767px) {
-    .message-container {
-        width: 100%;
-    }
+.message-date {
+    font-size: 0.8em;
+    color: #757575;
 }
 
 
-    </style>
+.message-content p {
+    margin: 0;
+}
+
+.message-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.message-input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 10px;
+}
+
+.send-button {
+    background-color: #002147;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.send-button i {
+    font-size: 16px;
+}
+
+
+
+</style>
 </head>
 <body class="g-sidenav-show bg-gray-100">
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
@@ -246,51 +226,63 @@
 
     <!-- Main Content Area (Message and Side Panel) -->
     <div class="container" style="margin-left: 400px; background-color: #002147; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); margin-top:150px; margin-right: 200px;">
-        <h1 class="mt-4" style="margin-top:5px;">Messages</h1>
+        <h1 class="mt-4" style="margin-top:5px; color: white; font-size: 35px; margin-left: 20px;">Messages</h1>
         <div class="content-wrapper" style="display: flex;">
             <!-- Side Panel (Chat List) -->
-            <div class="side-panel" style="flex: 1;">
+            <div class="side-panel">
+                <h3 class="side-panel-title">Chats</h3>
+                <!-- Check if chatNames is empty or null -->
+                <div th:block th:if="${chatNames == null or #lists.isEmpty(chatNames)}" class="no-chats-message">
+                    <p>No chats available.</p>
+                </div>
+
+                <!-- Iterate over chatNames if it's not null and not empty -->
                 <ul class="chat-list">
-                    <li th:each="chatName : ${chatNames}">
-                        <!-- Use data-* attributes to store the values -->
-                        <a href="javascript:void(0);"
-                           th:data-sender-id="${currentUser}"
-                           th:data-receiver-id="${chatName.id}"
-                           onclick="openChat(this)">
-                            <div class="chat-item">
-                                <div class="sender-info">
-                                    <span th:text="${chatName.name}"></span>
+                    <th:block th:each="messageDTO : ${chatNames}">
+                        <li class="chat-item">
+                            <a href="javascript:void(0);"
+                               th:data-sender-id="${messageDTO.senderId}"
+                               data-chat-status="closed"
+                               onclick="toggleChat(this)"
+                               class="chat-link">
+                                <div class="chat-icon">
+                                    <i class="fas fa-user-circle"></i>
                                 </div>
-                                <div class="message-preview">
-                                    <span th:text="'Project Assigned'"></span>
+                                <div class="chat-details">
+                                    <span class="chat-name" th:text="${messageDTO.senderName}">Sender Name</span>
+                                    <span class="chat-preview">Click to view chat</span>
                                 </div>
-                            </div>
-                        </a>
-                    </li>
+                            </a>
+                        </li>
+                    </th:block>
                 </ul>
             </div>
 
-            <!-- Message Container -->
-            <div class="message-container" id="chatContainer" style="flex: 3; margin-left: 20px;">
-                    <div th:each="message : ${messages}">
-                        <div class="message-box" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'">
-                            <div class="message-content" th:classappend="${message.sender.id == userId} ? 'sent' : 'received'" th:data-message-id="${message.id}">
-                                <p th:text="${message.message}"></p>
-                                <p class="text-muted" th:text="${#temporals.format(message.dateTime, 'yyyy/MM/dd HH:mm:ss')}"></p>
-                            </div>
-                        </div>
-                    </div>
-                <!-- MessageModel input form -->
-                <form th:action="@{/manageMessages/post}" method="post" class="message-form">
-                    <input type="hidden" name="userId" th:value="${userId}" />
-                    <input type="hidden" name="receiverId" th:value="${selectedEmployeeId}" />
-                    <textarea name="message" class="message-input" placeholder="Enter your message"></textarea>
-                    <button type="submit" class="send-button"><i class="fa fa-paper-plane"></i></button>
+
+            <!-- Message Container (Chat Box) -->
+            <div class="message-container" id="chatContainer" style="flex: 3; margin-left: 20px; display: none; flex-direction: column; padding: 10px; background-color: #ffffff; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+                <!-- Message display area -->
+                <div id="messageArea" style="flex: 1; overflow-y: auto; margin-bottom: 10px; padding: 10px; border-radius: 8px; background-color: #f8f9fa; max-height: 400px; display: flex; flex-direction: column; gap: 10px;">
+                    <!-- All messages will be dynamically added here -->
+                </div>
+
+
+                <!-- Message input form -->
+                <form th:action="@{/messages/post}" method="post" class="message-form" id="messageForm" style="display: flex; gap: 10px; align-items: center; margin-top: 10px; margin-bottom: -30px;">
+                    <input type="hidden" name="receiverId" id="receiverId" />
+                    <textarea name="message" class="message-input" placeholder="Enter your message" style="flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; resize: none;"></textarea>
+                    <button type="submit" class="send-button" style="background-color: #002147; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                        <i class="fa fa-paper-plane"></i>
+                    </button>
                 </form>
             </div>
 
+
+
         </div>
+
     </div>
+
 </main>
 <script>
     function toggleSidebar() {
@@ -307,63 +299,68 @@
             console.error("Message content not found for messageId: " + messageId);
         }
     }
-function openChat(element) {
-    var senderId = element.getAttribute('data-sender-id');
-    var receiverId = element.getAttribute('data-receiver-id');
-
-    console.log("Opening chat with sender: " + senderId + " and receiver: " + receiverId);
-
-    fetch(`/messages/chat/${senderId}/${receiverId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Response data:", data);  // Log the entire response data
-            var messages = data.messages || [];  // Ensure it's an array, even if no messages exist
-            var currentUser = data.currentUser;
-            displayMessages(messages, currentUser);
-        })
-        .catch(error => {
-            console.error("Error loading chat:", error);
-        });
-}
 
 
+function toggleChat(element) {
+    const senderId = element.getAttribute('data-sender-id');
+    const chatStatus = element.getAttribute('data-chat-status');
+    const chatContainer = document.getElementById('chatContainer');
+    const chatPreview = element.querySelector('.chat-preview');
 
-function displayMessages(messages, currentUser) {
-    var chatContainer = document.querySelector(".message-container");
-    chatContainer.innerHTML = '';  // Clear previous messages
+    if (chatStatus === 'closed') {
+        // Open the chat box
+        element.setAttribute('data-chat-status', 'open');
+        chatPreview.textContent = 'Click to close the chat';
 
-    if (!Array.isArray(messages)) {
-        console.error("Invalid messages format:", messages);
-        return;
+        // Update the receiverId in the message form
+        document.getElementById('receiverId').value = senderId;
+
+        // Fetch messages and populate the chat box
+        fetch(`/messages/chat/${senderId}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const messages = data.messages;
+                const currentUserId = data.currentUserId; // Ensure this is the logged-in user's ID
+                const messageArea = document.getElementById('messageArea');
+
+                // Clear previous messages
+                messageArea.innerHTML = '';
+
+                // Populate messages dynamically
+                messages.forEach((message) => {
+                    const messageBox = document.createElement('div');
+                    const isSentByCurrentUser = message.senderId === currentUserId;
+
+                    // Dynamically assign classes for sent/received messages
+                    messageBox.className = `message-box ${isSentByCurrentUser ? 'sent' : 'received'}`;
+
+                    messageBox.innerHTML = `
+                        <div class="message-content">
+                            <p>${message.messageContent}</p>
+                        </div>
+                        <div class="message-timestamp">${new Date(message.timestamp).toLocaleString()}</div>
+                    `;
+
+                    // Append to the single messageArea container
+                    messageArea.appendChild(messageBox);
+                });
+
+                // Show the chat container
+                chatContainer.style.display = 'block';
+            })
+            .catch((error) => {
+                console.error('Error fetching chat messages:', error);
+            });
+    } else {
+        // Close the chat box
+        element.setAttribute('data-chat-status', 'closed');
+        chatPreview.textContent = 'Click to view chat';
+
+        // Hide the chat container
+        chatContainer.style.display = 'none';
     }
-
-    messages.forEach(message => {
-        var messageElement = document.createElement("div");
-        messageElement.classList.add("message-box", message.senderId === currentUser ? 'sent' : 'received');
-
-        var messageContent = document.createElement("div");
-        messageContent.classList.add("message-content", message.senderId === currentUser ? 'sent' : 'received');
-        messageContent.textContent = message.content;  // Adjust according to your message object structure
-
-        var messageUserName = document.createElement("div");
-        messageUserName.classList.add("user-name");
-        messageUserName.textContent = message.senderName;  // If you have senderName or any identifier
-
-        var messageTimestamp = document.createElement("div");
-        messageTimestamp.classList.add("text-muted");
-        messageTimestamp.textContent = message.timestamp;  // Adjust if you have a timestamp
-
-        messageElement.appendChild(messageUserName);
-        messageElement.appendChild(messageContent);
-        messageElement.appendChild(messageTimestamp);
-        chatContainer.appendChild(messageElement);
-    });
 }
+
 
 
 </script>

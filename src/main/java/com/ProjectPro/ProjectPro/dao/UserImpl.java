@@ -115,4 +115,14 @@ public class UserImpl implements UsersService {
     public List<Employee> findAllEmployees() {
         return employeeRepo.findAll();
     }
+
+    @Override
+    public User getEmployee(Employee employee) {
+        return userRepo.findByEmployee(employee);
+    }
+
+    @Override
+    public User getUsersByMessageSupervisor(List<MessageModel> messageModel) {
+        return userRepo.findUsersByMessageSupervisor(messageModel);
+    }
 }
