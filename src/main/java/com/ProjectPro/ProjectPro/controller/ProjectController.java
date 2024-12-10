@@ -1,12 +1,8 @@
 package com.ProjectPro.ProjectPro.controller;
 
 
-import com.ProjectPro.ProjectPro.entity.Activity;
-import com.ProjectPro.ProjectPro.entity.Project;
-import com.ProjectPro.ProjectPro.entity.TaskManagement;
-import com.ProjectPro.ProjectPro.service.ActivityService;
-import com.ProjectPro.ProjectPro.service.ProjectService;
-import com.ProjectPro.ProjectPro.service.TaskManagementService;
+import com.ProjectPro.ProjectPro.entity.*;
+import com.ProjectPro.ProjectPro.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -31,19 +28,35 @@ public class ProjectController {
 
     private ActivityService activityService;
 
+    private EmployeeService employeeService;
+
+    private MessageService messageService;
+
+    private RoleService roleService;
+
+    private UsersService usersService;
+
     @Autowired
-    public ProjectController(ProjectService projectService, TaskManagementService taskManagementService, ActivityService activityService) {
+    public ProjectController(ProjectService projectService, TaskManagementService taskManagementService, ActivityService activityService, EmployeeService employeeService, MessageService messageService, RoleService roleService, UsersService usersService) {
         this.projectService = projectService;
         this.taskManagementService = taskManagementService;
         this.activityService = activityService;
+        this.employeeService = employeeService;
+        this.messageService = messageService;
+        this.roleService = roleService;
+        this.usersService = usersService;
     }
-
 
     @GetMapping("/projectPage")
     public String projectPage(Model model, HttpSession session){
         Integer userId = (Integer) session.getAttribute("userId");
         List<Project> projectList = projectService.findProjectsByUserId(userId);
+
+        String department = employeeService.findDepartmentByUserId(userId);
+        List<Employee> supervisorList = employeeService.findSupervisorsByDepartment(department);
+
         model.addAttribute("projects", projectList);
+        model.addAttribute("employees", supervisorList);
 
         return "project/projectPage";
     }
@@ -112,7 +125,10 @@ public class ProjectController {
                               @RequestParam("category") String category,
                               @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                               @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                              @RequestParam("notes") String notes) {
+                              @RequestParam("notes") String notes,
+                              @RequestParam(value = "supervisorId", required = false) Integer supervisorId,
+                              RedirectAttributes redirectAttributes,
+                              HttpSession session) {
 
         Project project1 = projectService.findById(project);
 
@@ -125,8 +141,31 @@ public class ProjectController {
         taskManagement.setStatus("New");
         taskManagement.setProject(project1);
 
+        if(supervisorId != null){
+            Employee supervisor = employeeService.findById(supervisorId);
+            taskManagement.setSupervisor(supervisor);
+        }
 
         taskManagementService.save(taskManagement);
+
+        if (supervisorId != null) {
+            Employee supervisor = employeeService.findById(supervisorId);
+
+            // Assuming Employee is related to User (either extends or has a reference)
+            User supervisorUser = supervisor.getUser();  // Assuming this method exists to get User object
+
+            // Retrieve the HOD (current logged-in user)
+            Integer userId = (Integer) session.getAttribute("userId");
+            User hod = usersService.findById(userId);
+
+            // Retrieve the Role for HOD and Project Manager
+            Role hodRole = roleService.findByRoleName("PROJECTMANAGER");
+            Role projectManagerRole = roleService.findByRoleName("PROJECTMANAGER");
+
+            // Create the message between PROJECTMANAGER and SUPERVISOR about the task assignment
+            messageService.createTaskToSupervisorAssignmentMessage(hod, supervisorUser, taskManagement, hodRole, projectManagerRole);
+
+        }
 
         return "redirect:/project/projectPage";
     }
@@ -134,7 +173,9 @@ public class ProjectController {
     @PostMapping("/add-activity")
     public String addActivityPage(@RequestParam("projectId") int project,
                                   @RequestParam("activityName") String name,
-                                  @RequestParam("notes") String notes){
+                                  @RequestParam("notes") String notes,
+                                  @RequestParam("employeeId") Integer employeeId,
+                                  HttpSession session){
 
         Project project1 = projectService.findById(project);
 
@@ -145,6 +186,25 @@ public class ProjectController {
         activity.setProject(project1);
 
         activityService.save(activity);
+
+        if (employeeId != null) {
+            Employee employee = employeeService.findById(employeeId);
+
+            // Assuming Employee is related to User (either extends or has a reference)
+            User employeeUser = employee.getUser();  // Assuming this method exists to get User object
+
+            // Retrieve the HOD (current logged-in user)
+            Integer userId = (Integer) session.getAttribute("userId");
+            User hod = usersService.findById(userId);
+
+            // Retrieve the Role for HOD and Project Manager
+            Role hodRole = roleService.findByRoleName("PROJECTMANAGER");
+            Role projectManagerRole = roleService.findByRoleName("EMPLOYEE");
+
+            // Create the message between PROJECTMANAGER and EMPLOYEE about the activity assignment
+            messageService.createActivityAssignmentMessage(hod, employeeUser, activity, hodRole, projectManagerRole);
+
+        }
 
         return "redirect:/project/projectPage";
     }

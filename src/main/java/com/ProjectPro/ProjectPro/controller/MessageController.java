@@ -36,7 +36,7 @@ public class MessageController {
     }
 
     @GetMapping("/view")
-    public String projectManagerPage(HttpSession session, Model model) {
+    public String hodMessagePage(HttpSession session, Model model) {
         Integer userId = (Integer) session.getAttribute("userId");
         List<MessageDTO> messageDTOs = messageService.findSenderByReceiver(userId);
 
@@ -54,6 +54,51 @@ public class MessageController {
     public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
+    }
+
+    @GetMapping("/projectMessage")
+    public String projectManagerMessagePage(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        List<MessageDTO> messageDTOs = messageService.findSenderByReceiver(userId);
+
+        // Filter the list to only include unique senderIds
+        List<MessageDTO> uniqueMessageDTOs = messageDTOs.stream()
+                .filter(distinctByKey(MessageDTO::getSenderId))
+                .toList();
+
+        model.addAttribute("chatNames", uniqueMessageDTOs);
+
+        return "message/projectManagerMessagePage";
+    }
+
+    @GetMapping("/supervisorMessage")
+    public String supervisorMessagePage(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        List<MessageDTO> messageDTOs = messageService.findSenderByReceiver(userId);
+
+        // Filter the list to only include unique senderIds
+        List<MessageDTO> uniqueMessageDTOs = messageDTOs.stream()
+                .filter(distinctByKey(MessageDTO::getSenderId))
+                .toList();
+
+        model.addAttribute("chatNames", uniqueMessageDTOs);
+
+        return "message/supervisorMessagePage";
+    }
+
+    @GetMapping("/employeeMessage")
+    public String employeeMessagePage(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        List<MessageDTO> messageDTOs = messageService.findSenderByReceiver(userId);
+
+        // Filter the list to only include unique senderIds
+        List<MessageDTO> uniqueMessageDTOs = messageDTOs.stream()
+                .filter(distinctByKey(MessageDTO::getSenderId))
+                .toList();
+
+        model.addAttribute("chatNames", uniqueMessageDTOs);
+
+        return "message/employeeMessagePage";
     }
 
 
@@ -78,6 +123,75 @@ public class MessageController {
         messageService.createMessage(sender, receiver, messageContent, null, null, null);
 
         return "redirect:/messages/view";
+    }
+
+    @PostMapping("/projectPost")
+    public String projectPostMessage(
+            @RequestParam("receiverId") Integer receiverId,
+            @RequestParam("message") String messageContent,
+            HttpSession session) {
+
+        if (messageContent == null || messageContent.trim().isEmpty()) {
+            return "redirect:/messages/view?error=Message content cannot be empty";
+        }
+
+        // Get the sender (current logged-in user)
+        Integer userId = (Integer) session.getAttribute("userId");
+        User sender = usersService.findById(userId);
+
+        // Get the receiver
+        User receiver = usersService.findById(receiverId);
+
+        // Create the message
+        messageService.createMessage(sender, receiver, messageContent, null, null, null);
+
+        return "redirect:/messages/projectMessage";
+    }
+
+    @PostMapping("/supervisorPost")
+    public String supervisorPostMessage(
+            @RequestParam("receiverId") Integer receiverId,
+            @RequestParam("message") String messageContent,
+            HttpSession session) {
+
+        if (messageContent == null || messageContent.trim().isEmpty()) {
+            return "redirect:/messages/view?error=Message content cannot be empty";
+        }
+
+        // Get the sender (current logged-in user)
+        Integer userId = (Integer) session.getAttribute("userId");
+        User sender = usersService.findById(userId);
+
+        // Get the receiver
+        User receiver = usersService.findById(receiverId);
+
+        // Create the message
+        messageService.createMessage(sender, receiver, messageContent, null, null, null);
+
+        return "redirect:/messages/supervisorMessage";
+    }
+
+    @PostMapping("/employeePost")
+    public String employeeMessagePostMessage(
+            @RequestParam("receiverId") Integer receiverId,
+            @RequestParam("message") String messageContent,
+            HttpSession session) {
+
+        if (messageContent == null || messageContent.trim().isEmpty()) {
+            return "redirect:/messages/view?error=Message content cannot be empty";
+        }
+
+        // Get the sender (current logged-in user)
+        Integer userId = (Integer) session.getAttribute("userId");
+        User sender = usersService.findById(userId);
+
+        // Get the receiver
+        User receiver = usersService.findById(receiverId);
+
+        // Create the message
+        messageService.createMessage(sender, receiver, messageContent, null, null, null);
+
+        return "redirect:/messages/employeeMessage";
     }
 
 

@@ -124,18 +124,38 @@ public class UserController {
 
     @GetMapping("/supervisor-home")
     public String viewSupervisorPage(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        User user = usersService.findById(userId);
+        Employee employee = employeeService.findByUser(user);
+
+        // Ensure user ID is still set in the session
+        session.setAttribute("userId", userId);
         model.addAttribute("users", usersService.findAll());
         model.addAttribute("projects", projectService.findAll());
         return checkUserRole(session, "SUPERVISOR", "supervisor/supervisorPage");
     }
     @GetMapping("/hod-home")
     public String viewHodPage(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        User user = usersService.findById(userId);
+        Employee employee = employeeService.findByUser(user);
+
+        // Ensure user ID is still set in the session
+        session.setAttribute("userId", userId);
+
         model.addAttribute("users", usersService.findAll());
         model.addAttribute("projects", projectService.findAll());
         return checkUserRole(session, "HOD", "hod/hodPage");
     }
     @GetMapping("/project-manager-home")
     public String viewProjectManagerPage(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        User user = usersService.findById(userId);
+        Employee employee = employeeService.findByUser(user);
+
+        // Ensure user ID is still set in the session
+        session.setAttribute("userId", userId);
+
         model.addAttribute("users", usersService.findAll());
         model.addAttribute("projects", projectService.findAll());
         return checkUserRole(session, "PROJECTMANAGER", "projectManager/projectManagerPage");

@@ -217,19 +217,16 @@
             <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
         </div>
         <br>
-        <a th:href="@{/project/projectListPage}">Projects</a>
-        <a th:href="@{/employee/employeeListPage}">Employees</a>
-        <a th:href="@{/directoratePage}">Directorate</a>
-        <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
-        <a th:href="@{/reports-page/hod-report}">Reports</a>
-        <a th:href="@{/priority-levels}">Priority</a>
-        <a th:href="@{/task/taskListPage}">Task</a>
-        <a th:href="@{/activity/listPage}">Activity</a>
+
+        <a th:href="@{/project/projectPage}">Projects</a>
+        <a th:href="@{/employee/supervisorList}">Supervisors</a>
+        <a th:href="@{/reports-page/pm-report}">Reports</a>
+        <a th:href="@{/task/taskPage}">Task</a>
+        <a th:href="@{/activity}">Activity</a>
         <a th:href="@{/history}">History</a>
-        <a th:href="@{/messages/view}">Messages</a>
+        <a th:href="@{/messages/projectMessage}">Messages</a>
 
         <div class="spacer"></div>
-
         <a class="logout-btn" th:href="@{/logout}">Logout</a>
     </div>
 
@@ -277,7 +274,7 @@
 
 
                 <!-- Message input form -->
-                <form th:action="@{/messages/post}" method="post" class="message-form" id="messageForm" style="display: flex; gap: 10px; align-items: center; margin-top: 10px; margin-bottom: -30px;">
+                <form th:action="@{/messages/projectPost}" method="post" class="message-form" id="messageForm" style="display: flex; gap: 10px; align-items: center; margin-top: 10px; margin-bottom: -30px;">
                     <input type="hidden" name="receiverId" id="receiverId" />
                     <textarea name="message" class="message-input" placeholder="Enter your message" style="flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; resize: none;"></textarea>
                     <button type="submit" class="send-button" style="background-color: #002147; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">

@@ -1,5 +1,8 @@
 package com.ProjectPro.ProjectPro.repository;
 
+import com.ProjectPro.ProjectPro.Dto.PendingReportDTO;
+import com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO;
+import com.ProjectPro.ProjectPro.entity.Activity;
 import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
 import com.ProjectPro.ProjectPro.entity.TaskManagement;
@@ -39,42 +42,47 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
     int countGradedReports();
 
     @Query("""
-        SELECT r.id as reportId,
-            r.reportDescription as reportTitle,
-            t.name as taskName,
-            e.name as supervisorName,
-            r.submissionDate as submissionDate,
+        SELECT new com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO(
+            r.id,
+            r.reportDescription,
+            e.name,
+            r.submissionDate,
             CASE
                 when r.grading is NULL THEN 'Pending'
                 ELSE 'Reviewed'
-            END AS status
+            END
+        )
         From Report r
-        JOIN r.taskManagement t
         JOIN r.employee e
         JOIN e.user u
         JOIN u.roles ur
         WHERE ur.roleName = 'SUPERVISOR'        
     """)
-    List<Map<String,Object>> findPendingReportsBySupervisors();
+    List<PendingSupervisorReportDTO> findPendingReportsBySupervisors();
 
     @Query("""
-        SELECT r.id as reportId,
-            r.reportDescription as reportTitle,
-            t.name as taskName,
-            t.taskLeader.name as taskLeader,
-            r.submissionDate as submissionDate,
-            CASE
-                when r.grading is NULL THEN 'Pending'
-                ELSE 'Reviewed'
-            END AS status
-        From Report r
-        JOIN r.taskManagement t
-        JOIN r.employee e
-        JOIN e.user u
-        JOIN u.roles ur
-        WHERE ur.roleName = 'EMPLOYEE'        
-    """)
-    List<Map<String,Object>> findPendingReportsByTaskLeader();
+    SELECT new com.ProjectPro.ProjectPro.Dto.PendingReportDTO(
+        r.id,
+        r.reportDescription,
+        t.name,
+        t.supervisor.name,
+        r.submissionDate,
+        CASE
+            WHEN r.grading IS NULL THEN 'Pending'
+            ELSE 'Reviewed'
+        END,
+        e.id
+    )
+    FROM Report r
+    JOIN r.taskManagement t
+    JOIN r.employee e
+    JOIN e.user u
+    JOIN u.roles ur
+    WHERE ur.roleName = 'EMPLOYEE'
+""")
+    List<PendingReportDTO> findPendingReportsByTaskLeader();
+
+
 
     @Query("""
         SELECT r.id as reportId,
@@ -123,9 +131,9 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
                 JOIN r.taskManagement t
                 JOIN t.employees e
                 JOIN e.user u
-                WHERE t.taskLeader.id = e.id
-                  AND t.taskLeader.id = :taskLeaderId
-                  AND r.employee.id != t.taskLeader.id
+                WHERE t.supervisor.id = e.id
+                  AND t.supervisor.id = :taskLeaderId
+                  AND r.employee.id != t.supervisor.id
 
             """
     )
@@ -136,7 +144,16 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
             @Param("task") TaskManagement task,
             @Param("employee") Employee employee);
 
-    @Query("SELECT r FROM Report r WHERE r.taskManagement.taskLeader.user.id = :userId")
+    @Query("SELECT r FROM Report r WHERE r.activity = :activity AND r.employee = :employee ORDER BY r.submissionDate DESC")
+    Report findTopByActivityAndEmployeeOrderBySubmissionDateDesc(
+            @Param("activity") Activity activity,
+            @Param("employee") Employee employee);
+
+    @Query("SELECT r FROM Report r WHERE r.employee = :employee ORDER BY r.submissionDate DESC")
+    Report findTopByEmployeeOrderBySubmissionDateDesc(
+            @Param("employee") Employee employee);
+
+    @Query("SELECT r FROM Report r WHERE r.taskManagement.supervisor.user.id = :userId")
     List<Report> findReportsByTaskLeaderUserId(@Param("userId") Integer userId);
 
 

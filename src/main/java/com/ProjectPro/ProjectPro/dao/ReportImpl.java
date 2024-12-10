@@ -1,6 +1,9 @@
 package com.ProjectPro.ProjectPro.dao;
 
 
+import com.ProjectPro.ProjectPro.Dto.PendingReportDTO;
+import com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO;
+import com.ProjectPro.ProjectPro.entity.Activity;
 import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
 import com.ProjectPro.ProjectPro.entity.TaskManagement;
@@ -87,12 +90,12 @@ public class ReportImpl implements ReportService {
     }
 
     @Override
-    public List<Map<String, Object>> findPendingReportsByTaskLeader() {
+    public List<PendingReportDTO> findPendingReportsByTaskLeader() {
         return reportRepo.findPendingReportsByTaskLeader();
     }
 
     @Override
-    public List<Map<String, Object>> findPendingReportsBySupervisors() {
+    public List<PendingSupervisorReportDTO> findPendingReportsBySupervisors() {
         return reportRepo.findPendingReportsBySupervisors();
     }
 
@@ -104,6 +107,16 @@ public class ReportImpl implements ReportService {
     @Override
     public Report findLatestReportByTaskAndEmployee(TaskManagement task, Employee employee) {
         return reportRepo.findTopByTaskManagementAndEmployeeOrderBySubmissionDateDesc(task,employee);
+    }
+
+    @Override
+    public Report findLatestReportByActivityAndEmployee(Activity activity, Employee employee) {
+        return reportRepo.findTopByActivityAndEmployeeOrderBySubmissionDateDesc(activity, employee);
+    }
+
+    @Override
+    public Report findLatestReportByEmployee(Employee employee) {
+        return reportRepo.findTopByEmployeeOrderBySubmissionDateDesc(employee);
     }
 
     @Override

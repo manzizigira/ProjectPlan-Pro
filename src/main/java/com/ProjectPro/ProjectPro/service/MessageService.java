@@ -32,6 +32,10 @@ public interface MessageService {
     MessageModel getMessageById(int messageId);
 
     void createProjectAssignmentMessage(User sender, User receiver, Project project, Role senderRole, Role receiverRole);
+    void createTaskToSupervisorAssignmentMessage(User sender, User receiver, TaskManagement taskManagement, Role senderRole, Role receiverRole);
+    void createSupervisorToTaskLeaderAssignmentMessage(User sender, User receiver, TaskManagement taskManagement, Role senderRole, Role receiverRole);
+    void createActivityAssignmentMessage(User sender, User receiver, Activity activity, Role senderRole, Role receiverRole);
+    void createAssignmentMessageBetweenTaskLeaderAndEmployees(User sender, User receiver, TaskManagement taskManagement, Role senderRole, Role receiverRole);
 
     List<MessageModel> getReceiverMessages(int user);
     List<MessageDTO> findSenderByReceiver(@Param("receiverId") int receiverId);

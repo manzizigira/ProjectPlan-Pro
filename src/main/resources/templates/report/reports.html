@@ -18,7 +18,13 @@
     border-radius: 8px; /* Optional: Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for depth */
 }
-
+        .table img {
+            width: 24px; /* Adjust width as needed */
+            height: 24px; /* Adjust height to match width or as needed */
+            object-fit: contain; /* Ensure the image scales correctly */
+            cursor: pointer; /* Indicate that the image is clickable */
+            border: none; /* Remove any default border */
+        }
 </style>
 <body>
 <!-- Top Navigation Bar -->
@@ -39,15 +45,10 @@
     <img th:src="@{/images/mininfra_logo.jpg}" alt="Drawer Icon">
   </div>
   <br>
-  <a th:href="@{/project/projectPage}">Projects</a>
-  <a th:href="@{/employee/employeePage}">Employees</a>
-  <a th:href="@{/directoratePage}">Directorate</a>
-  <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
-  <a th:href="@{/priority-levels}">Priority</a>
-  <a th:href="@{/task/taskPage}">Task</a>
-  <a th:href="@{/activity}">Activity</a>
+  <a th:href="@{/reports-page/sp-report}">Reports</a>
+  <a th:href="@{/task/taskSupervisorPage}">Task</a>
   <a th:href="@{/history}">History</a>
-  <a th:href="@{/messages/view}">Messages</a>
+  <a th:href="@{/messages/supervisorMessage}">Messages</a>
 
   <div class="spacer"></div>
 
@@ -80,21 +81,27 @@
         <th>Task Leader Name</th>
         <th>Submission Date</th>
         <th>Status</th>
+        <th>Report</th>
+        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
-      <tr th:each="report : ${pendingReports}"
-          th:if="${report.taskManagement != null && report.taskManagement.employees.contains(report.employee) && report.grading == null && report.taskManagement.status != 'Completed'}"
-          th:data-status="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'pending' : (report.grading != null ? 'graded' : ''))}"
-          th:class="${(pendingReportIds != null && pendingReportIds.contains(report.id) ? 'bg-warning' : '') +
-          (report.grading != null ? ' bg-success' : '')}">
-        <td th:text="${report['reportDescription']}"></td>
-        <td th:text="${report['taskName']}"></td>
-        <td th:text="${report['taskLeader']}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.['status']}"></td>
+      <tr th:each="report : ${pendingReports}">
+        <td th:text="${report.reportTitle}"></td>
+        <td th:text="${report.taskName}"></td>
+        <td th:text="${report.supervisorName}"></td>
+        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
+        <td th:text="${report.status}"></td>
+        <td>
+          <img src="/images/file.png" alt="Report Details" style="cursor: pointer;"
+               th:onclick="'handleReportClick(' + ${report.reportId} + ')'" />
+        </td>
+        <td>
+          <button class="btn btn-primary" th:onclick="'showActivityReportDetails(' + ${report.reportId} + ')'">View Report</button>
+          <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.reportId} + ', ' + ${report.employee} + ')'">Grade Report</button>
+        </td>
       </tr>
-      <tr th:if="${#lists.isEmpty(reports)}">
+      <tr th:if="${#lists.isEmpty(pendingReports)}">
         <td colspan="7" style="text-align: center;">No task reports available.</td>
       </tr>
       </tbody>
@@ -172,6 +179,31 @@
   </div>
 </div>
 
+<div id="reports-submission-popup" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <form id="reports-submission-form" action="/reports-page/submitReports" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" name="userId" th:value="${userId}">
+    <input type="hidden" name="reportId" id="report-id" />
+    <input type="hidden" id="submission-date" name="submissionDate" value="">
+
+    <label for="report-file">Attach File:</label>
+    <input type="file" id="report-file" name="reportFile" required>
+
+    <label for="progress-percentage">Progress Percentages:</label>
+    <input type="number" id="progress-percentage" name="progressPercentage" min="0" max="100" step="1" required>
+
+    <label for="report-description">Description:</label>
+    <textarea id="report-description" name="reportDescription" rows="4" required></textarea>
+
+    <br>
+
+    <div class="d-flex justify-content-between">
+      <button type="button" class="btn btn-primary" onclick="submitReportForm(event)">Submit</button>
+      <button type="button" class="btn btn-secondary" onclick="closePopup('report-submission-popup')">Cancel</button>
+    </div>
+  </form>
+</div>
+
 
 
 <!-- Grade Report Modal -->
@@ -204,9 +236,70 @@
   let currentReportId = null;
   let currentActivityReportId = null;
 
-     // Function to toggle sidebar visibility
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
+  function handleReportClick(reportId) {
+        storeReportId(reportId);
+        openReportSubmissionPopup(reportId);
+  }
+
+  function openReportSubmissionPopup(reportId) {
+        currentReportId = reportId;
+        document.getElementById('reports-submission-popup').style.display = 'block';
+  }
+
+    function storeReportId(reportId) {
+        document.getElementById('report-id').value = reportId;
+    }
+
+    async function submitReportForm(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('reports-submission-form');
+        const formData = new FormData(form);
+
+        const submissionDateInput = document.getElementById('submission-date');
+        const submissionDate = new Date().toISOString().split('T')[0];
+        submissionDateInput.value = submissionDate;
+
+        try {
+            const response = await fetch('/reports-page/submitReports', {
+                method: 'POST',
+                body: formData
+            });
+
+            const message = await response.text();
+
+            if (response.ok) {
+                // Success - show success message or reload
+                alert(message); // You can customize this as needed
+                closePopup('reports-submission-popup');
+                location.reload(); // Optional, reload the page
+            } else {
+                // Error - show the error message in the form
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            alert('An unexpected error occurred. Please try again.');
+        }
+    }
+
+
+    function submitReportForms(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('reports-submission-form1');
+        const submissionDateInput = document.getElementById('submission-date1');
+
+        const submissionDate = new Date().toISOString().split('T')[0];
+        submissionDateInput.value = submissionDate;
+
+        form.submit();
+    }
+
+    function closePopup(popupId) {
+        document.getElementById(popupId).style.display = 'none';
     }
 
   function showReportDetails(reportId) {

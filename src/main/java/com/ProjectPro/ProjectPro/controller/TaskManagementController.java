@@ -1,11 +1,7 @@
 package com.ProjectPro.ProjectPro.controller;
 
-import com.ProjectPro.ProjectPro.entity.Activity;
-import com.ProjectPro.ProjectPro.entity.Employee;
-import com.ProjectPro.ProjectPro.entity.TaskManagement;
-import com.ProjectPro.ProjectPro.service.ActivityService;
-import com.ProjectPro.ProjectPro.service.EmployeeService;
-import com.ProjectPro.ProjectPro.service.TaskManagementService;
+import com.ProjectPro.ProjectPro.entity.*;
+import com.ProjectPro.ProjectPro.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +26,20 @@ public class TaskManagementController {
 
     private ActivityService activityService;
 
+    private UsersService usersService;
+
+    private RoleService roleService;
+
+    private MessageService messageService;
+
     @Autowired
-    public TaskManagementController(TaskManagementService taskManagementService, EmployeeService employeeService, ActivityService activityService) {
+    public TaskManagementController(TaskManagementService taskManagementService, EmployeeService employeeService, ActivityService activityService, UsersService usersService, RoleService roleService, MessageService messageService) {
         this.taskManagementService = taskManagementService;
         this.employeeService = employeeService;
         this.activityService = activityService;
+        this.usersService = usersService;
+        this.roleService = roleService;
+        this.messageService = messageService;
     }
 
     @GetMapping("/taskPage")
@@ -108,7 +113,8 @@ public class TaskManagementController {
             @RequestParam ("notes") String notes,
             @RequestParam("employeeIds[]") List<Integer> employeeIds,
             @RequestParam(value = "taskLeaderId", required = false) Integer taskLeaderId,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
 
         TaskManagement taskManagementId = taskManagementService.findById(taskId);
 
@@ -129,32 +135,34 @@ public class TaskManagementController {
 
         taskManagementService.save(taskManagementId);
 
+        if (taskLeaderId != null) {
+            Employee taskLeader = employeeService.findById(taskLeaderId);
+
+            // Assuming Employee is related to User (either extends or has a reference)
+            User taskLeaderUser = taskLeader.getUser();  // Assuming this method exists to get User object
+
+            // Retrieve the SUPERVISOR (current logged-in user)
+            Integer userId = (Integer) session.getAttribute("userId");
+            User supervisor = usersService.findById(userId);
+
+            // Retrieve the Role for HOD and Project Manager
+            Role supervisorRole = roleService.findByRoleName("SUPERVISOR");
+            Role employeeRole = roleService.findByRoleName("EMPLOYEE");
+
+            // Create the message between HOD and SUPERVISOR about the task leader assignment
+            messageService.createSupervisorToTaskLeaderAssignmentMessage(supervisor, taskLeaderUser, taskManagementId, supervisorRole, employeeRole);
+
+            // Create messages between Task Leader and all Employees
+            for (Employee employee : employees) {
+                User employeeUser = employee.getUser();  // Assuming this method exists
+                messageService.createAssignmentMessageBetweenTaskLeaderAndEmployees(taskLeaderUser, employeeUser, taskManagementId, supervisorRole, employeeRole);
+            }
+
+        }
 
         // Redirect back to the task page
         return "redirect:/task/taskSupervisor";
     }
-    @PostMapping("/assignTaskToSupervisor")
-    public String processTaskPage(
-            @RequestParam(value = "taskId", required = false) Integer taskId,
-            @RequestParam(value = "supervisorId", required = false) Integer supervisorId,
-            RedirectAttributes redirectAttributes) {
-
-        TaskManagement taskManagementId = taskManagementService.findById(taskId);
-
-
-        if(supervisorId != null){
-            Employee supervisor = employeeService.findById(supervisorId);
-            taskManagementId.setSupervisor(supervisor);
-        }
-        taskManagementService.save(taskManagementId);
-
-
-        // Redirect back to the task page
-        return "redirect:/task/taskPage";
-    }
-
-
-
 
 
 

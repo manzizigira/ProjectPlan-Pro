@@ -1,5 +1,8 @@
 package com.ProjectPro.ProjectPro.service;
 
+import com.ProjectPro.ProjectPro.Dto.PendingReportDTO;
+import com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO;
+import com.ProjectPro.ProjectPro.entity.Activity;
 import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
 import com.ProjectPro.ProjectPro.entity.TaskManagement;
@@ -30,13 +33,15 @@ public interface ReportService {
 
     List<Map<String,Object>> findPendingReportsByEmployees();
 
-    List<Map<String,Object>> findPendingReportsByTaskLeader();
+    List<PendingReportDTO> findPendingReportsByTaskLeader();
 
-    List<Map<String,Object>> findPendingReportsBySupervisors();
+    List<PendingSupervisorReportDTO> findPendingReportsBySupervisors();
 
     List<Report> findReportsByEmployeesForTaskLeader(@Param("taskLeaderId") int taskLeaderId);
 
     Report findLatestReportByTaskAndEmployee(TaskManagement task, Employee employee);
+    Report findLatestReportByActivityAndEmployee(Activity activity, Employee employee);
+    Report findLatestReportByEmployee(Employee employee);
 
     List<Report> findReportsByTaskLeaderUserId(@Param("userId") Integer userId);
 

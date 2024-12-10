@@ -98,6 +98,46 @@ public class MessageImpl implements MessageService {
     }
 
     @Override
+    public void createTaskToSupervisorAssignmentMessage(User sender, User receiver, TaskManagement taskManagement, Role senderRole, Role receiverRole) {
+        String messageContent = "You have been assigned a new task: " + taskManagement.getName();
+        MessageModel message = new MessageModel(sender, receiver, messageContent, LocalDateTime.now(), MessageStatus.SENT);
+        message.setTask(taskManagement); // Set the project in the message
+        message.setSenderRole(senderRole); // Set the sender's role
+        message.setReceiverRole(receiverRole); // Set the receiver's role
+        messageRepository.save(message);
+    }
+
+    @Override
+    public void createSupervisorToTaskLeaderAssignmentMessage(User sender, User receiver, TaskManagement taskManagement, Role senderRole, Role receiverRole) {
+        String messageContent = "You have been assigned a new task as a task leader: " + taskManagement.getName();
+        MessageModel message = new MessageModel(sender, receiver, messageContent, LocalDateTime.now(), MessageStatus.SENT);
+        message.setTask(taskManagement); // Set the project in the message
+        message.setSenderRole(senderRole); // Set the sender's role
+        message.setReceiverRole(receiverRole); // Set the receiver's role
+        messageRepository.save(message);
+    }
+
+    @Override
+    public void createActivityAssignmentMessage(User sender, User receiver, Activity activity, Role senderRole, Role receiverRole) {
+        String messageContent = "You have been assigned a new activity: " + activity.getActivityName();
+        MessageModel message = new MessageModel(sender, receiver, messageContent, LocalDateTime.now(), MessageStatus.SENT);
+        message.setActivity(activity); // Set the project in the message
+        message.setSenderRole(senderRole); // Set the sender's role
+        message.setReceiverRole(receiverRole); // Set the receiver's role
+        messageRepository.save(message);
+    }
+
+    @Override
+    public void createAssignmentMessageBetweenTaskLeaderAndEmployees(User sender, User receivers, TaskManagement taskManagement, Role senderRole, Role receiverRole) {
+        String messageContent = "We have been assigned a new Task: " + taskManagement.getName() + " and i'm your Task Leader "+taskManagement.getSupervisor().getName();
+        MessageModel message = new MessageModel(sender, receivers, messageContent, LocalDateTime.now(), MessageStatus.SENT);
+        message.setTask(taskManagement); // Set the project in the message
+        message.setSenderRole(senderRole); // Set the sender's role
+        message.setReceiverRole(receiverRole); // Set the receiver's role
+        messageRepository.save(message);
+    }
+
+    @Override
     public List<MessageModel> getReceiverMessages(int user) {
         return messageRepository.findReceiverMessages(user);
     }

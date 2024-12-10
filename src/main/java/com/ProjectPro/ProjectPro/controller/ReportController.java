@@ -1,9 +1,6 @@
 package com.ProjectPro.ProjectPro.controller;
 
-import com.ProjectPro.ProjectPro.Dto.ActivityDetailDto;
-import com.ProjectPro.ProjectPro.Dto.EmployeeDto;
-import com.ProjectPro.ProjectPro.Dto.ReportDetailsDto;
-import com.ProjectPro.ProjectPro.Dto.TaskManagementDto;
+import com.ProjectPro.ProjectPro.Dto.*;
 import com.ProjectPro.ProjectPro.entity.*;
 import com.ProjectPro.ProjectPro.repository.ReportRepo;
 import com.ProjectPro.ProjectPro.service.*;
@@ -14,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
 
 import org.springframework.core.io.Resource;
@@ -22,6 +20,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -105,7 +105,7 @@ public class ReportController {
     // Project Manager views Supervisor Reports
     @GetMapping("/pm-report")
     public String viewPendingSupervisorReport(Model model){
-        List<Map<String,Object>> pendingReports = reportService.findPendingReportsBySupervisors();
+        List<PendingSupervisorReportDTO> pendingReports = reportService.findPendingReportsBySupervisors();
         List<Report> reports = reportService.findAll().stream()
                 .filter(report ->
                         (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
@@ -115,6 +115,9 @@ public class ReportController {
         int pendingCount = reportService.countPendingReports();
         int gradedCount = reportService.countGradedReports();
         List<Integer> pendingReportIds = reportService.findPendingReportIds();
+
+        System.out.println("Pending Reports: " + pendingReports);
+
 
         model.addAttribute("reports", reports);
         model.addAttribute("pendingCount", pendingCount);
@@ -126,25 +129,21 @@ public class ReportController {
 
     // Supervisor views Task Leader Reports
     @GetMapping("/sp-report")
-    public String viewPendingTaskLeaderReport(Model model){
-        List<Map<String,Object>> pendingReports = reportService.findPendingReportsByTaskLeader();
-        List<Report> reports = reportService.findAll().stream()
-                .filter(report ->
-                        (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
-                                (report.getActivity() != null && !"Completed".equals(report.getActivity().getStatus()))
-                )
-                .collect(Collectors.toList());
+    public String viewPendingTaskLeaderReport(Model model, HttpSession session) {
+
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        List<PendingReportDTO> pendingReports = reportService.findPendingReportsByTaskLeader();
         int pendingCount = reportService.countPendingReports();
         int gradedCount = reportService.countGradedReports();
-        List<Integer> pendingReportIds = reportService.findPendingReportIds();
 
-        model.addAttribute("reports", reports);
+        model.addAttribute("pendingReports", pendingReports);
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("gradedCount", gradedCount);
-        model.addAttribute("pendingReportIds", pendingReportIds);
-        model.addAttribute("pendingReports", pendingReports);
+        model.addAttribute("userId", userId);
         return "report/reports";
     }
+
 
     // Task Leader views Employees Reports
     @GetMapping("/em-report")
@@ -202,7 +201,53 @@ public class ReportController {
     }
 
 
+    @PostMapping("/submitReports")
+    @ResponseBody
+    public ResponseEntity<?> submitReport(
+            @RequestParam("reportFile") MultipartFile reportFile,
+            @RequestParam("progressPercentage") Integer progressPercentage,
+            @RequestParam("reportDescription") String reportDescription,
+            @RequestParam("userId") Integer userId) {
 
+        User user = usersService.findById(userId);
+        Employee employee = employeeService.findByUser(user);
+
+
+        // Fetch the latest report for the task by this employee
+        Report latestReport = reportService.findLatestReportByEmployee(employee);
+
+        if (latestReport != null) {
+            // Validate the progress percentage
+            if (progressPercentage < latestReport.getProgressPercentage()) {
+                return ResponseEntity.badRequest().body(
+                        "You cannot submit a progress percentage lower than your previous report ("
+                                + latestReport.getProgressPercentage() + "%).");
+            }
+        }
+
+        String fileName = System.currentTimeMillis() + "_" + reportFile.getOriginalFilename();
+        String filePath = "reports/" + fileName;
+        File targetFile = new File("C:/Users/amine/Downloads/Jane/" + filePath);
+
+        try {
+            reportFile.transferTo(targetFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed.");
+        }
+
+        // Save the new report
+        Report report = new Report();
+        report.setEmployee(employee);
+        report.setReportFile(filePath);
+        report.setProgressPercentage(progressPercentage);
+        report.setReportDescription(reportDescription);
+        report.setSubmissionDate(new Date());
+
+        reportService.save(report);
+
+        return ResponseEntity.ok("Report submitted successfully.");
+    }
 
 
 

@@ -40,14 +40,12 @@
     </div>
     <br>
     <a th:href="@{/project/projectPage}">Projects</a>
-    <a th:href="@{/employee/employeePage}">Employees</a>
-    <a th:href="@{/directoratePage}">Directorate</a>
-    <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
-    <a th:href="@{/priority-levels}">Priority</a>
+    <a th:href="@{/employee/supervisorList}">Supervisors</a>
+    <a th:href="@{/reports-page/pm-report}">Reports</a>
     <a th:href="@{/task/taskPage}">Task</a>
     <a th:href="@{/activity}">Activity</a>
     <a th:href="@{/history}">History</a>
-    <a th:href="@{/messages/view}">Messages</a>
+    <a th:href="@{/messages/projectMessage}">Messages</a>
 
     <div class="spacer"></div>
 
@@ -76,23 +74,20 @@
             <thead class="table-dark">
             <tr>
                 <th>Report Title</th>
-                <th>Task</th>
                 <th>Supervisor</th>
                 <th>Submission Date</th>
-                <th>Status</th>
+<!--                <th>Action</th>-->
             </tr>
             </thead>
             <tbody>
             <tr th:each="report : ${pendingReports}">
-                <td th:text="${report['reportDescription']}"></td>
-                <td th:text="${report['taskName']}"></td>
-                <td th:text="${report['supervisorName']}"></td> <!-- The employee who submitted the report -->
-                <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
-                <td th:text="${report.['status']}"></td>
-                <td>
-                    <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
-                    <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
-                </td>
+                <td th:text="${report.reportTitle}"></td>
+                <td th:text="${report.supervisorName}"></td> <!-- The employee who submitted the report -->
+                <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
+<!--                <td>-->
+<!--                    <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>-->
+<!--                    <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>-->
+<!--                </td>-->
             </tr>
             <tr th:if="${#lists.isEmpty(reports)}">
                 <td colspan="7" style="text-align: center;">No task reports available.</td>

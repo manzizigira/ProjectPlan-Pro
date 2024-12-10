@@ -41,11 +41,11 @@
   <br>
   <a th:href="@{/project/projectPage}">Projects</a>
   <a th:href="@{/employee/supervisorList}">Supervisors</a>
-  <a th:href="@{/reports-page}">Reports</a>
+  <a th:href="@{/reports-page/pm-report}">Reports</a>
   <a th:href="@{/task/taskPage}">Task</a>
   <a th:href="@{/activity}">Activity</a>
   <a th:href="@{/history}">History</a>
-  <a th:href="@{/messages/view}">Messages</a>
+  <a th:href="@{/messages/projectMessage}">Messages</a>
 
   <div class="spacer"></div>
 
@@ -70,7 +70,6 @@
   <div class="table-actions">
     <div class="button white" onclick="showUpdatePopup()">Update</div>
     <div class="button white" onclick="showDeletePopup()">Delete</div>
-    <div class="button cross" onclick="showAssignPopup()" style="width: 200px;">Assign to Supervisor</div>
   </div>
 
   <!-- Task Table -->
@@ -161,33 +160,6 @@
     <div class="d-flex justify-content-around">
       <button type="submit" class="btn btn-danger">Delete</button>
       <button type="button" class="btn btn-secondary" onclick="closeDeletePopup()">Cancel</button>
-    </div>
-  </form>
-</div>
-
-<!-- Assign Tasks to Supervisors Popup -->
-<div id="assign-popup" class="popup p-4" aria-labelledby="assign-popup-title" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
-  <h2 id="assign-popup-title" class="text-center mb-4">Assign Task to Supervisors</h2>
-
-  <form action="#" th:action="@{/task/assignTaskToSupervisor}" method="post">
-    <input type="hidden" name="taskId" id="popup-task-id3" /> <!-- Task ID now inside the form -->
-
-    <!-- Supervisor Section -->
-    <div class="mb-3">
-      <label for="supervisor-select" class="form-label">Select Supervisor:</label>
-      <select class="form-select" name="supervisorId" id="supervisor-select" required>
-        <option value="" disabled selected>Select a Supervisor</option>
-        <th:block th:each="employee : ${employees}">
-          <option th:value="${employee.id}" th:text="${employee.name}"></option>
-        </th:block>
-      </select>
-    </div>
-
-
-    <!-- Form Buttons -->
-    <div class="d-flex justify-content-between">
-      <button type="submit" class="btn btn-primary">Submit</button>
-      <button type="button" id="close-popup-btn" class="btn btn-secondary">Close</button>
     </div>
   </form>
 </div>
