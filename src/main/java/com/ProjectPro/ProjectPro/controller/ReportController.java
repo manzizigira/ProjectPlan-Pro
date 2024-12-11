@@ -83,7 +83,7 @@ public class ReportController {
     // HOD views Project Manager Reports
     @GetMapping("/hod-report")
     public String viewPendingProjectManagerReport(Model model){
-        List<Map<String,Object>> pendingReports = reportService.findPendingReportsByProjectManagers();
+        List<PendingManagerReportDTO> pendingReports = reportService.findPendingReportsByProjectManagers();
         List<Report> reports = reportService.findAll().stream()
                 .filter(report ->
                         (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
@@ -104,14 +104,12 @@ public class ReportController {
 
     // Project Manager views Supervisor Reports
     @GetMapping("/pm-report")
-    public String viewPendingSupervisorReport(Model model){
+    public String viewPendingSupervisorReport(Model model, HttpSession session){
+
+        Integer userId = (Integer) session.getAttribute("userId");
+
         List<PendingSupervisorReportDTO> pendingReports = reportService.findPendingReportsBySupervisors();
-        List<Report> reports = reportService.findAll().stream()
-                .filter(report ->
-                        (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
-                                (report.getActivity() != null && !"Completed".equals(report.getActivity().getStatus()))
-                )
-                .collect(Collectors.toList());
+        List<PendingManagerActivityReportDTO> reports = reportService.getActivityReportsByTheLoggedInProjectManager(userId);
         int pendingCount = reportService.countPendingReports();
         int gradedCount = reportService.countGradedReports();
         List<Integer> pendingReportIds = reportService.findPendingReportIds();
@@ -124,6 +122,7 @@ public class ReportController {
         model.addAttribute("gradedCount", gradedCount);
         model.addAttribute("pendingReportIds", pendingReportIds);
         model.addAttribute("pendingReports", pendingReports);
+        model.addAttribute("userId", userId);
         return "report/pmReport";
     }
 
@@ -207,14 +206,16 @@ public class ReportController {
             @RequestParam("reportFile") MultipartFile reportFile,
             @RequestParam("progressPercentage") Integer progressPercentage,
             @RequestParam("reportDescription") String reportDescription,
-            @RequestParam("userId") Integer userId) {
+            @RequestParam("userId") Integer userId,
+            @RequestParam("taskId") Integer taskId) {
 
         User user = usersService.findById(userId);
         Employee employee = employeeService.findByUser(user);
+        TaskManagement task = taskManagementService.findById(taskId);
 
 
         // Fetch the latest report for the task by this employee
-        Report latestReport = reportService.findLatestReportByEmployee(employee);
+        Report latestReport = reportService.findLatestReportByTaskAndEmployee(task,employee);
 
         if (latestReport != null) {
             // Validate the progress percentage
@@ -240,6 +241,7 @@ public class ReportController {
         Report report = new Report();
         report.setEmployee(employee);
         report.setReportFile(filePath);
+        report.setTaskManagement(task);
         report.setProgressPercentage(progressPercentage);
         report.setReportDescription(reportDescription);
         report.setSubmissionDate(new Date());
@@ -314,6 +316,9 @@ public class ReportController {
         reportDetailsDto.setReportFile(fileUrl);
         reportDetailsDto.setSubmissionDate(report.getSubmissionDate());
         reportDetailsDto.setProgressPercentage(report.getProgressPercentage());
+        reportDetailsDto.setProjectName(report.getActivity().getProject().getName());
+        reportDetailsDto.setActivityName(report.getActivity().getActivityName());
+        reportDetailsDto.setStatus(report.getActivity().getStatus());
 
 
         // Assuming you need nested objects:
@@ -350,8 +355,37 @@ public class ReportController {
             boolean isGraded = gradingService.gradeReport(reportId, employeeId, grade, comments, gradingDateParsed);
 
             if (isGraded) {
-                // Redirect to /reports-page if grading was successful
-                return new RedirectView("/reports-page");
+                // Redirect to /reports-page/sp-report if grading was successful
+                return new RedirectView("/reports-page/sp-report");
+            } else {
+                // Handle the failure case, you may choose to redirect to an error page or show an error message
+                return new RedirectView("/reports-page?error=true");
+            }
+        } catch (Exception e) {
+            // Log the exception and return a redirect to an error page
+            e.printStackTrace();
+            return new RedirectView("/reports-page?error=true");
+        }
+    }
+
+    @PostMapping("/grade-activity-report")
+    public RedirectView gradeActivityReport(
+            @RequestParam("reportId") int reportId,
+            @RequestParam("employeeId") int employeeId,
+            @RequestParam("grade") String grade,
+            @RequestParam("comments") String comments,
+            @RequestParam("gradingDate") String gradingDate) {
+
+        try {
+            // Parse gradingDate from String to Date
+            Date gradingDateParsed = java.sql.Date.valueOf(gradingDate);
+
+            // Call the service method to handle the grading logic
+            boolean isGraded = gradingService.gradeReport(reportId, employeeId, grade, comments, gradingDateParsed);
+
+            if (isGraded) {
+                // Redirect to /reports-page/sp-report if grading was successful
+                return new RedirectView("/reports-page/pm-report");
             } else {
                 // Handle the failure case, you may choose to redirect to an error page or show an error message
                 return new RedirectView("/reports-page?error=true");

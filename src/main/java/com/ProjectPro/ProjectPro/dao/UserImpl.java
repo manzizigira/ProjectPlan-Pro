@@ -101,7 +101,7 @@ public class UserImpl implements UsersService {
     public Activity getActivityForLoggedInUser(int userId) {
         User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Employee employee = employeeRepo.findByUser(user);
-        return activityRepo.findByEmployees(employee);
+        return activityRepo.findByEmployee(employee);
     }
 
     @Override

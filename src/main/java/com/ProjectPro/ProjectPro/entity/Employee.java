@@ -56,14 +56,8 @@ public class Employee {
     @JsonIgnore
     private List<TaskManagement> taskManagements;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(
-            name = "activity_employee", // Join table name
-            joinColumns = @JoinColumn(name = "employee_id"), // Column from Activity
-            inverseJoinColumns = @JoinColumn(name = "activity_id") // Column from Employee
-    )
-    @JsonIgnore
-    private Set<Activity> activities = new HashSet<>();
+    @OneToOne(mappedBy = "employee")
+    private Activity activity;
 
     @OneToMany(mappedBy = "taskLeader", fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JsonIgnore
@@ -77,7 +71,6 @@ public class Employee {
 
     public Employee() {
         reports = new ArrayList<>();
-        activities = new HashSet<>();
         taskManagements = new ArrayList<>();
     }
 
@@ -161,12 +154,12 @@ public class Employee {
         this.user = user;
     }
 
-    public Set<Activity> getActivities() {
-        return activities;
+    public Activity getActivities() {
+        return activity;
     }
 
-    public void setActivities(Set<Activity> activities) {
-        this.activities = activities;
+    public void setActivities(Activity activities) {
+        this.activity = activities;
     }
 
     public List<TaskManagement> getTaskManagement() {
@@ -207,12 +200,6 @@ public class Employee {
         }
         reports.add(report);
     }
-
-    public void addActivities(Activity activity) {
-        this.activities.add(activity);
-        activity.getEmployees().add(this);
-    }
-
 
     @Override
     public String toString() {

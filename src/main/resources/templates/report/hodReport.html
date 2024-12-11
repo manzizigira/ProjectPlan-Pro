@@ -43,9 +43,10 @@
   <a th:href="@{/employee/employeePage}">Employees</a>
   <a th:href="@{/directoratePage}">Directorate</a>
   <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
+  <a th:href="@{/reports-page}">Reports</a>
   <a th:href="@{/priority-levels}">Priority</a>
-  <a th:href="@{/task/taskPage}">Task</a>
-  <a th:href="@{/activity}">Activity</a>
+  <a th:href="@{/task/taskListPage}">Task</a>
+  <a th:href="@{/activity/listPage}">Activity</a>
   <a th:href="@{/history}">History</a>
   <a th:href="@{/messages/view}">Messages</a>
 
@@ -75,23 +76,23 @@
     <table class="table table-bordered table-striped">
       <thead class="table-dark">
       <tr>
-        <th>Report Title</th>
-        <th>Project</th>
+        <th>Report Description</th>
+        <th>Project Name</th>
         <th>Project Manager</th>
         <th>Submission Date</th>
         <th>Status</th>
+        <th>View Report</th>
       </tr>
       </thead>
       <tbody>
       <tr th:each="report : ${pendingReports}">
-        <td th:text="${report['reportDescription']}"></td>
-        <td th:text="${report['projectName']}"></td>
-        <td th:text="${report['projectManager']}"></td> <!-- The employee who submitted the report -->
-        <td th:text="${#dates.format(report['submissionDate'], 'yyyy-MM-dd')}"></td>
-        <td th:text="${report.['status']}"></td>
+        <td th:text="${report.reportDescription}"></td>
+        <td th:text="${report.projectName}"></td>
+        <td th:text="${report.projectManagerName}"></td> <!-- The employee who submitted the report -->
+        <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
+        <td th:text="${report.status}"></td>
         <td>
-          <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
-          <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>
+          <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.reportId} + ')'">View Report</button>
         </td>
       </tr>
       <tr th:if="${#lists.isEmpty(reports)}">
@@ -107,22 +108,58 @@
 
 <!-- Modals -->
 <!-- View Report Modal -->
-<div id="view-report-modal" class="popup" style="display: none;">
-  <div class="popup-content">
-    <span class="closebtn" onclick="hidePopup('view-report-modal')">&times;</span>
-    <h2>View Report</h2>
-    <div id="view-report-content">
-      Report Description:
-      <p id="report-description"></p>
-      Project name: <p id="project-name"></p>
-      Task name: <p id="task-name"></p>
-      Employee name: <p id="employee-name"></p>
-      Progress Percentage: <p id="progress-percentage"></p>
-      Submission Date: <p id="submission-date"></p>
-      Status: <p id="status"></p>
-      <a id="view-report-file" onclick="viewReport(${reportId})" class="btn btn-info" target="_blank" style="display: none;">View Report</a>
-      <a id="download-report-file" href="#" class="btn btn-success" download style="display: none;">Download Report</a>
-      <button type="button" onclick="hidePopup('view-report-modal')">Close</button>
+<div id="view-report-modal" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+  <h2>View Report</h2>
+  <div id="view-report-content">
+
+    <br>
+
+    <div class="mb-3" style="margin-left:15px">
+      <img th:src="@{/emojis/project.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+      <h6 style="display: inline;">Project:</h6>
+      <p id="project-name" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+      <img th:src="@{/emojis/clipboard.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+      <h6 style="display: inline;">Task Name:</h6>
+      <p id="task-name" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+      <img th:src="@{/emojis/man.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+      <h6 style="display: inline;">Employee name:</h6>
+      <p id="employee-name" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+      <img th:src="@{/emojis/progressive.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+      <h6 style="display: inline;">Progress Percentage:</h6>
+      <p id="progress-percentage" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+      <img th:src="@{/emojis/calendar.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+      <h6 style="display: inline;">Submission Date:</h6>
+      <p id="submission-date" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+      <img th:src="@{/emojis/play-button.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+      <h6 style="display: inline;">Status:</h6>
+      <p id="status" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+      <h6 style="display: inline;">Report Description:</h6>
+      <p id="report-description" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <br>
+
+    <div class="d-flex justify-content-between">
+      <button id="download-report-file" class="btn btn-success" style="display: none;" onclick="downloadReport()">Download Report</button>
+      <button type="button" class="btn btn-secondary" onclick="hidePopup('view-report-modal')">Close</button>
     </div>
   </div>
 </div>

@@ -52,7 +52,7 @@ public class HistoryController {
     }
 
     @GetMapping
-    public String getHistoryPage(Model model) {
+    public String getHodHistoryPage(Model model) {
         // Retrieve completed tasks and activities
         List<TaskManagement> completedTasks = taskService.findCompletedTasks();
         List<Activity> completedActivities = activityService.findCompletedActivities();
@@ -63,10 +63,55 @@ public class HistoryController {
         model.addAttribute("completedActivitiesCount", completedActivities.size());
 
         // Return the view name
-        return "history/historyPage"; // This refers to history.html
+        return "history/hodHistoryPage"; // This refers to history.html
     }
 
-    @GetMapping("/api/employees")
+    @GetMapping("/managerHistory")
+    public String getManagerHistoryPage(Model model) {
+        // Retrieve completed tasks and activities
+        List<TaskManagement> completedTasks = taskService.findCompletedTasks();
+        List<Activity> completedActivities = activityService.findCompletedActivities();
+
+        // Add completed tasks and activities to the model
+        model.addAttribute("completedTasks", completedTasks);
+        model.addAttribute("completedActivities", completedActivities);
+        model.addAttribute("completedActivitiesCount", completedActivities.size());
+
+        // Return the view name
+        return "history/managerHistoryPage"; // This refers to history.html
+    }
+
+    @GetMapping("/supervisorHistory")
+    public String getSupervisorHistoryPage(Model model) {
+        // Retrieve completed tasks and activities
+        List<TaskManagement> completedTasks = taskService.findCompletedTasks();
+        List<Activity> completedActivities = activityService.findCompletedActivities();
+
+        // Add completed tasks and activities to the model
+        model.addAttribute("completedTasks", completedTasks);
+        model.addAttribute("completedActivities", completedActivities);
+        model.addAttribute("completedActivitiesCount", completedActivities.size());
+
+        // Return the view name
+        return "history/supervisorHistoryPage"; // This refers to history.html
+    }
+
+    @GetMapping("/employeeHistory")
+    public String getEmployeeHistoryPage(Model model) {
+        // Retrieve completed tasks and activities
+        List<TaskManagement> completedTasks = taskService.findCompletedTasks();
+        List<Activity> completedActivities = activityService.findCompletedActivities();
+
+        // Add completed tasks and activities to the model
+        model.addAttribute("completedTasks", completedTasks);
+        model.addAttribute("completedActivities", completedActivities);
+        model.addAttribute("completedActivitiesCount", completedActivities.size());
+
+        // Return the view name
+        return "history/employeeHistoryPage"; // This refers to history.html
+    }
+
+    @GetMapping("/api/employee")
     public ResponseEntity<List<EmployeeDto>> getEmployees() {
         List<Employee> employees = employeeService.findAll();
         List<EmployeeDto> employeeDTOs = employees.stream()
@@ -200,7 +245,7 @@ public class HistoryController {
         htmlBuilder.append("<div class='content'>");
         htmlBuilder.append("<h2>Employee Report Summary</h2>");
         htmlBuilder.append("<p><strong>Name:</strong> ").append(employee.getName()).append("</p>");
-        htmlBuilder.append("<p><strong>Job Title:</strong> ").append(employee.getContractYears()).append("</p>");
+        htmlBuilder.append("<p><strong>Contract Years:</strong> ").append(employee.getContractYears()).append("</p>");
         htmlBuilder.append("<p><strong>Department:</strong> ").append(employee.getDepartment()).append("</p>");
 
         // Table for report data

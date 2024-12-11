@@ -152,6 +152,7 @@
     <a th:href="@{/reports-page/my-reports}">Reports</a>
     <a th:href="@{/reports-page/em-report}">Employee Reports</a>
     <a th:href="@{/messages/employeeMessage}">Messages</a>
+    <a th:href="@{/history/employeeHistory}">History</a>
     <a th:href="@{/grades(userId=${userId})}">Grades</a>
 
     <!-- Add a spacer div to push the logout button to the bottom -->
@@ -354,7 +355,7 @@
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Status</th>
-                            <th>View</th>
+                            <th>Report</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -414,26 +415,29 @@
 
 
 <!-- Activity Report Submission Popup -->
-<div id="report-submission-popup1" class="popup">
-    <div class="popup-content">
-        <form id="report-submission-form1" action="/submitActivityReport" method="post" enctype="multipart/form-data">
-            <input type="hidden" id="user-id1" name="userId" th:value="${userId}" />
-            <input type="hidden" id="activity-id" name="activityId" value="" />
+<div id="report-submission-popup1" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <form id="report-submission-form1" action="/submitActivityReport" method="post" enctype="multipart/form-data">
+        <input type="hidden" id="user-id1" name="userId" th:value="${userId}" />
+        <input type="hidden" id="activity-id" name="activityId" value="" />
+        <input type="hidden" id="submission-date1" name="submissionDate" value="">
 
-            <label for="report-file1">Attach File:</label>
-            <input type="file" id="report-file1" name="reportFile" required>
+        <label for="report-file1">Attach File:</label>
+        <input type="file" id="report-file1" name="reportFile" required>
 
-            <label for="progress-percentage1">Progress Percentage:</label>
-            <input type="number" id="progress-percentage1" name="progressPercentage" min="0" max="100" step="1" required>
+        <label for="progress-percentage1">Progress Percentage:</label>
+        <input type="number" id="progress-percentage1" name="progressPercentage" min="0" max="100" step="1" required>
 
-            <label for="report-description1">Description:</label>
-            <textarea id="report-description1" name="reportDescription" rows="4" required></textarea>
+        <label for="report-description1">Description:</label>
+        <textarea id="report-description1" name="reportDescription" rows="4" required></textarea>
 
-            <button type="button" onclick="submitReportForms(event)">Submit</button>
-            <button type="button" class="cancel-btn" onclick="closePopup('report-submission-popup1')">Cancel</button>
-        </form>
-    </div>
+        <br>
+        <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-primary" onclick="submitReportForms(event)">Submit</button>
+            <button type="button" class="btn btn-secondary" onclick="closePopup('report-submission-popup1')">Cancel</button>
+        </div>
+    </form>
 </div>
+
 
 
 <!-- Report Submission Popup -->
@@ -506,20 +510,39 @@
 </div>
 
 <!-- Activity Details Popup -->
-<div id="activity-details-popup" class="popup">
-    <div class="popup-content">
-        <button class="close-btn" onclick="closePopup('activity-details-popup')">&times;</button>
-        <h2>Activity Details</h2>
-        <p id="activity-directorate"></p>
-        <p id="activity-subobjective"></p>
-        <p id="activity-project"></p>
-        <p id="activity-name"></p>
-        <p id="activity-notes"></p>
-        <button type="button" onclick="closePopup('activity-details-popup')">Close</button>
-        <button onclick="startActivity(currentActivityId)">Start Activity</button>
-        <button onclick="showEscalatePopup()">Escalate Activity</button>
+<div id="activity-details-popup" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <h2>Activity Details</h2>
+
+    <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/director.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Department:</h6>
+        <p id="activity-directorate" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/project.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Project:</h6>
+        <p id="activity-project" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+        <img th:src="@{/emojis/clipboard.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+        <h6 style="display: inline;">Activity Name:</h6>
+        <p id="activity-name" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="mb-3" style="margin-left:15px">
+        <h6 style="display: inline;">Activity Description:</h6>
+        <p id="activity-notes" style="display: inline; margin-left: 5px;"></p>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <button onclick="startActivity(currentActivityId)" class="btn btn-success">Start Activity</button>
+        <button onclick="showEscalatePopup()" class="btn btn-primary">Escalate Activity</button>
+        <button type="button" onclick="closePopup('activity-details-popup')" class="btn btn-secondary">Close</button>
     </div>
 </div>
+
 
 <!--Div for Escalating a Task-->
 <div id="escalate-task-popup" class="popup" style="display: none;">
@@ -529,7 +552,7 @@
         <form id="escalate-task-form" onsubmit="escalateTask(event)">
             <select id="employee-select" name="employeeId" onchange="loadEmployeeData()">
                 <option value="">-- Select an Employee --</option>
-                <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+                <option th:each="employee : ${employee}" th:value="${employee.id}" th:text="${employee.name}"></option>
             </select>
             <button type="submit">Escalate Task</button>
         </form>
@@ -544,7 +567,7 @@
         <form id="escalate-activity-form" onsubmit="escalateActivity(event)">
             <select id="employee-selector" name="employeeId" onchange="loadEmployeesData()">
                 <option value="">-- Select an Employee --</option>
-                <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+                <option th:each="employee : ${employee}" th:value="${employee.id}" th:text="${employee.name}"></option>
             </select>
             <button type="submit">Escalate Activity</button>
         </form>
@@ -587,7 +610,7 @@
 
     async function fetchEmployeeData(employeeId) {
     try {
-        const response = await fetch(`/api/employees/${employeeId}`);  // Modify endpoint if necessary
+        const response = await fetch(`/api/employee/${employeeId}`);  // Modify endpoint if necessary
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -672,7 +695,6 @@ function displayEmployeeData(employeeData) {
                 document.getElementById('activity-name').textContent = data.activityName || 'N/A';
                 document.getElementById('activity-notes').textContent = data.activityNotes || 'N/A';
                 document.getElementById('activity-directorate').textContent = data.objectiveTitle || 'N/A';
-                document.getElementById('activity-subobjective').textContent = data.subObjectiveTitle || 'No Sub Objective';
                 document.getElementById('activity-project').textContent = data.projectName || 'N/A'; //
                 document.getElementById('activity-details-popup').style.display = 'block';
             })
@@ -845,16 +867,39 @@ function displayEmployeeData(employeeData) {
     }
 
 
-    function submitReportForms(event) {
+    async function submitReportForms(event) {
         event.preventDefault();
 
         const form = document.getElementById('report-submission-form1');
-        const submissionDateInput = document.getElementById('submission-date1');
+        const formData = new FormData(form);
 
+        const submissionDateInput = document.getElementById('submission-date1');
         const submissionDate = new Date().toISOString().split('T')[0];
         submissionDateInput.value = submissionDate;
 
-        form.submit();
+        try {
+            const response = await fetch('/submitActivityReport', {
+                method: 'POST',
+                body: formData
+            });
+
+            const message = await response.text();
+
+            if (response.ok) {
+                // Success - show success message or reload
+                alert(message); // You can customize this as needed
+                closePopup('report-submission-popup1');
+                location.reload(); // Optional, reload the page
+            } else {
+                // Error - show the error message in the form
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            alert('An unexpected error occurred. Please try again.');
+        }
     }
 
 async function fetchTasks() {

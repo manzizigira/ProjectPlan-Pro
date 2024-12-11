@@ -25,6 +25,7 @@ public class ReportDetailsDto {
 
     private int projectId;
     private String projectName;
+    private String activityName;
 
     public ReportDetailsDto() {
     }
@@ -147,5 +148,13 @@ public class ReportDetailsDto {
 
     public void setEmployeeDto(int employeeDto) {
         this.employeeDto = employeeDto;
+    }
+
+    public String getActivityName() {
+        return activityName;
+    }
+
+    public void setActivityName(String taskName) {
+        this.activityName = taskName;
     }
 }

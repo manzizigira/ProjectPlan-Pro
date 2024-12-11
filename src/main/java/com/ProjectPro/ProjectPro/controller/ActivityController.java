@@ -56,14 +56,6 @@ public class ActivityController {
         return "activity/activityList";
     }
 
-    @PostMapping("/assign-activity")
-    public String assignActivityToEmployee(@RequestParam("activityId") int activityId,
-                                           @RequestParam("employeeId") int employeeId) {
-        activityService.assignActivityToEmployee(activityId, employeeId);
-
-        return "redirect:/activity";
-    }
-
     @GetMapping("/get-activity/{id}")
     @ResponseBody
     public ResponseEntity<Activity> getActivityDetails(@PathVariable int id) {

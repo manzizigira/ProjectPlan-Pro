@@ -58,13 +58,8 @@ public class Activity {
     @JoinColumn(name = "task_id")
     private TaskManagement task;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(
-            name = "activity_employee", // Join table name
-            joinColumns = @JoinColumn(name = "activity_id"), // Column from Activity
-            inverseJoinColumns = @JoinColumn(name = "employee_id") // Column from Employee
-    )
-    private Set<Employee> employees = new HashSet<>();
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private Employee employee;
 
     @OneToMany(mappedBy = "activity", fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Report> reports;
@@ -78,7 +73,6 @@ public class Activity {
 
     public Activity() {
         reports = new ArrayList<>();
-        employees = new HashSet<>();
     }
 
     public Activity(String activityName, Date startDate, Date endDate, String notes, String status) {
@@ -153,12 +147,12 @@ public class Activity {
         this.task = task;
     }
 
-    public Set<Employee> getEmployees() {
-        return employees;
+    public Employee getEmployee() {
+        return employee;
     }
 
-    public void setEmployees(Set<Employee> employees) {
-        this.employees = employees;
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 
     public List<Report> getReports() {
@@ -217,15 +211,6 @@ public class Activity {
         this.messageModels = messageModels;
     }
 
-    public void add(Employee employee) {
-        if (employees == null) {
-            employees = new HashSet<>();
-        }
-        if (!employees.contains(employee)) { // Prevent circular addition
-            employees.add(employee);
-            employee.addActivities(this); // Avoid calling if already added
-        }
-    }
 
 
 

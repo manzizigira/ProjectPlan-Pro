@@ -93,10 +93,10 @@ public class EmployeePageController {
     }
 
     @PostMapping("/submitActivityReport")
-    public String submitActivityReport(
+    @ResponseBody
+    public ResponseEntity<?> submitActivityReport(
             @RequestParam("userId") Integer userId,
             @RequestParam("activityId") Integer activityId,
-            @RequestParam("submissionDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date submissionDate,
             @RequestParam("reportFile") MultipartFile reportFile,
             @RequestParam("progressPercentage") Integer progressPercentage,
             @RequestParam("reportDescription") String reportDescription,
@@ -106,6 +106,18 @@ public class EmployeePageController {
         Employee employee = employeeService.findByUser(user);
         Activity activity = activityService.findById(activityId);
 
+        // Fetch the latest report for the task by this employee
+        Report latestReport = reportService.findLatestReportByActivityAndEmployee(activity, employee);
+
+        if (latestReport != null) {
+            // Validate the progress percentage
+            if (progressPercentage < latestReport.getProgressPercentage()) {
+                return ResponseEntity.badRequest().body(
+                        "You cannot submit a progress percentage lower than your previous report ("
+                                + latestReport.getProgressPercentage() + "%).");
+            }
+        }
+
         String fileName = System.currentTimeMillis() + "_" + reportFile.getOriginalFilename();
         String filePath = "reports/" + fileName;
         File targetFile = new File("C:/Users/amine/Downloads/Jane/" + filePath);
@@ -114,8 +126,7 @@ public class EmployeePageController {
             reportFile.transferTo(targetFile);
         } catch (IOException e) {
             e.printStackTrace();
-            model.addAttribute("message", "File upload failed");
-            return "error-page";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed.");
         }
 
         Report report = new Report();
@@ -124,11 +135,11 @@ public class EmployeePageController {
         report.setReportFile(filePath);
         report.setProgressPercentage(progressPercentage);
         report.setReportDescription(reportDescription);
-        report.setSubmissionDate(submissionDate);
+        report.setSubmissionDate(new Date());
 
         reportService.save(report);
 
-        return "redirect:/employee-home";
+        return ResponseEntity.ok("Report submitted successfully.");
     }
 
     @GetMapping("/myTask/{theId}")

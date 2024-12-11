@@ -222,10 +222,15 @@
         <a th:href="@{/reports-page/my-reports}">Reports</a>
         <a th:href="@{/reports-page/em-report}">Employee Reports</a>
         <a th:href="@{/messages/employeeMessage}">Messages</a>
+        <a th:href="@{/history/employeeHistory}">History</a>
         <a th:href="@{/grades(userId=${userId})}">Grades</a>
 
+        <!-- Add a spacer div to push the logout button to the bottom -->
         <div class="spacer"></div>
+
+        <!-- Logout button -->
         <a class="logout-btn" th:href="@{/logout}">Logout</a>
+
     </div>
 
     <!-- Main Content Area (Message and Side Panel) -->

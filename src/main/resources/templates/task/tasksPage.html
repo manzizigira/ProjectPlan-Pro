@@ -44,7 +44,7 @@
   <a th:href="@{/reports-page/pm-report}">Reports</a>
   <a th:href="@{/task/taskPage}">Task</a>
   <a th:href="@{/activity}">Activity</a>
-  <a th:href="@{/history}">History</a>
+  <a th:href="@{/history/managerHistory}">History</a>
   <a th:href="@{/messages/projectMessage}">Messages</a>
 
   <div class="spacer"></div>
@@ -281,8 +281,8 @@ function showAssignPopup() {
     const newSelect = newEmployeeRow.querySelector('.employee-select');
     newSelect.selectedIndex = 0; // Reset to default option
 
-    // Append the new employeeRow to the employees container
-    document.getElementById('employees-container').appendChild(newEmployeeRow);
+    // Append the new employeeRow to the employee container
+    document.getElementById('employee-container').appendChild(newEmployeeRow);
 });
 
 

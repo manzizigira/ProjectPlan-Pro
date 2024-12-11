@@ -37,7 +37,7 @@
     <a th:href="@{/reports-page/pm-report}">Reports</a>
     <a th:href="@{/task/taskPage}">Task</a>
     <a th:href="@{/activity}">Activity</a>
-    <a th:href="@{/history}">History</a>
+    <a th:href="@{/history/managerHistory}">History</a>
     <a th:href="@{/messages/projectMessage}">Messages</a>
 
     <div class="spacer"></div>
@@ -198,7 +198,7 @@
             <label for="supervisor-select" class="form-label">Select Supervisor:</label>
             <select class="form-select" name="supervisorId" id="supervisor-select" required>
                 <option value="" disabled selected>Select a Supervisor</option>
-                <th:block th:each="employee : ${employees}">
+                <th:block th:each="employee : ${employee}">
                     <option th:value="${employee.id}" th:text="${employee.name}"></option>
                 </th:block>
             </select>
@@ -241,6 +241,13 @@
         <div class="mb-3">
             <label for="activity-notes" class="form-label">Notes:</label>
             <textarea id="activity-notes" name="notes" class="form-control" rows="4" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="employee-select">Select Employee:</label>
+            <select class="form-select" id="employee-select" name="employeeId">
+                <option th:each="employee : ${employs}" th:value="${employee.id}" th:text="${employee.name}"></option>
+            </select>
         </div>
 
         <!-- Submit Button -->

@@ -6,13 +6,17 @@ public class PendingSupervisorReportDTO {
 
     private Integer reportId;
     private String reportTitle;
+    private Integer taskId;
+    private String taskName;
     private String supervisorName;
     private Date submissionDate;
     private String status;
 
-    public PendingSupervisorReportDTO(Integer reportId, String reportTitle, String supervisorName, Date submissionDate, String status) {
+    public PendingSupervisorReportDTO(Integer reportId, String reportTitle, Integer taskId, String taskName, String supervisorName, Date submissionDate, String status) {
         this.reportId = reportId;
         this.reportTitle = reportTitle;
+        this.taskId = taskId;
+        this.taskName = taskName;
         this.supervisorName = supervisorName;
         this.submissionDate = submissionDate;
         this.status = status;
@@ -59,4 +63,19 @@ public class PendingSupervisorReportDTO {
         this.status = status;
     }
 
+    public Integer getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
 }

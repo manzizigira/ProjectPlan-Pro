@@ -1,5 +1,7 @@
 package com.ProjectPro.ProjectPro.repository;
 
+import com.ProjectPro.ProjectPro.Dto.PendingManagerActivityReportDTO;
+import com.ProjectPro.ProjectPro.Dto.PendingManagerReportDTO;
 import com.ProjectPro.ProjectPro.Dto.PendingReportDTO;
 import com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO;
 import com.ProjectPro.ProjectPro.entity.Activity;
@@ -45,7 +47,9 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
         SELECT new com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO(
             r.id,
             r.reportDescription,
-            e.name,
+            t.id,
+            t.name,
+            t.supervisor.name,
             r.submissionDate,
             CASE
                 when r.grading is NULL THEN 'Pending'
@@ -53,6 +57,7 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
             END
         )
         From Report r
+        JOIN r.taskManagement t
         JOIN r.employee e
         JOIN e.user u
         JOIN u.roles ur
@@ -64,8 +69,9 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
     SELECT new com.ProjectPro.ProjectPro.Dto.PendingReportDTO(
         r.id,
         r.reportDescription,
+        t.id,
         t.name,
-        t.supervisor.name,
+        t.taskLeader.name,
         r.submissionDate,
         CASE
             WHEN r.grading IS NULL THEN 'Pending'
@@ -106,23 +112,27 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
     List<Map<String,Object>> findPendingReportsByEmployees();
 
     @Query("""
-        SELECT r.id as reportId,
-            r.reportDescription as reportTitle,
-            t.project.name as projectName,
-            e.name as projectManager,
+        SELECT new com.ProjectPro.ProjectPro.Dto.PendingManagerReportDTO(
+            
+            r.id,
+            r.reportDescription,
+            t.project.name,
+            t.project.projectManager.name,
             r.submissionDate as submissionDate,
             CASE
                 when r.grading is NULL THEN 'Pending'
                 ELSE 'Reviewed'
             END AS status
+            
+        )
         From Report r
         JOIN r.taskManagement t
         JOIN r.employee e
         JOIN e.user u
         JOIN u.roles ur
-        WHERE ur.roleName = 'PROJECTMANAGER'        
+        WHERE ur.roleName = 'PROJECTMANAGER' AND e.department = 'Water'        
     """)
-    List<Map<String,Object>> findPendingReportsByProjectManagers();
+    List<PendingManagerReportDTO> findPendingReportsByProjectManagers();
 
     @Query(
             """
@@ -155,6 +165,34 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
 
     @Query("SELECT r FROM Report r WHERE r.taskManagement.supervisor.user.id = :userId")
     List<Report> findReportsByTaskLeaderUserId(@Param("userId") Integer userId);
+
+    @Query(
+    """
+        SELECT new com.ProjectPro.ProjectPro.Dto.PendingManagerActivityReportDTO(
+            
+            r.id,
+            r.reportDescription,
+            a.id,
+            a.activityName,
+            a.project.name,
+            a.employee.id,
+            a.employee.name,
+            r.submissionDate,
+            CASE
+                when r.grading is NULL THEN 'Pending'
+                ELSE 'Reviewed'
+            END AS status
+        
+        )
+        FROM Report r
+        JOIN r.activity a
+        JOIN a.project p
+        JOIN p.projectManager pm
+        JOIN pm.user u
+        WHERE u.id =:userId
+    """
+    )
+    List<PendingManagerActivityReportDTO> findActivityReportsByTheLoggedInProjectManager(@Param("userId") int userId);
 
 
 }

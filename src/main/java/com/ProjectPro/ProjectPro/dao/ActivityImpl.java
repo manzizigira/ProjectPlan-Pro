@@ -13,11 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ActivityImpl implements ActivityService {
@@ -71,24 +72,6 @@ public class ActivityImpl implements ActivityService {
         return activityRepo.findAll();
     }
 
-    @Override
-    public void assignActivityToEmployee(int activityId, int employeeId) {
-// Check if the employee is already assigned to this activity
-        boolean isAssigned = activityRepo.existsByActivityIdAndEmployeeId(activityId, employeeId);
-
-        if (!isAssigned) {
-            // Proceed with assigning the activity to the employee
-            Activity activity = this.findById(activityId);
-            Employee employee = employeeService.findById(employeeId);
-
-            activity.getEmployees().add(employee);
-            activityRepo.save(activity);
-        } else {
-            // Optionally handle the case when the activity is already assigned
-            System.out.println("This activity is already assigned to the employee.");
-        }
-    }
-
 
     @Override
     public Activity findByEmployee(Employee employee) {
@@ -97,19 +80,24 @@ public class ActivityImpl implements ActivityService {
 
     @Override
     public List<Activity> getSortedActivitiesForLoggedInUser(User user) {
-        // Retrieve employee based on user
+        // Retrieve the employee based on the user
         Employee employee = employeeService.findByUser(user);
+        if (employee == null) {
+            return Collections.emptyList(); // Return an empty list if no employee is found
+        }
 
-        // Fetch activities assigned to the employee
-        List<Activity> activities = activityRepo.findAll();
+        // Fetch the activity (assuming one-to-one relationship)
+        Activity activity = activityRepo.findByEmployee(employee);
+        if (activity == null) {
+            return Collections.emptyList(); // Return an empty list if no activity is found
+        }
 
-        // Filter activities by employee and sort by priority level
-        return activities.stream()
-                .filter(activity -> activity.getEmployees().contains(employee)) // Assuming one-to-many relationship
-                .sorted(Comparator.comparing(activity -> activity.getPriorityLevel().getPriorityValue()))
+        // Create a list with the single activity and sort
+        return Stream.of(activity)
+                .sorted(Comparator.comparing(a -> a.getPriorityLevel().getPriorityValue(), Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
-
     }
+
 
 
     @Override
@@ -127,23 +115,27 @@ public class ActivityImpl implements ActivityService {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // New employee not found
             }
 
-            // Find the current employees assigned to the activity
-            Set<Employee> currentEmployees = activity.getEmployees(); // Assuming this is a Set<Employee>
-
-            // If the new employee is already assigned, no action is needed
-            if (currentEmployees.contains(newEmployee)) {
-                return new ResponseEntity<>(activity, HttpStatus.OK);  // Return the existing activity
+            // Check if the new employee is already assigned to this activity
+            if (newEmployee.equals(activity.getEmployee())) {
+                return new ResponseEntity<>(activity, HttpStatus.OK);  // No changes needed
             }
 
-            // Now assign the new employee to the activity
-            activity.getEmployees().add(newEmployee); // Add the new employee to the activity's employee list
+            // Update the relationship
+            // Remove the activity from the current employee (if bidirectional)
+            Employee currentEmployee = activity.getEmployee();
+            if (currentEmployee != null) {
+                currentEmployee.setActivities(null);
+                employeeService.save(currentEmployee); // Update the current employee if necessary
+            }
 
-            // Add the activity to the new employee's list of activities (if bidirectional)
-            newEmployee.getActivities().add(activity);
-            // Optionally, save the new employee to update their activities (if necessary)
-            employeeService.save(newEmployee);
+            // Assign the new employee to the activity
+            activity.setEmployee(newEmployee);
 
-            // Save the updated activity with the new employee assigned
+            // Assign the activity to the new employee (if bidirectional)
+            newEmployee.setActivities(activity);
+            employeeService.save(newEmployee); // Update the new employee if necessary
+
+            // Save the updated activity
             Activity updatedActivity = activityRepo.save(activity);
 
             return new ResponseEntity<>(updatedActivity, HttpStatus.OK);  // Return the updated activity
@@ -155,6 +147,7 @@ public class ActivityImpl implements ActivityService {
     }
 
 
+
     @Override
     public List<Activity> findCompletedActivities() {
         return activityRepo.findByStatus("Completed");
@@ -162,7 +155,7 @@ public class ActivityImpl implements ActivityService {
 
     @Override
     public List<Activity> getActivitiesForEmployee(Employee employee) {
-        return activityRepo.findActivitiesByEmployees(employee);
+        return activityRepo.findActivitiesByEmployee(employee);
     }
 
     @Override

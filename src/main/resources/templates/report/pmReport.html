@@ -18,6 +18,13 @@
     border-radius: 8px; /* Optional: Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for depth */
 }
+.table img {
+    width: 24px; /* Adjust width as needed */
+    height: 24px; /* Adjust height to match width or as needed */
+    object-fit: contain; /* Ensure the image scales correctly */
+    cursor: pointer; /* Indicate that the image is clickable */
+    border: none; /* Remove any default border */
+}
 
 </style>
 <body>
@@ -44,7 +51,7 @@
     <a th:href="@{/reports-page/pm-report}">Reports</a>
     <a th:href="@{/task/taskPage}">Task</a>
     <a th:href="@{/activity}">Activity</a>
-    <a th:href="@{/history}">History</a>
+    <a th:href="@{/history/managerHistory}">History</a>
     <a th:href="@{/messages/projectMessage}">Messages</a>
 
     <div class="spacer"></div>
@@ -75,22 +82,63 @@
             <tr>
                 <th>Report Title</th>
                 <th>Supervisor</th>
+                <th>Task Name</th>
                 <th>Submission Date</th>
-<!--                <th>Action</th>-->
+                <th>Report</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="report : ${pendingReports}">
                 <td th:text="${report.reportTitle}"></td>
-                <td th:text="${report.supervisorName}"></td> <!-- The employee who submitted the report -->
+                <td th:text="${report.supervisorName}"></td>
+                <td th:text="${report.taskName}"></td>
                 <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
-<!--                <td>-->
-<!--                    <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>-->
-<!--                    <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.id} + ', ' + ${report.employee.id} + ')'">Grade Report</button>-->
-<!--                </td>-->
+                <td>
+                    <img src="/images/file.png" alt="Report Details" style="cursor: pointer;"
+                         th:onclick="'handleReportClick(' + ${report.taskId} + ')'" />
+                </td>
+                <td>
+                    <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.reportId} + ')'">View Report</button>
+<!--                    <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.reportId} + ', ' + ${report.employee.id} + ')'">Grade Report</button>-->
+                </td>
             </tr>
             <tr th:if="${#lists.isEmpty(reports)}">
                 <td colspan="7" style="text-align: center;">No task reports available.</td>
+            </tr>
+            </tbody>
+
+        </table>
+        <br>
+
+        <h2>Activity Report</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Report Title</th>
+                <th>Project</th>
+                <th>Activity Name</th>
+                <th>Employee Name</th>
+                <th>Submission Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="report : ${reports}">
+                <td th:text="${report.reportDescription}"></td>
+                <td th:text="${report.projectName ?: 'No Project'}"></td>
+                <td th:text="${report.activityName}"></td>
+                <td th:text="${report.employeeName}"></td> <!-- The employee who submitted the report -->
+                <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
+                <td th:text="${report.status ?: 'No Status Available'}"></td>
+                <td>
+                    <button class="btn btn-primary" th:onclick="'showActivityReportDetails(' + ${report.reportId} + ')'">View Report</button>
+                    <button class="btn btn-secondary" th:onclick="'openGradeReportModal(' + ${report.reportId} + ', ' + ${report.employeeId} + ')'">Grade Report</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(reports)}">
+                <td colspan="7" style="text-align: center;">No activity reports available.</td>
             </tr>
             </tbody>
 
@@ -102,22 +150,58 @@
 
 <!-- Modals -->
 <!-- View Report Modal -->
-<div id="view-report-modal" class="popup" style="display: none;">
-    <div class="popup-content">
-        <span class="closebtn" onclick="hidePopup('view-report-modal')">&times;</span>
-        <h2>View Report</h2>
-        <div id="view-report-content">
-            Report Description:
-            <p id="report-description"></p>
-            Project name: <p id="project-name"></p>
-            Task name: <p id="task-name"></p>
-            Employee name: <p id="employee-name"></p>
-            Progress Percentage: <p id="progress-percentage"></p>
-            Submission Date: <p id="submission-date"></p>
-            Status: <p id="status"></p>
-            <a id="view-report-file" onclick="viewReport(${reportId})" class="btn btn-info" target="_blank" style="display: none;">View Report</a>
-            <a id="download-report-file" href="#" class="btn btn-success" download style="display: none;">Download Report</a>
-            <button type="button" onclick="hidePopup('view-report-modal')">Close</button>
+<div id="view-report-modal" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <h2>View Report</h2>
+    <div id="view-report-content">
+
+        <br>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/project.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Project:</h6>
+            <p id="project-name" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/clipboard.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Task Name:</h6>
+            <p id="task-name" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/man.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Employee name:</h6>
+            <p id="employee-name" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/progressive.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Progress Percentage:</h6>
+            <p id="progress-percentage" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/calendar.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Submission Date:</h6>
+            <p id="submission-date" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/play-button.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Status:</h6>
+            <p id="status" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <h6 style="display: inline;">Report Description:</h6>
+            <p id="report-description" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <br>
+
+        <div class="d-flex justify-content-between">
+            <button id="download-report-file" class="btn btn-success" style="display: none;" onclick="downloadReport()">Download Report</button>
+            <button type="button" class="btn btn-secondary" onclick="hidePopup('view-report-modal')">Close</button>
         </div>
     </div>
 </div>
@@ -125,38 +209,184 @@
 
 
 <!-- Grade Report Modal -->
-<div id="grade-report-modal" class="popup">
-    <span class="closebtn" onclick="hidePopup('grade-report-modal')">&times;</span>
+<div id="grade-report-modal" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
     <h2>Grade Report</h2>
-    <form id="grade-form" action="/reports-page/grade-report" method="POST">
+    <form id="grade-form" action="/reports-page/grade-activity-report" method="POST">
         <input type="hidden" name="reportId" id="grade-report-id" />
         <input type="hidden" name="employeeId" id="grade-employee-id" />
+
         <div class="mb-3">
             <label for="grade-input" class="form-label">Grade</label>
             <input type="text" class="form-control" id="grade-input" name="grade" required />
         </div>
+
         <div class="mb-3">
             <label for="comments-input" class="form-label">Feedback</label>
             <textarea class="form-control" id="comments-input" name="comments" rows="3" required></textarea>
         </div>
+
         <input type="hidden" class="form-control" id="grading-date-input" name="gradingDate" />
 
-        <button type="button" class="btn btn-success" id="complete-report-btn" onclick="completeReport()">Complete Report</button>
-
-        <button type="submit" class="btn btn-primary">Save</button>
+        <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-success" id="complete-report-btn" onclick="completeReport()">Complete Report</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
     </form>
 </div>
 
+<div id="reports-submission-popup" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <form id="reports-submission-form" action="/reports-page/submitReports" method="post" enctype="multipart/form-data">
 
+        <input type="hidden" name="userId" th:value="${userId}">
+        <input type="hidden" name="reportId" id="report-id" />
+        <input type="hidden" name="taskId" id="task-id" />
+
+        <input type="hidden" id="submission-date" name="submissionDate" value="">
+
+        <label for="report-file">Attach File:</label>
+        <input type="file" id="report-file" name="reportFile" required>
+
+        <label for="progress-percentage">Progress Percentages:</label>
+        <input type="number" id="progress-percentage" name="progressPercentage" min="0" max="100" step="1" required>
+
+        <label for="report-description">Description:</label>
+        <textarea id="report-description" name="reportDescription" rows="4" required></textarea>
+
+        <br>
+
+        <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-primary" onclick="submitReportForm(event)">Submit</button>
+            <button type="button" class="btn btn-secondary" onclick="closePopup('reports-submission-popup')">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div id="view-report-modals" aria-labelledby="assign-popup-title" class="popup p-4" style="max-width: 600px; margin: auto; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+    <h2>View Report</h2>
+    <div id="view-report-contents">
+
+        <br>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/project.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Project:</h6>
+            <p id="projects-name" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/clipboard.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Activity Name:</h6>
+            <p id="activity-name" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/man.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Employee name:</h6>
+            <p id="employees-name" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/progressive.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Progress Percentage:</h6>
+            <p id="progress-percentages" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/calendar.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Submission Date:</h6>
+            <p id="submission-dates" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <img th:src="@{/emojis/play-button.png}" alt="Add Icon" style="width:30px;vertical-align:middle;">
+            <h6 style="display: inline;">Status:</h6>
+            <p id="statuses" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <div class="mb-3" style="margin-left:15px">
+            <h6 style="display: inline;">Report Description:</h6>
+            <p id="report-descriptions" style="display: inline; margin-left: 5px;"></p>
+        </div>
+
+        <br>
+
+        <div class="d-flex justify-content-between">
+            <button id="download-report-files" class="btn btn-success" style="display: none;" onclick="downloadReport()">Download Report</button>
+            <button type="button" class="btn btn-secondary" onclick="closePopup('view-report-modals')">Close</button>
+        </div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   let currentReportId = null;
   let currentActivityReportId = null;
+  let currentTaskId = null;
 
-     // Function to toggle sidebar visibility
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
+  function handleReportClick(taskId) {
+        storeReportId(taskId);
+        openReportSubmissionPopup(taskId);
+  }
+
+  function openReportSubmissionPopup(taskId) {
+        currentTaskId = taskId;
+        document.getElementById('reports-submission-popup').style.display = 'block';
+  }
+
+    function storeReportId(taskId) {
+        document.getElementById('task-id').value = taskId;
+    }
+
+    async function submitReportForm(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('reports-submission-form');
+        const formData = new FormData(form);
+
+        const submissionDateInput = document.getElementById('submission-date');
+        const submissionDate = new Date().toISOString().split('T')[0];
+        submissionDateInput.value = submissionDate;
+
+        try {
+            const response = await fetch('/reports-page/submitReports', {
+                method: 'POST',
+                body: formData
+            });
+
+            const message = await response.text();
+
+            if (response.ok) {
+                // Success - show success message or reload
+                alert(message); // You can customize this as needed
+                closePopup('reports-submission-popup');
+                location.reload(); // Optional, reload the page
+            } else {
+                // Error - show the error message in the form
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            alert('An unexpected error occurred. Please try again.');
+        }
+    }
+
+
+    function submitReportForms(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('reports-submission-form1');
+        const submissionDateInput = document.getElementById('submission-date1');
+
+        const submissionDate = new Date().toISOString().split('T')[0];
+        submissionDateInput.value = submissionDate;
+
+        form.submit();
+    }
+
+    function closePopup(popupId) {
+        document.getElementById(popupId).style.display = 'none';
     }
 
   function showReportDetails(reportId) {
@@ -246,50 +476,50 @@
           .then(data => {
               console.log('Parsed data:', data); // Log parsed data
 
-              let reportDescription = document.getElementById('report-description');
+              let reportDescription = document.getElementById('report-descriptions');
               if (reportDescription) {
                   console.log("Report description:", data.reportDescription);  // Log the specific property
                   reportDescription.textContent = data.reportDescription || 'N/A';
               }
 
               // Since this is for Activity reports, we get the project from the activity
-              let projectName = document.getElementById('project-name');
+              let projectName = document.getElementById('projects-name');
               if (projectName) {
-                  projectName.textContent = data.activity && data.activity.project && data.activity.project.name ? data.activity.project.name : 'N/A';
+                  projectName.textContent = data.projectName || 'N/A';
               }
 
               // For Activity reports, display the activity name instead of the task name
               let activityName = document.getElementById('activity-name');  // Updated from taskName to activityName
               if (activityName) {
-                  activityName.textContent = data.activity ? data.activity.activityName || 'N/A' : 'N/A';
+                  activityName.textContent = data.activityName || 'N/A';
               }
 
               // Employee name is linked directly to the employee for the activity
-              let employeeName = document.getElementById('employee-name');
+              let employeeName = document.getElementById('employees-name');
               if (employeeName) {
                   employeeName.textContent = data.employee ? data.employee.name || 'No Employee' : 'No Employee';
               }
 
-              let submissionDate = document.getElementById('submission-date');
+              let submissionDate = document.getElementById('submission-dates');
               if (submissionDate) {
                   submissionDate.textContent = data.submissionDate || 'N/A';
               }
 
               // Status is linked to the activity, not task management
-              let status = document.getElementById('status');
+              let status = document.getElementById('statuses');
               if (status) {
-                  status.textContent = data.activity ? data.activity.status || 'N/A' : 'N/A';
+                  status.textContent = data.status || 'N/A';
               }
 
               // Progress percentage, if applicable for activities
-              let progressPercentage = document.getElementById('progress-percentage');
+              let progressPercentage = document.getElementById('progress-percentages');
               if (progressPercentage) {
                   progressPercentage.textContent = data.progressPercentage || 'N/A';
               }
 
               // Handle file links
               let reportFileElement = document.getElementById('view-report-file');
-              let downloadFileElement = document.getElementById('download-report-file');
+              let downloadFileElement = document.getElementById('download-report-files');
 
               if (reportFileElement && data.reportFile) {
                   reportFileElement.href = data.reportFile;
@@ -302,7 +532,7 @@
               }
 
               // Show the popup
-              let viewReportModal = document.getElementById('view-report-modal');
+              let viewReportModal = document.getElementById('view-report-modals');
               if (viewReportModal) {
                   viewReportModal.style.display = 'block';
                 }

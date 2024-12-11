@@ -33,12 +33,13 @@
     </div>
     <br>
     <a th:href="@{/project/projectPage}">Projects</a>
+    <a th:href="@{/employee/employeePage}">Employees</a>
     <a th:href="@{/directoratePage}">Directorate</a>
     <a th:href="@{/implementingAgencyPage}">Implementing Agency</a>
     <a th:href="@{/reports-page}">Reports</a>
     <a th:href="@{/priority-levels}">Priority</a>
-    <a th:href="@{/task/taskPage}">Task</a>
-    <a th:href="@{/activity}">Activity</a>
+    <a th:href="@{/task/taskListPage}">Task</a>
+    <a th:href="@{/activity/listPage}">Activity</a>
     <a th:href="@{/history}">History</a>
     <a th:href="@{/messages/view}">Messages</a>
 
@@ -57,7 +58,7 @@
         <label for="employee-select" style="display: inline-block; margin-right: 10px;">Select Employee</label>
         <select class="form-select" id="employee-select" onchange="loadEmployeeData()" style="width: 900px; display: inline-block;">
             <option value="">-- Select an Employee --</option>
-            <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+            <option th:each="employee : ${employee}" th:value="${employee.id}" th:text="${employee.name}"></option>
         </select>
     </div>
 
@@ -79,7 +80,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="employee : ${employees}">
+        <tr th:each="employee : ${employee}">
             <td th:text="${employee.name}"></td>
             <td th:text="${employee.contractYears}"></td>
             <td th:text="${employee.department}"></td>

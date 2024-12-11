@@ -55,8 +55,12 @@ public class ProjectController {
         String department = employeeService.findDepartmentByUserId(userId);
         List<Employee> supervisorList = employeeService.findSupervisorsByDepartment(department);
 
+        String departments = employeeService.findDepartmentByUserId(userId);
+        List<Employee> employeeList = employeeService.findEmployeesByDepartment(departments);
+
         model.addAttribute("projects", projectList);
         model.addAttribute("employees", supervisorList);
+        model.addAttribute("employs", employeeList);
 
         return "project/projectPage";
     }
@@ -178,12 +182,14 @@ public class ProjectController {
                                   HttpSession session){
 
         Project project1 = projectService.findById(project);
+        Employee employees = employeeService.findById(employeeId);
 
         Activity activity = new Activity();
         activity.setActivityName(name);
         activity.setNotes(notes);
         activity.setStatus("New");
         activity.setProject(project1);
+        activity.setEmployee(employees);
 
         activityService.save(activity);
 

@@ -63,7 +63,6 @@
   <div class="table-actions">
     <div class="button white" onclick="showUpdatePopup()">Update</div>
     <div class="button white" onclick="showDeletePopup()">Delete</div>
-    <div class="button cross" onclick="showAssignPopup()" style="width: 200px;">Assign to Employee</div>
   </div>
 
   <!-- Activity Table -->
@@ -126,7 +125,7 @@
     <br>
     <label for="employee-select">Select Employee:</label>
     <select class="form-select" id="employee-select" name="employeeId">
-      <option th:each="employee : ${employees}" th:value="${employee.id}" th:text="${employee.name}"></option>
+      <option th:each="employee : ${employee}" th:value="${employee.id}" th:text="${employee.name}"></option>
     </select>
     <br>
     <div class="d-flex justify-content-between">

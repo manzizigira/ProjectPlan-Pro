@@ -9,15 +9,15 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ActivityRepo extends JpaRepository<Activity, Integer> {
-    Activity findByEmployees(Employee employee);
+    Activity findByEmployee(Employee employee);
     List<Activity> findByStatus(String status);
 
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
-            "FROM Activity a JOIN a.employees e " +
+            "FROM Activity a JOIN a.employee e " +
             "WHERE a.id = :activityId AND e.id = :employeeId")
     boolean existsByActivityIdAndEmployeeId(@Param("activityId") int activityId, @Param("employeeId") int employeeId);
 
-    List<Activity> findActivitiesByEmployees(Employee employee);
+    List<Activity> findActivitiesByEmployee(Employee employee);
 
     @Query(
             """

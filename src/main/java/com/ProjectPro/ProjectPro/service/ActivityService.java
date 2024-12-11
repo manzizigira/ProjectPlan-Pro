@@ -22,7 +22,6 @@ public interface ActivityService {
 
     List<Activity> findAll();
 
-    void assignActivityToEmployee(int activityId, int employeeId);
 
     Activity findByEmployee(Employee employee);
 

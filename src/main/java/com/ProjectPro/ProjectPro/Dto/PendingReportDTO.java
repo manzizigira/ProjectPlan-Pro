@@ -11,15 +11,17 @@ public class PendingReportDTO {
 
     private Integer reportId;
     private String reportTitle;
+    private Integer taskId;
     private String taskName;
     private String taskLeader;
     private Date submissionDate;
     private String status;
     private Integer employee;
 
-    public PendingReportDTO(Integer reportId, String reportTitle, String taskName, String taskLeader, Date submissionDate, String status, Integer employee) {
+    public PendingReportDTO(Integer reportId, String reportTitle, Integer taskId, String taskName, String taskLeader, Date submissionDate, String status, Integer employee) {
         this.reportId = reportId;
         this.reportTitle = reportTitle;
+        this.taskId = taskId;
         this.taskName = taskName;
         this.taskLeader = taskLeader;
         this.submissionDate = submissionDate;
@@ -81,5 +83,13 @@ public class PendingReportDTO {
 
     public void setEmployee(Integer employee) {
         this.employee = employee;
+    }
+
+    public Integer getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
     }
 }
