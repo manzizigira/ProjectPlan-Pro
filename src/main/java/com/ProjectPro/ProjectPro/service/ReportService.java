@@ -1,9 +1,6 @@
 package com.ProjectPro.ProjectPro.service;
 
-import com.ProjectPro.ProjectPro.Dto.PendingManagerActivityReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingManagerReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO;
+import com.ProjectPro.ProjectPro.Dto.*;
 import com.ProjectPro.ProjectPro.entity.Activity;
 import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
@@ -39,7 +36,7 @@ public interface ReportService {
 
     List<PendingSupervisorReportDTO> findPendingReportsBySupervisors();
 
-    List<Report> findReportsByEmployeesForTaskLeader(@Param("taskLeaderId") int taskLeaderId);
+    List<PendingTaskLeaderReport> findReportsByEmployeesForTaskLeader(@Param("taskLeaderId") int taskLeaderId);
 
     Report findLatestReportByTaskAndEmployee(TaskManagement task, Employee employee);
     Report findLatestReportByActivityAndEmployee(Activity activity, Employee employee);
@@ -47,6 +44,11 @@ public interface ReportService {
 
     List<Report> findReportsByTaskLeaderUserId(@Param("userId") Integer userId);
     List<PendingManagerActivityReportDTO> getActivityReportsByTheLoggedInProjectManager(int userId);
+
+    int getTotalReportsByHod(int hodId);
+    int getInProgressReportsByHod(int hodId);
+    int getCompletedReportsByHod(int hodId);
+    List<Object[]> getMonthlyReportStats(int hodId);
 
 
 

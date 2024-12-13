@@ -668,7 +668,7 @@ function displayEmployeeData(employeeData) {
             })
             .then(data => {
                 console.log('Parsed task details:', data);
-                document.getElementById('task-leader').textContent = data.supervisorName || 'N/A';
+                document.getElementById('task-leader').textContent = data.taskLeader || 'N/A';
                 document.getElementById('task-name').textContent = data.taskName || 'N/A';
                 document.getElementById('activity-description').textContent = data.activityName || 'N/A';
                 document.getElementById('task-directorate').textContent = data.objectiveTitle || 'N/A';

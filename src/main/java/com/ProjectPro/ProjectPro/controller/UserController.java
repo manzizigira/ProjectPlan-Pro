@@ -147,6 +147,7 @@ public class UserController {
         model.addAttribute("projects", projectService.findAll());
         return checkUserRole(session, "HOD", "hod/hodPage");
     }
+
     @GetMapping("/project-manager-home")
     public String viewProjectManagerPage(HttpSession session, Model model) {
         Integer userId = (Integer) session.getAttribute("userId");

@@ -64,6 +64,10 @@ public class EmployeePageController {
                 return ResponseEntity.badRequest().body(
                         "You cannot submit a progress percentage lower than your previous report ("
                                 + latestReport.getProgressPercentage() + "%).");
+            } else if (progressPercentage > 100) {
+                return ResponseEntity.badRequest().body(
+                        "You cannot submit a progress percentage Higher than a 100 ("
+                                + latestReport.getProgressPercentage() + "%).");
             }
         }
 
@@ -185,7 +189,8 @@ public class EmployeePageController {
         TaskDetailsDto taskDetails = new TaskDetailsDto();
         taskDetails.setTaskId(task.getId());
         taskDetails.setTaskName(task.getName());
-        taskDetails.setActivityName(task.getActivities().getActivityName());
+        taskDetails.setActivityName(task.getActivities().getNotes());
+
         taskDetails.setTaskLeader(task.getTaskLeader().getName());
 
         if (task.getProject() != null) {

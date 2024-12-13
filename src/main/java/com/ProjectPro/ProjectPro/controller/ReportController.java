@@ -149,7 +149,7 @@ public class ReportController {
     public String viewPendingEmployeeReport(Model model, HttpSession session){
 
         Integer userId = (Integer) session.getAttribute("userId");
-        List<Map<String,Object>> pendingReports = reportService.findPendingReportsByEmployees();
+        List<PendingTaskLeaderReport> pendingReports = reportService.findReportsByEmployeesForTaskLeader(userId);
         List<Report> reports = reportService.findReportsByTaskLeaderUserId(userId).stream()
                 .filter(report ->
                         (report.getTaskManagement() != null && !"Completed".equals(report.getTaskManagement().getStatus())) ||
@@ -164,8 +164,21 @@ public class ReportController {
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("gradedCount", gradedCount);
         model.addAttribute("pendingReportIds", pendingReportIds);
-        model.addAttribute("pendingReports", reports);
+        model.addAttribute("pendingReports", pendingReports);
         return "report/taskLeaderReport";
+    }
+
+    @GetMapping("/report-dashboard")
+    public String viewReportDashboard(HttpSession session, Model model) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        User user = usersService.findById(userId);
+
+        // Ensure user ID is still set in the session
+        session.setAttribute("userId", userId);
+
+        model.addAttribute("users", usersService.findAll());
+
+        return "report/dashboardReport";
     }
 
     @GetMapping("/download-report")
@@ -473,6 +486,42 @@ public class ReportController {
         model.addAttribute("userId", userId);
         return "report/my-report"; // Return the Thymeleaf template for employee-exclusive reports
     }
+
+    @GetMapping("/reports-dashboard-stats")
+    public ResponseEntity<Map<String, Integer>> getReportsDashboardStats(HttpSession session) {
+        // Retrieve logged-in user's ID from session
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Fetch stats using the user's ID
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("totalReports", reportService.getTotalReportsByHod(userId));
+        stats.put("inProgressReports", reportService.getInProgressReportsByHod(userId));
+        stats.put("completedReports", reportService.getCompletedReportsByHod(userId));
+
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/reports-chart")
+    public ResponseEntity<Map<String, Object>> getReportsChart(HttpSession session) {
+        // Retrieve logged-in user's ID from session
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<Object[]> monthlyStats = reportService.getMonthlyReportStats(userId);
+
+        Map<String, Object> chartData = new HashMap<>();
+
+        chartData.put("labels", monthlyStats.stream().map(stat -> "Month " + stat[0]).toList());
+        chartData.put("values", monthlyStats.stream().map(stat -> (Long) stat[1]).toList());
+
+        return ResponseEntity.ok(chartData);
+    }
+
 
 
 

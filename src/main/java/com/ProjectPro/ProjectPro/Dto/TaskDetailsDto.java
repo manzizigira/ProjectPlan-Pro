@@ -22,6 +22,7 @@ public class TaskDetailsDto {
     private String status;
 
     private String activityName;
+    private String activityNotes;
 
     // Project details
     private int projectId;
@@ -221,5 +222,13 @@ public class TaskDetailsDto {
 
     public void setTaskLeader(String taskLeader) {
         this.taskLeader = taskLeader;
+    }
+
+    public String getActivityNotes() {
+        return activityNotes;
+    }
+
+    public void setActivityNotes(String activityNotes) {
+        this.activityNotes = activityNotes;
     }
 }

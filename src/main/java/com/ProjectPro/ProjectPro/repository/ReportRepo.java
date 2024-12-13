@@ -1,9 +1,6 @@
 package com.ProjectPro.ProjectPro.repository;
 
-import com.ProjectPro.ProjectPro.Dto.PendingManagerActivityReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingManagerReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO;
+import com.ProjectPro.ProjectPro.Dto.*;
 import com.ProjectPro.ProjectPro.entity.Activity;
 import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
@@ -136,18 +133,22 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
 
     @Query(
             """
-                SELECT r
+                SELECT new com.ProjectPro.ProjectPro.Dto.PendingTaskLeaderReport(
+                    r.id,
+                    r.reportDescription,
+                    t.name,
+                    e.name,
+                    r.submissionDate
+                )
                 FROM Report r
                 JOIN r.taskManagement t
-                JOIN t.employees e
+                JOIN t.taskLeader e
                 JOIN e.user u
-                WHERE t.supervisor.id = e.id
-                  AND t.supervisor.id = :taskLeaderId
-                  AND r.employee.id != t.supervisor.id
+                WHERE u.id =:userId
 
             """
     )
-    List<Report> findReportsByEmployeesForTaskLeader(@Param("taskLeaderId") int taskLeaderId);
+    List<PendingTaskLeaderReport> findReportsByEmployeesForTaskLeader(@Param("userId") int taskLeaderId);
 
     @Query("SELECT r FROM Report r WHERE r.taskManagement = :task AND r.employee = :employee ORDER BY r.submissionDate DESC")
     Report findTopByTaskManagementAndEmployeeOrderBySubmissionDateDesc(
@@ -193,6 +194,39 @@ public interface ReportRepo extends JpaRepository<Report, Integer> {
     """
     )
     List<PendingManagerActivityReportDTO> findActivityReportsByTheLoggedInProjectManager(@Param("userId") int userId);
+
+
+    @Query("""
+           SELECT COUNT(r)
+           FROM Report r
+           WHERE r.taskManagement.project.directorate.headOfDirectorate.user.id = :hodId
+           """)
+    int countTotalReportsByHodId(int hodId);
+
+    @Query("""
+           SELECT COUNT(r)
+           FROM Report r
+           WHERE r.taskManagement.project.directorate.headOfDirectorate.user.id = :hodId
+           AND r.taskManagement.status = 'In Progress'
+           """)
+    int countInProgressReportsByHodId(int hodId);
+
+    @Query("""
+           SELECT COUNT(r)
+           FROM Report r
+           WHERE r.taskManagement.project.directorate.headOfDirectorate.user.id = :hodId
+           AND r.taskManagement.status = 'Completed'
+           """)
+    int countCompletedReportsByHodId(int hodId);
+
+    @Query("""
+               SELECT MONTH(r.submissionDate), COUNT(r)
+               FROM Report r
+               WHERE r.taskManagement.project.directorate.headOfDirectorate.user.id = :hodId
+               GROUP BY MONTH(r.submissionDate)
+               ORDER BY MONTH(r.submissionDate)
+           """)
+    List<Object[]> findMonthlyReportStatsByHodId(int hodId);
 
 
 }

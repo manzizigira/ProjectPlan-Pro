@@ -1,10 +1,7 @@
 package com.ProjectPro.ProjectPro.dao;
 
 
-import com.ProjectPro.ProjectPro.Dto.PendingManagerActivityReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingManagerReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingReportDTO;
-import com.ProjectPro.ProjectPro.Dto.PendingSupervisorReportDTO;
+import com.ProjectPro.ProjectPro.Dto.*;
 import com.ProjectPro.ProjectPro.entity.Activity;
 import com.ProjectPro.ProjectPro.entity.Employee;
 import com.ProjectPro.ProjectPro.entity.Report;
@@ -102,7 +99,7 @@ public class ReportImpl implements ReportService {
     }
 
     @Override
-    public List<Report> findReportsByEmployeesForTaskLeader(int taskLeaderId) {
+    public List<PendingTaskLeaderReport> findReportsByEmployeesForTaskLeader(int taskLeaderId) {
         return reportRepo.findReportsByEmployeesForTaskLeader(taskLeaderId);
     }
 
@@ -129,6 +126,26 @@ public class ReportImpl implements ReportService {
     @Override
     public List<PendingManagerActivityReportDTO> getActivityReportsByTheLoggedInProjectManager(int userId) {
         return reportRepo.findActivityReportsByTheLoggedInProjectManager(userId);
+    }
+
+    @Override
+    public int getTotalReportsByHod(int hodId) {
+        return reportRepo.countTotalReportsByHodId(hodId);
+    }
+
+    @Override
+    public int getInProgressReportsByHod(int hodId) {
+        return reportRepo.countInProgressReportsByHodId(hodId);
+    }
+
+    @Override
+    public int getCompletedReportsByHod(int hodId) {
+        return reportRepo.countCompletedReportsByHodId(hodId);
+    }
+
+    @Override
+    public List<Object[]> getMonthlyReportStats(int hodId) {
+        return reportRepo.findMonthlyReportStatsByHodId(hodId);
     }
 
 

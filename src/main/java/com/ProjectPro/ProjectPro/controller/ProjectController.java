@@ -6,6 +6,7 @@ import com.ProjectPro.ProjectPro.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -213,5 +214,42 @@ public class ProjectController {
         }
 
         return "redirect:/project/projectPage";
+    }
+
+    @GetMapping("/api/hod/dashboard-stats")
+    public ResponseEntity<Map<String, Integer>> getDashboardStats(HttpSession session) {
+        // Retrieve logged-in user's ID from session
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Handle unauthenticated case
+        }
+
+        // Fetch stats using the user's ID
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("projectsCreated", projectService.getProjectsCreatedByHod(userId));
+        stats.put("projectsAssigned", projectService.getAssignedProjectsByHod(userId));
+        stats.put("projectsToEmployees", projectService.countProjectsAssignedByHodWithSupervisors(userId));
+        stats.put("projectsCompleted", projectService.getCompletedProjectsByHod(userId).size());
+
+        return ResponseEntity.ok(stats);
+    }
+
+
+    @GetMapping("/api/hod/projects-chart")
+    public ResponseEntity<Map<String, Object>> getProjectsChartData(HttpSession session) {
+
+        // Retrieve logged-in user's ID from session
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Handle unauthenticated case
+        }
+
+        List<Object[]> monthlyStats = projectService.getMonthlyProjectStats(userId);
+        Map<String, Object> chartData = new HashMap<>();
+
+        chartData.put("labels", monthlyStats.stream().map(stat -> "Month " + stat[0]).toList());
+        chartData.put("values", monthlyStats.stream().map(stat -> (Long) stat[1]).toList());
+
+        return ResponseEntity.ok(chartData);
     }
 }

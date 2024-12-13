@@ -121,7 +121,7 @@
       <div class="employee-row mb-2">
         <select name="employeeIds[]" class="employee-select form-select" required> <!-- Correct naming for arrays -->
           <option value="" disabled selected>Select an employee</option>
-          <th:block th:each="employee : ${employee}">
+          <th:block th:each="employee : ${employees}">
             <option th:value="${employee.id}" th:text="${employee.name}"></option>
           </th:block>
         </select>
@@ -136,7 +136,7 @@
       <label for="task-leader-select" class="form-label">Select Task Leader:</label>
       <select class="form-select" name="taskLeaderId" id="task-leader-select" required>
         <option value="" disabled selected>Select a Task Leader</option>
-        <th:block th:each="employee : ${employee}">
+        <th:block th:each="employee : ${employees}">
           <option th:value="${employee.id}" th:text="${employee.name}"></option>
         </th:block>
       </select>

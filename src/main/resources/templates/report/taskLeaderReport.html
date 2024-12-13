@@ -81,11 +81,11 @@
       <tbody>
       <tr th:each="report : ${pendingReports}">
         <td th:text="${report.reportDescription}"></td>
-        <td th:text="${report.taskManagement.name}"></td>
-        <td th:text="${report.employee.name}"></td> <!-- The employee who submitted the report -->
+        <td th:text="${report.taskName}"></td>
+        <td th:text="${report.employeeName}"></td> <!-- The employee who submitted the report -->
         <td th:text="${#dates.format(report.submissionDate, 'yyyy-MM-dd')}"></td>
         <td>
-          <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.id} + ')'">View Report</button>
+          <button class="btn btn-primary" th:onclick="'showReportDetails(' + ${report.reportId} + ')'">View Report</button>
         </td>
       </tr>
       <tr th:if="${#lists.isEmpty(reports)}">

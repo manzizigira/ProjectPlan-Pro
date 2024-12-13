@@ -56,5 +56,30 @@ public class ProjectImpl implements ProjectService {
         return projectRepo.findProjectsByDirectorateUserId(userId);
     }
 
+    @Override
+    public int getProjectsCreatedByHod(int hodId) {
+        return projectRepo.countProjectsByHodId(hodId);
+    }
+
+    @Override
+    public int getAssignedProjectsByHod(int hodId) {
+        return projectRepo.findAssignedProjectsByHodId(hodId);
+    }
+
+    @Override
+    public int countProjectsAssignedByHodWithSupervisors(int hodId) {
+        return projectRepo.countProjectsAssignedByHodWithSupervisors(hodId);
+    }
+
+    @Override
+    public List<Project> getCompletedProjectsByHod(int hodId) {
+        return projectRepo.findCompletedProjectsByHodId(hodId);
+    }
+
+    @Override
+    public List<Object[]> getMonthlyProjectStats(int hodId) {
+        return projectRepo.findMonthlyProjectCreationStatsByHodId(hodId);
+    }
+
 
 }
